@@ -18,7 +18,7 @@ app.get('/', function (req, res) {
     res.json({"key": "value"});
 });
 
-app.post('/file', function (req, res) {
+app.post('/file', async function (req, res) {
     const fileContents = base64js.fromByteArray(req.body.fileContents);
     await Office.Excel.createWorkbook(fileContents).catch(function (error) {
         console.error(error);
