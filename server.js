@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const base64js = require('base64-js');
 const fs = require('fs').promises;
-const Office = require('office-js');
+const Office = require('@microsoft/office-js');
 
 // Add headers to make excel happy
 app.use(function(req, res, next) {
