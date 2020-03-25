@@ -1,6 +1,6 @@
+import base64js from 'base64-js';
 
 /* global Office */
-
 
 export async function getFileContent() {
     return await getCompressedDocument();
@@ -29,19 +29,17 @@ function getCompressedDocument() {
         );
     });
 }
+  
 
 async function getSlicesAsync(file, sliceCount) {
 
-    var fileContent = new String();
+    var byteArray = [];
     for (var i = 0; i < sliceCount; i++) {
         const sliceData = await getSliceAsync(file, i);
-
-        for (var j = 0; j < sliceData.length; j++) {
-            fileContent += String.fromCharCode(sliceData[j]);
-        }
+        byteArray = byteArray.concat(sliceData);
     }
-
-    return fileContent;
+    
+    return base64js.fromByteArray(byteArray);
 }
 
 function getSliceAsync(file, sliceIndex) {

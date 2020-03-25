@@ -20,20 +20,17 @@ async function getFormulas(context, sheetName) {
   return usedRange.formulas;
 }
 
-async function postData(url = '', data = {}) {
+async function postData(url, data) {
   // Default options are marked with *
+  console.log("POSTING DATA:", data);
+
   const response = await $.ajax({
     type: "POST",
     url: url,
-    data: data
+    contentType: "application/json",
+    data: JSON.stringify(data)
   }).promise();
-  if (response.status === '200') {
-    console.log("Good response");
-    return await response.json();
-  } else {
-    console.log("Bad response");
-    return null;
-  }
+  return response;
 }
 
 export default class App extends React.Component {
@@ -146,7 +143,7 @@ export default class App extends React.Component {
   sendFile = async () => {
     try {
       const fileContent = await getFileContent();
-      console.log("Got file. Sending data");
+      console.log("Got file, ", fileContent);
       const response = await postData(
         "https://excel.sagalab.org/file", 
         {
