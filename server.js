@@ -7,4 +7,8 @@ app.get('/', function (req, res) {
     res.json({"key": "value"});
 });
 
+app.post('/file', function (req, res) {
+    res.json({"key": "value"});
+});
+
 app.listen(3000);

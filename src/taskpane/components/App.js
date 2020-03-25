@@ -5,6 +5,8 @@ import HeroList, { HeroListItem } from "./HeroList";
 import Progress from "./Progress";
 import {diff3Merge, diff3Merge2d} from "../../merge";
 import {longestCommonSubsequence2d} from "../../lcs";
+import {getFileContent} from "../../fileUtils";
+import $ from "jquery";
 
 /* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
 
@@ -16,6 +18,22 @@ async function getFormulas(context, sheetName) {
   usedRange.load("formulas")
   await context.sync();
   return usedRange.formulas;
+}
+
+async function postData(url = '', data = {}) {
+  // Default options are marked with *
+  const response = await $.ajax({
+    type: "POST",
+    url: url,
+    data: data
+  }).promise();
+  if (response.status === '200') {
+    console.log("Good response");
+    return await response.json();
+  } else {
+    console.log("Bad response");
+    return null;
+  }
 }
 
 export default class App extends React.Component {
@@ -117,9 +135,25 @@ export default class App extends React.Component {
 
   testSandbox = async () => {
     try {
-      fetch('https://jsonplaceholder.typicode.com/todos/1')
+      fetch('https://excel.sagalab.org')
         .then(response => response.json())
         .then(json => console.log(json))
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  sendFile = async () => {
+    try {
+      const fileContent = await getFileContent();
+      console.log("Got file. Sending data");
+      const response = await postData(
+        "https://excel.sagalab.org/file", 
+        {
+          "fileContent": fileContent
+        }
+      )
+      console.log(response);
     } catch (error) {
       console.error(error);
     }
@@ -148,7 +182,7 @@ export default class App extends React.Component {
             onClick={this.createData}
           >
             Create Data
-          </Button>
+          </Button>{' '}
           <Button
             className="ms-welcome_Action"
             buttonType={ButtonType.hero}
@@ -156,7 +190,7 @@ export default class App extends React.Component {
             onClick={this.merge}
           >
             Merge
-          </Button>
+          </Button>{' '}
           <Button
             className="ms-welcome_Action"
             buttonType={ButtonType.hero}
@@ -164,7 +198,7 @@ export default class App extends React.Component {
             onClick={this.twoDim}
           >
             Two Dimensions
-          </Button>
+          </Button>{' '}
           <Button
             className="ms-welcome_Action"
             buttonType={ButtonType.hero}
@@ -172,7 +206,15 @@ export default class App extends React.Component {
             onClick={this.testSandbox}
           >
             Test Sandbox
-          </Button>
+          </Button>{' '}
+          <Button
+            className="ms-welcome_Action"
+            buttonType={ButtonType.hero}
+            iconProps={{ iconName: "ChevronRight" }}
+            onClick={this.sendFile}
+          >
+            Send File
+          </Button>{' '}
         </HeroList>
       </div>
     );
