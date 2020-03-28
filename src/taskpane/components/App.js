@@ -6,6 +6,10 @@ import Progress from "./Progress";
 import {diff3Merge, diff3Merge2d} from "../../merge";
 import {longestCommonSubsequence2d} from "../../lcs";
 import {getFileContent} from "../../fileUtils";
+import CreateButton from "./saga/CreateButton";
+import DebugButton from "./saga/DebugButton";
+import CommitButton from "./saga/CommitButton";
+
 import $ from "jquery";
 
 /* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
@@ -85,10 +89,15 @@ export default class App extends React.Component {
         var sheet = context.workbook.worksheets.getItem("merge");
         sheet.getUsedRange(true).clear();
 
+        console.log("CREATE DATA");
+
         await context.sync();
       });
     } catch (error) {
       console.error(error);
+      if (error instanceof OfficeExtension.Error) {
+        console.error(error.debugInfo);
+      }
     }
   };
 
@@ -113,6 +122,9 @@ export default class App extends React.Component {
       });
     } catch (error) {
       console.error(error);
+      if (error instanceof OfficeExtension.Error) {
+        console.error(error.debugInfo);
+      }
     }
   };
 
@@ -127,16 +139,9 @@ export default class App extends React.Component {
       });
     } catch (error) {
       console.error(error);
-    }
-  };
-
-  testSandbox = async () => {
-    try {
-      fetch('https://excel.sagalab.org')
-        .then(response => response.json())
-        .then(json => console.log(json))
-    } catch (error) {
-      console.error(error);
+      if (error instanceof OfficeExtension.Error) {
+        console.error(error.debugInfo);
+      }
     }
   };
 
@@ -153,6 +158,29 @@ export default class App extends React.Component {
       console.log(response);
     } catch (error) {
       console.error(error);
+      if (error instanceof OfficeExtension.Error) {
+        console.error(error.debugInfo);
+      }
+    }
+  };
+
+  setVisibility = async () => {
+    console.log("Setting Visibility");
+    try {
+      await Excel.run(async context => {
+        const worksheet1 = context.workbook.worksheets.getItemOrNullObject("saga");
+        const worksheet2 = context.workbook.worksheets.getItemOrNullObject("saga-commits");
+
+        await toggleVisibility(context, worksheet1);
+        await toggleVisibility(context, worksheet2);
+
+        return context.sync();
+      });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof OfficeExtension.Error) {
+        console.error(error.debugInfo);
+      }
     }
   };
 
@@ -168,7 +196,7 @@ export default class App extends React.Component {
     return (
       <div className="ms-welcome">
         <Header logo="assets/logo-filled.png" title={this.props.title} message="Saga VCS" />
-        <HeroList message="Discover what Office Add-ins can do for you today!" items={[]}> 
+        <HeroList message="Welcome to saga." items={[]}> 
           <p className="ms-font-l">
             Use the buttons to interact with <b>Saga</b>.
           </p>
@@ -196,22 +224,9 @@ export default class App extends React.Component {
           >
             Two Dimensions
           </Button>{' '}
-          <Button
-            className="ms-welcome_Action"
-            buttonType={ButtonType.hero}
-            iconProps={{ iconName: "ChevronRight" }}
-            onClick={this.testSandbox}
-          >
-            Test Sandbox
-          </Button>{' '}
-          <Button
-            className="ms-welcome_Action"
-            buttonType={ButtonType.hero}
-            iconProps={{ iconName: "ChevronRight" }}
-            onClick={this.sendFile}
-          >
-            Send File
-          </Button>{' '}
+          <CreateButton/>
+          <DebugButton/>
+          <CommitButton/>
         </HeroList>
       </div>
     );
