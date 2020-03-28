@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
+import {getSheetsWithNames} from "./sagaUtils";
 
 /* global Button, console, Excel */
 
@@ -34,9 +35,13 @@ async function toggleVisibility(context, worksheetName) {
 async function printDebugInfo() {
     try {
         await Excel.run(async context => {
+            // Print all sheet names
+            const sheets = await getSheetsWithNames(context);
+            console.log('Sheets: ', sheets.map(sheet => sheet.name));
+            
             // Toggle visiblity on metadata sheets
-            await toggleVisibility(context, "saga");
-            await toggleVisibility(context, "saga-commits");
+            //await toggleVisibility(context, "saga");
+            //await toggleVisibility(context, "saga-commits");
 
             return context.sync();
         });

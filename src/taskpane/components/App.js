@@ -9,6 +9,7 @@ import {getFileContent} from "../../fileUtils";
 import CreateButton from "./saga/CreateButton";
 import DebugButton from "./saga/DebugButton";
 import CommitButton from "./saga/CommitButton";
+import CleanupButton from "./saga/CleanupButton";
 
 import $ from "jquery";
 
@@ -200,31 +201,8 @@ export default class App extends React.Component {
           <p className="ms-font-l">
             Use the buttons to interact with <b>Saga</b>.
           </p>
-          <Button
-            className="ms-welcome_Action"
-            buttonType={ButtonType.hero}
-            iconProps={{ iconName: "ChevronRight" }}
-            onClick={this.createData}
-          >
-            Create Data
-          </Button>{' '}
-          <Button
-            className="ms-welcome_Action"
-            buttonType={ButtonType.hero}
-            iconProps={{ iconName: "ChevronRight" }}
-            onClick={this.merge}
-          >
-            Merge
-          </Button>{' '}
-          <Button
-            className="ms-welcome_Action"
-            buttonType={ButtonType.hero}
-            iconProps={{ iconName: "ChevronRight" }}
-            onClick={this.twoDim}
-          >
-            Two Dimensions
-          </Button>{' '}
           <CreateButton/>
+          <CleanupButton/>
           <DebugButton/>
           <CommitButton/>
         </HeroList>

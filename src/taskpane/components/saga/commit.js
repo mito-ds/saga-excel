@@ -1,0 +1,128 @@
+import { getSheetsWithNames, copySheet } from "./sagaUtils";
+
+/*
+Gets the commit ID for a given branch name, 
+returns null? if the branch does not exist, 
+and "" if the branch has no previous commits on it
+*/
+async function getCommitIDFromBranch(context, branch) {
+    // find the instance of the branch in the saga sheet
+    // return null if it doesn't exist (maybe "") works too
+    const worksheet = context.workbook.worksheets.getItem("saga");
+    var searchRange = worksheet.getRange("B1:B10"); // TODO: name this object!
+    // TODO: don't just get B10 you fool!!!! This will be a bug once more than 10 branches!
+    var foundRange = searchRange.find(branch, {
+        completeMatch: true, // find will match the whole cell value
+        matchCase: false, // find will not match case
+    });
+    // TODO: handle case where branch doesn't exist!
+    foundRange.load("address")
+    await context.sync();
+    const commitRangeAddress = "C" + foundRange.address.split("saga!B")[1];
+    const commitRange = worksheet.getRange(commitRangeAddress);
+    commitRange.load("values");
+    await context.sync();
+    const commitID = commitRange.values[0][0];
+    return commitID;
+}
+
+/*
+Returns the branch in the HEAD variable
+*/
+async function getHeadBranch(context) {
+    const worksheet = context.workbook.worksheets.getItem("saga");
+    const range = worksheet.getRange("A2");
+    range.load("values");
+    await context.sync();
+    return range.values[0][0];
+}
+
+/*
+Returns the branch in the HEAD variable
+*/
+async function addCommitID(context, commitID, parentID) {
+    const worksheet = context.workbook.worksheets.getItem("saga-commits");
+    const range = worksheet.getUsedRange();
+    range.load('rowCount');
+    await context.sync();
+    const rowCount = range.rowCount;
+    const newRangeAddress = 'A' + (rowCount + 1) + ":C" + (rowCount + 1);
+    console.log(newRange);
+    const newRange = worksheet.getRange(newRangeAddress);
+    newRange.values = [[commitID, parentID, 1]];
+    // TODO: numSheets = sheetNames.length, and save
+
+    return context.sync();
+
+}
+
+/*
+Returns the branch in the HEAD variable
+*/
+async function updateBranchCommitID(context, branch, commitID) {
+    const worksheet = context.workbook.worksheets.getItem("saga");
+    var searchRange = worksheet.getRange("B1:B10"); // TODO: name this object!
+    // TODO: don't just get B10 you fool!!!! This will be a bug once more than 10 branches!
+    var foundRange = searchRange.find(branch, {
+        completeMatch: true, // find will match the whole cell value
+        matchCase: false, // find will not match case
+    });
+    // TODO: handle case where branch doesn't exist!
+    foundRange.load("address")
+    await context.sync();
+    const commitRangeAddress = "C" + foundRange.address.split("saga!B")[1];
+    const commitRange = worksheet.getRange(commitRangeAddress);
+    commitRange.values = [[commitID]];
+    return context.sync();
+}
+
+
+
+
+function getRandomID() {
+    return Math.random().toString(36).substring(2, 15);
+}
+
+/*
+Saves a copy off all current non-saga sheets.
+If the sheet is named 'data', it will be saved at 
+'saga-{commitID}-data'
+*/
+async function saveSheets(context, sheetNames, commitID) {
+    // TODO: could be done in parallel! we don't need to sync context during, hopefully.
+    for (var i = 0; i < sheetNames.length; i++) {
+        const srcWorksheetName = sheetNames[i];
+        const dstWorksheetName = 'saga-' + commitID + '-' + srcWorksheetName;
+        console.log(dstWorksheetName); 
+        await copySheet(context, srcWorksheetName, dstWorksheetName, Excel.SheetVisibility.visible)
+    }
+
+    return context.sync();
+}
+
+/*
+Creates a new commit on the given branch
+*/
+export async function commit(context, branch) {
+    // Create a new commit ID
+    const commitID = getRandomID();
+
+    // Find the names of all the sheets we have to copy to this commit
+    const sheets = (await getSheetsWithNames(context)).filter((sheet) => {
+        return !sheet.name.startsWith("saga");
+    });
+
+    const sheetNames = sheets.map(sheet => sheet.name);
+    
+    // backup the sheet data
+    await saveSheets(context, sheetNames, commitID);
+
+    // save the commit id with it's parent
+    const headBranch = await getHeadBranch(context);
+    const parentID = await getCommitIDFromBranch(context, headBranch);
+    await updateBranchCommitID(context, headBranch, commitID);
+    await addCommitID(context, commitID, parentID);
+
+    return context.sync();
+}
+

@@ -1,27 +1,55 @@
 import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
+import { createSheet } from "./sagaUtils";
 
 /* global Button, console, Excel */
 
-/*
-Creates a new sheet with the given name and visibility. 
-Errors if a sheet with that name already exists.
-*/
-async function createSheet(context, worksheetName, worksheetVisibility) {
-    // copy a sheet
-    const activeSheet = context.workbook.worksheets.getActiveWorksheet();
-    const copiedSheet = activeSheet.copy(Excel.WorksheetPositionType.end);
-    // clear the sheet
-    copiedSheet.getUsedRange().clear("all");
-    // Set the name and visibiliy
-    await context.sync();
-    copiedSheet.name = worksheetName;
-    copiedSheet.visibility = worksheetVisibility;
 
-    console.log(`Created sheet ${worksheetName} and set to ${worksheetVisibility}`);
-
-    return context.sync();
+async function firstCommit() {
+    // Copies over the original sheets; has no parent!
+    
 }
+
+
+/*
+Sets up the headers for the commit worksheet, if they don't already exist
+*/
+async function setupCommitHeaders(context) {
+    // get the commit worksheet
+    const worksheet = context.workbook.worksheets.getItemOrNullObject("saga-commits");
+
+    if (worksheet === null) {
+        console.log("Worksheet saga-commits does not exist. Did you create the saga project?");
+        return;
+    }
+
+    const headerRange = worksheet.getRange("A1:C1");
+    headerRange.values = [["commit", "parent", "num"]];
+
+    await context.sync();
+}
+
+/*
+Sets up the headers for the commit worksheet, if they don't already exist
+*/
+async function setupMetadataHeaders(context) {
+    // get the commit worksheet
+    const worksheet = context.workbook.worksheets.getItemOrNullObject("saga");
+
+    if (worksheet === null) {
+        console.log("Worksheet saga does not exist. Did you create the saga project?");
+        return;
+    }
+
+    const headerRange = worksheet.getRange("A1:C2");
+    headerRange.values = [
+        ["HEAD", "branch", "commit"],
+        ["master", "master", ""]
+    ];
+
+    await context.sync();
+}
+
 
 
 async function createSaga() {
@@ -30,6 +58,9 @@ async function createSaga() {
             // Create the metadata sheetS
             await createSheet(context, "saga", Excel.SheetVisibility.visible);
             await createSheet(context, "saga-commits", Excel.SheetVisibility.visible);
+            await setupCommitHeaders(context);
+            await setupMetadataHeaders(context);
+            
 
             return context.sync();
         });

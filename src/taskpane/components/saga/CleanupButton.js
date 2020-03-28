@@ -1,13 +1,19 @@
 import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
-import {commit} from "./commit";
+import { getSheetsWithNames } from "./sagaUtils";
 
 /* global Button, console, Excel */
 
-async function makeNewCommit() {
+async function cleanup() {
     try {
         await Excel.run(async context => {
-            await commit(context, "master");
+            // Make sure we have the sheet named properly
+            const worksheets = await getSheetsWithNames(context);
+            const sagaWorksheets = worksheets.filter(sheet => sheet.name.startsWith("saga"))
+        
+            sagaWorksheets.forEach(worksheet => worksheet.delete());
+
+            return context.sync();
         });
       } catch (error) {
         console.error(error);
@@ -18,16 +24,16 @@ async function makeNewCommit() {
 
 }
 
-export default class CommitButton extends React.Component {
+export default class CleanupButton extends React.Component {
   render() {
     return (
         <Button
             className="ms-welcome_Action"
             buttonType={ButtonType.hero}
             iconProps={{ iconName: "ChevronRight" }}
-            onClick={makeNewCommit}
+            onClick={cleanup}
           >
-            Commit
+            Cleanup
         </Button>
     );
   }
