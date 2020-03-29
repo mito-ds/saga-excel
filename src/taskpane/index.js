@@ -10,7 +10,7 @@ initializeIcons();
 
 let isOfficeInitialized = false;
 
-const title = "Contoso Task Pane Add-in";
+const title = "Saga Version Control";
 
 const render = Component => {
   ReactDOM.render(

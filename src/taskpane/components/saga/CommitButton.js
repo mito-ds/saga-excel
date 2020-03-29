@@ -7,7 +7,7 @@ import {commit} from "./commit";
 async function makeNewCommit() {
     try {
         await Excel.run(async context => {
-            await commit(context, "master");
+            await commit(context);
         });
       } catch (error) {
         console.error(error);
@@ -15,7 +15,6 @@ async function makeNewCommit() {
             console.error(error.debugInfo);
         }
     }
-
 }
 
 export default class CommitButton extends React.Component {

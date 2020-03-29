@@ -37,16 +37,25 @@ export async function createSheet(context, worksheetName, worksheetVisibility) {
 /*
 Copies srcWorksheetName to dstWorksheetName, with the given visibility parameters
 */
-export async function copySheet(context, srcWorksheetName, dstWorksheetName, worksheetVisibility) {
+export async function copySheet(
+        context, 
+        srcWorksheetName, 
+        dstWorksheetName,
+        worksheetPositionType,
+        worksheetVisibility
+    ) {
     // copy a sheet
     const activeSheet = context.workbook.worksheets.getItemOrNullObject(srcWorksheetName);
-    const copiedSheet = activeSheet.copy(Excel.WorksheetPositionType.end);
+    const copiedSheet = activeSheet.copy(worksheetPositionType);
     // Set the name and visibiliy
     await context.sync();
     copiedSheet.name = dstWorksheetName;
     copiedSheet.visibility = worksheetVisibility;
 
-    console.log(`Copied ${srcWorksheetName} to ${dstWorksheetName} and set to ${worksheetVisibility}`);
+    console.log(
+        `Copied ${srcWorksheetName} to ${dstWorksheetName}
+         at position ${worksheetPositionType} and set to ${worksheetVisibility}`
+    );
 
     return context.sync();
 }

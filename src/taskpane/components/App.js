@@ -10,7 +10,8 @@ import CreateButton from "./saga/CreateButton";
 import DebugButton from "./saga/DebugButton";
 import CommitButton from "./saga/CommitButton";
 import CleanupButton from "./saga/CleanupButton";
-
+import CreateBranchInput from "./saga/CreateBranchInput";
+import CheckoutBranchInput from "./saga/CheckoutInput";
 import $ from "jquery";
 
 /* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
@@ -205,6 +206,8 @@ export default class App extends React.Component {
           <CleanupButton/>
           <DebugButton/>
           <CommitButton/>
+          <CreateBranchInput/>
+          <CheckoutBranchInput/>
         </HeroList>
       </div>
     );
