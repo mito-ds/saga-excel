@@ -50,3 +50,10 @@ export async function copySheet(context, srcWorksheetName, dstWorksheetName, wor
 
     return context.sync();
 }
+
+/*
+Returns a random 14-digit string.
+*/
+export function getRandomID() {
+    return Math.random().toString(36).substring(2, 15);
+}

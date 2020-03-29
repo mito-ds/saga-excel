@@ -1,4 +1,4 @@
-import { getSheetsWithNames, copySheet } from "./sagaUtils";
+import { getSheetsWithNames, copySheet, getRandomID } from "./sagaUtils";
 
 /*
 Gets the commit ID for a given branch name, 
@@ -76,13 +76,6 @@ async function updateBranchCommitID(context, branch, commitID) {
     return context.sync();
 }
 
-
-
-
-function getRandomID() {
-    return Math.random().toString(36).substring(2, 15);
-}
-
 /*
 Saves a copy off all current non-saga sheets.
 If the sheet is named 'data', it will be saved at 
@@ -125,4 +118,3 @@ export async function commit(context, branch) {
 
     return context.sync();
 }
-
