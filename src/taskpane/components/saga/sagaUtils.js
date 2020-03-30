@@ -66,3 +66,14 @@ Returns a random 14-digit string.
 export function getRandomID() {
     return Math.random().toString(36).substring(2, 15);
 }
+
+
+export async function getFormulas(context, sheetName) {
+  // Get's the defined range and prints it
+  var sheet = context.workbook.worksheets.getItem(sheetName);
+  var usedRange = sheet.getUsedRange(true);
+  // Have to load and then sync to run the command
+  usedRange.load("formulas")
+  await context.sync();
+  return usedRange.formulas;
+}
