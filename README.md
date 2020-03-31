@@ -4,7 +4,14 @@ This repository contains the WIP source code for the Saga Excel Addin. This addi
 
 ## Running the addin
 
-If you want to run the addin from source:
+If you want to run the addin from source, and you have Excel installed, the following _should_ work:
+```
+git clone https://github.com/saga-vcs/saga-excel.git;
+cd saga-excel;
+npm install;
+npm start;
+```
+If that doesn't work, you can follow more detailed instructions:
 - on a Mac, look [here](https://docs.microsoft.com/en-us/office/dev/add-ins/testing/sideload-an-office-add-in-on-ipad-and-mac)
 - on Windows, look [here](https://docs.microsoft.com/en-us/office/dev/add-ins/testing/create-a-network-shared-folder-catalog-for-task-pane-and-content-add-ins)
 - on Office 365 (the online Excel editor), look [here](https://docs.microsoft.com/en-us/office/dev/add-ins/testing/sideload-office-add-ins-for-testing) 
