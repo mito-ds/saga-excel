@@ -4,6 +4,7 @@ import { mergeBranch } from "./merge";
 /* global console, Excel */
 
 
+//TODO: refact this try catch login into a single reusable function!
 async function runMergeBranch(branch) {
   try {
     await Excel.run(async context => {

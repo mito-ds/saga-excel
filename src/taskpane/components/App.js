@@ -95,6 +95,52 @@ export default class App extends React.Component {
     }
   };
 
+  testStorage = () => {
+    // TODO: save something in storage.
+    const sessionStorage = window.sessionStorage;
+    if (sessionStorage.getItem("value")) {
+      // Restore the contents of the text field
+      console.log(`value is ${sessionStorage.getItem("value")}`);
+    } else {
+      console.log(`value is no defined`);
+    }
+
+    sessionStorage.setItem("value", 2);
+  }
+
+  testInsertBase64 = async () => {
+    try {
+      await Excel.run(async context => {
+        // get the base 64 for the document and print it
+        console.log(Office.context.requirements);
+
+
+        const fileContent1 = await getFileContent();
+        const fileContent2 = await getFileContent();
+        console.log(`fileContent1 === fileContent2 : ${fileContent1 === fileContent2}`)
+        console.log(fileContent1);
+        console.log(fileContent2)
+        // change a value, see if the base 64 changes without updating anything
+
+        const sheets = context.workbook.worksheets;
+        sheets.addFromBase64(
+            fileContent1,
+            [], 
+            Excel.WorksheetPositionType.after, // insert them after the worksheet specified by the next parameter
+            sheets.getActiveWorksheet() // insert them after the active worksheet
+        );
+
+      });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof OfficeExtension.Error) {
+          console.error(error.debugInfo);
+      }
+    }    
+  }
+
+
+
 
   render() {
     const { title, isOfficeInitialized } = this.props;
@@ -111,6 +157,22 @@ export default class App extends React.Component {
           <p className="ms-font-l">
             Use the buttons to interact with <b>Saga</b>.
           </p>
+          <Button
+            className="ms-welcome_Action"
+            buttonType={ButtonType.hero}
+            iconProps={{ iconName: "ChevronRight" }}
+            onClick={this.testStorage}
+          >
+            Test Storage
+          </Button>
+          <Button
+            className="ms-welcome_Action"
+            buttonType={ButtonType.hero}
+            iconProps={{ iconName: "ChevronRight" }}
+            onClick={this.testInsertBase64}
+          >
+            Test Insert Base64
+          </Button>
           <CreateButton/>
           <CleanupButton/>
           <DebugButton/>

@@ -1,4 +1,4 @@
-import { getHeadBranch, getCommitIDFromBranch } from './commit';
+import { getHeadBranch, getCommitIDFromBranch, commit } from './commit';
 import { checkBranchExists } from './branch';
 import { getSheetsWithNames, copySheet, getFormulas } from "./sagaUtils";
 import { diff3Merge2d } from "./mergeUtils";
@@ -10,6 +10,16 @@ function buildGraph(values) {
         graph[row[0]] = row[1];
     })
     return graph;
+}
+
+// TODO: make sure this function is only called on commit sheets!
+function getOriginName(sheet) {
+    // TODO: make sure sheet.name is defined!
+    if (!sheet.name.startsWith(`saga`)) {
+        return sheet.name;
+    } 
+
+    return sheet.name.split(`-`)[2];
 }
 
 
@@ -64,6 +74,10 @@ export async function mergeBranch(context, branch) {
     }
     const branchCommitID = await getCommitIDFromBranch(context, branch);
 
+    // Get the origin commit id for these two branches
+    const originCommitID = await getOriginCommitID(context, headBranch, branch);
+    const originSheetNameBase = `saga-${originCommitID}-`
+
     // Get the sheets from both branch
     const sheets = await getSheetsWithNames(context);
     const headSheets = sheets.filter(sheet => {
@@ -72,59 +86,89 @@ export async function mergeBranch(context, branch) {
     const branchSheets = sheets.filter(sheet => {
         return sheet.name.startsWith(`saga-${branchCommitID}`);
     })
-
-    // We feel free to copy over any sheets that have a different name!
-    const toCopy = branchSheets.filter(sheet => {
-        for (let i = 0; i < headSheets.length; i++) {
-            const oldName = sheet.name.split(`saga-${branchCommitID}-`)[1];
-            if (oldName === headSheets[i].name) {
-                return false;
-            }
-        }
-        return true;
+    const originSheets = sheets.filter(sheet => {
+        return sheet.name.startsWith(`saga-${originCommitID}`);
     })
 
-    for (let i = 0; i < toCopy.length; i++) {
+    // Helper function for figuring out what sorta sheet this is
+    function checkExistance(branchSheet) {
+        const oldName = getOriginName(branchSheet);
+        const inHead = (headSheets.find(s => {return s.name === oldName;}) !== undefined);
+        const inOrigin = (originSheets.find(s => {
+            return oldName === getOriginName(s);
+        }) !== undefined);
+
+        return {inHead: inHead, inOrigin: inOrigin};
+    }
+
+    // We can copy over sheets that are inserted into the branch, 
+    // But were also not removed from the origin
+    const insertedSheets = branchSheets.filter(sheet => {
+        const ex = checkExistance(sheet);
+        return !ex.inHead && !ex.inOrigin;
+    })
+
+    // Sheets that have been added in both the head branch and the 
+    // merged branch, and so we have a conflict
+    const conflictSheets = branchSheets.filter(sheet => {
+        const ex = checkExistance(sheet);
+        return ex.inHead && !ex.inOrigin;
+    })
+
+    // Sheets that have been removed from the head branch, but where in the origin branch
+    const deletedSheets = branchSheets.filter(sheet => {
+        const ex = checkExistance(sheet);
+        return !ex.inHead && ex.inOrigin;
+    })
+
+    // Now, we actually need to merge the sheets 
+    const mergeSheets = branchSheets.filter(sheet => {
+        const ex = checkExistance(sheet);
+        return ex.inHead && ex.inOrigin;
+    })
+
+    if (conflictSheets.length > 0) {
+        conflictSheets.forEach(sheet => {
+            console.error(`Merge conflict on ${sheet.name}`);
+        })
+        return;
+    }
+
+    // Now, we actually perform the copying and the merging
+
+
+    // Copy over the 
+    for (let i = 0; i < insertedSheets.length; i++) {
         // TODO: we might wanna do this at the end!
         // TODO: we can probably track sheet renames with sheet ID!
-        const dst = sheet.name.split(`saga-${branchCommitID}-`)[1];
+        const sheet = insertedSheets[i];
+        const dst = getOriginName(sheet);
         await copySheet(
             context, 
-            sheet.name, 
-            dst, 
+            sheet.name,
+            dst,
             Excel.WorksheetPositionType.beginning,
             Excel.SheetVisibility.visible
         );
     }
 
-    // Now, we actually need to merge the sheets 
-    const toMerge = branchSheets.filter(sheet => {
-        for (let i = 0; i < headSheets.length; i++) {
-            const oldName = sheet.name.split(`saga-${branchCommitID}-`)[1];
-            if (oldName === headSheets[i].name) {
-                return true;
-            }
-        }
-        return false;
-    })
+    for (let i = 0; i < mergeSheets.length; i++) {
+        // TODO: optimize
+        const sheet = mergeSheets[i];
+        const originName = getOriginName(sheet);
+        const originSheetName = originSheetNameBase + originName;
 
-    // TODO: get origin from two branches
-    const originCommitID = await getOriginCommitID(context, headBranch, branch);
-    const originSheetNameBase = `saga-${originCommitID}-`
-
-
-    for (let i = 0; i < toMerge.length; i++) {
-        const sheet = toMerge[i];
-        const oldName = sheet.name.split(`saga-${branchCommitID}-`)[1];
-        console.log(`Merging sheet ${oldName}`);
-        const originSheetName = originSheetNameBase + oldName;
-        console.log(`Origin sheet ${originSheetName}`);
+        console.log(`getting formulas for:`, originSheetName)
         const originFormulas = await getFormulas(context, originSheetName);
-        const headFormulas = await getFormulas(context, oldName);
+        console.log(`getting formulas for:`, originName)
+        const headFormulas = await getFormulas(context, originName);
+        console.log(`getting formulas for:`, sheet.name)
         const branchFormulas = await getFormulas(context, sheet.name);
+        console.log("GOT FORMULAS")
         const merge = diff3Merge2d(originFormulas, headFormulas, branchFormulas);
+
         // Finially, we get the range
-        const mergeSheet = context.workbook.worksheets.getItem(oldName);
+        const mergeSheet = context.workbook.worksheets.getItem(originName);
 
         for (let i = 0; i < merge.length; i++) {
             const len = merge[i].length;
@@ -136,4 +180,7 @@ export async function mergeBranch(context, branch) {
         }
         context.sync();
     }
+
+    // Finially, after we have merged everything, we can make a commit to lock it in
+    await commit(context);
 }
