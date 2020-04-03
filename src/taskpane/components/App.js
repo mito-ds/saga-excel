@@ -13,8 +13,34 @@ import CheckoutBranchInput from "./saga/CheckoutInput";
 import MergeBranchInput from "./saga/MergeBranchInput";
 import $ from "jquery";
 
+
 /* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
 
+async function postData(url, data) {
+  // Default options are marked with *
+  console.log("POSTING DATA:", data);
+
+  const response = await $.ajax({
+    type: "POST",
+    url: url,
+    contentType: "application/json",
+    data: JSON.stringify(data)
+  }).promise();
+  return response;
+}
+
+async function getData(url, data) {
+  // Default options are marked with *
+  console.log("GETTING DATA:", data);
+
+  const response = await $.ajax({
+    type: "GET",
+    url: url,
+    contentType: "application/json",
+    data: JSON.stringify(data)
+  }).promise();
+  return response;
+}
 
 
 export default class App extends React.Component {
@@ -84,13 +110,10 @@ export default class App extends React.Component {
         console.log(Office.context.requirements);
 
 
-        const fileContent1 = await getFileContent();
-        const fileContent2 = await getFileContent();
-        console.log(`fileContent1 === fileContent2 : ${fileContent1 === fileContent2}`)
-        console.log(fileContent1);
-        console.log(fileContent2)
+        const fileContent1 = await getFileContents();
         // change a value, see if the base 64 changes without updating anything
 
+        console.log(fileContent1);
         const sheets = context.workbook.worksheets;
         sheets.addFromBase64(
             fileContent1,
@@ -106,6 +129,77 @@ export default class App extends React.Component {
           console.error(error.debugInfo);
       }
     }    
+  }
+
+  testPush = async () => {
+    console.log(`pushing`)
+    try {
+      await Excel.run(async context => {
+        const fileContents = await getFileContents();
+        const remoteRange = context.workbook.worksheets.getItemOrNullObject("saga").getRange("B2");
+        remoteRange.load('values');
+        await context.sync();
+        var remoteURL = remoteRange.values[0][0];
+        const id = remoteURL.split("/")[remoteURL.split("/").length - 1];
+
+        console.log(`pushing to ${remoteURL}`)
+
+        const response = await postData(
+          remoteURL,
+          {
+            "fileContents": fileContents,
+            "id": id
+          }
+        )
+        console.log(response);
+      });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof OfficeExtension.Error) {
+          console.error(error.debugInfo);
+      }
+    } 
+  }
+
+  testPull = async () => {
+    console.log(`pushing`)
+    try {
+      await Excel.run(async context => {
+        // First, we get the ID
+        const remoteRange = context.workbook.worksheets.getItemOrNullObject("saga").getRange("B2");
+        remoteRange.load('values');
+        await context.sync();
+        var remoteURL = remoteRange.values[0][0];
+        const id = remoteURL.split("/")[remoteURL.split("/").length - 1];
+
+        // Then, we make a get request with that ID to the remote server
+        const response = await getData(
+          remoteURL,
+          {
+            "id": id
+          }
+        )
+
+        const fileContents = response.fileContents;
+        console.log(fileContents);
+
+        // TODO: actually figure out which of the sheets we keep and which we don't
+        const sheets = context.workbook.worksheets;
+        sheets.addFromBase64(
+          fileContents,
+          null, 
+          Excel.WorksheetPositionType.after, // insert them after the worksheet specified by the next parameter
+          sheets.getActiveWorksheet() // insert them after the active worksheet
+        );
+
+        await context.sync();
+      });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof OfficeExtension.Error) {
+          console.error(error.debugInfo);
+      }
+    } 
   }
 
 
@@ -142,6 +236,23 @@ export default class App extends React.Component {
           >
             Test Insert Base64
           </Button>
+          <Button
+            className="ms-welcome_Action"
+            buttonType={ButtonType.hero}
+            iconProps={{ iconName: "ChevronRight" }}
+            onClick={this.testPush}
+          >
+            Test Push
+          </Button>
+          <Button
+            className="ms-welcome_Action"
+            buttonType={ButtonType.hero}
+            iconProps={{ iconName: "ChevronRight" }}
+            onClick={this.testPull}
+          >
+            Test Pull
+          </Button>
+
           <CreateButton/>
           <CleanupButton/>
           <DebugButton/>
