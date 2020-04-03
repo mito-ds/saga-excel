@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const base64js = require('base64-js');
-const uuid = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 // Add headers to make excel happy
 app.use(function(req, res, next) {
@@ -21,10 +21,22 @@ app.get('/', function (req, res) {
 
 app.post('/create', async function (req, res) {
     const fileContents = base64js.fromByteArray(req.body.fileContents);
-    const id = uuid();
+    const id = uuidv4();
     console.log(`saving at ${id}`);
     files[id] = fileContents
-    res.json({"key": "id"});
+    res.json({"id": id});
 });
+
+app.get('/project/:id', async function (req, res) {
+    // TODO: we should also send back a filename?
+    res.json(
+        {
+            "fileContents": files[req.params.id]
+        }
+    )
+
+    console.log(req.params.id);
+})
+
 
 app.listen(3000);

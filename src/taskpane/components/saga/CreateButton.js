@@ -69,6 +69,7 @@ async function postData(url, data) {
 
 async function createRemote(context) {
     const fileContents = await getFileContents();
+    // TODO: handle errors here, we don't know what the network is going to do
     const response = await postData(
         "https://excel.sagalab.org/create", 
         {
