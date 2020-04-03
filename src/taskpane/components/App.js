@@ -16,18 +16,6 @@ import $ from "jquery";
 /* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
 
 
-async function postData(url, data) {
-  // Default options are marked with *
-  console.log("POSTING DATA:", data);
-
-  const response = await $.ajax({
-    type: "POST",
-    url: url,
-    contentType: "application/json",
-    data: JSON.stringify(data)
-  }).promise();
-  return response;
-}
 
 export default class App extends React.Component {
   constructor(props, context) {
@@ -55,25 +43,6 @@ export default class App extends React.Component {
       ]
     });
   }
-
-  createRemote = async () => {
-    try {
-      const fileContents = await getFileContents();
-      console.log("Got file, ", fileContent);
-      const response = await postData(
-        "https://excel.sagalab.org/file", 
-        {
-          "fileContents": fileContents
-        }
-      )
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-      if (error instanceof OfficeExtension.Error) {
-        console.error(error.debugInfo);
-      }
-    }
-  };
 
   setVisibility = async () => {
     console.log("Setting Visibility");
@@ -164,14 +133,6 @@ export default class App extends React.Component {
             onClick={this.testStorage}
           >
             Test Storage
-          </Button>
-          <Button
-            className="ms-welcome_Action"
-            buttonType={ButtonType.hero}
-            iconProps={{ iconName: "ChevronRight" }}
-            onClick={this.createRemote}
-          >
-            Test Create Remote
           </Button>
           <Button
             className="ms-welcome_Action"

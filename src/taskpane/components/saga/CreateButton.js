@@ -1,6 +1,9 @@
 import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
 import { createSheet } from "./sagaUtils";
+import { getFileContents } from "../../../fileUtils";
+import $ from "jquery";
+
 
 /* global Button, console, Excel */
 
@@ -41,13 +44,43 @@ async function setupMetadataHeaders(context) {
         return;
     }
 
-    const headerRange = worksheet.getRange("A1:C2");
+    const headerRange = worksheet.getRange("A1:D2");
     headerRange.values = [
-        ["HEAD", "branch", "commit"],
-        ["master", "master", ""]
+        ["HEAD", "remote", "branch", "commit"],
+        ["master", "", "master", ""]
     ];
 
     await context.sync();
+}
+
+
+async function postData(url, data) {
+    // Default options are marked with *
+    console.log("POSTING DATA:", data);
+  
+    const response = await $.ajax({
+      type: "POST",
+      url: url,
+      contentType: "application/json",
+      data: JSON.stringify(data)
+    }).promise();
+    return response;
+}
+
+async function createRemote(context) {
+    const fileContents = await getFileContents();
+    const response = await postData(
+        "https://excel.sagalab.org/create", 
+        {
+            "fileContents": fileContents
+        }
+    )
+    const remoteUrl = `https://excel.sagalab.org/project/${response["id"]}`;
+    // Saves the remote url
+    const range = context.workbook.worksheets.getItemOrNullObject("saga").getRange("B2");
+    range.values = remoteUrl;
+
+    return context.sync();
 }
 
 
@@ -56,10 +89,15 @@ async function createSaga() {
     try {
         await Excel.run(async context => {
             // Create the metadata sheetS
+            // TODO: name all the things! https://docs.microsoft.com/en-us/javascript/api/excel/excel.nameditemcollection?view=excel-js-preview
+
             await createSheet(context, "saga", Excel.SheetVisibility.visible);
             await createSheet(context, "saga-commits", Excel.SheetVisibility.visible);
             await setupCommitHeaders(context);
             await setupMetadataHeaders(context);
+            // We also are going to try and create a remote project
+            await createRemote(context);
+
             
 
             return context.sync();

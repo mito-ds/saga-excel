@@ -11,7 +11,7 @@ async function getNewBranchRangeAddress(context) {
 
 export async function checkBranchExists(context, branch) {
     const worksheet = context.workbook.worksheets.getItem("saga");
-    var searchRange = worksheet.getRange("B1:B10"); // TODO: name this object!
+    var searchRange = worksheet.getRange("C1:C10"); // TODO: name this object!
     // If we name it we can keep track of the number of objects
     // TODO: don't just get B10 you fool!!!! This will be a bug once more than 10 branches!
     var foundRange = searchRange.findOrNullObject(branch, {
