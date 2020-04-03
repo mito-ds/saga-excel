@@ -3,7 +3,7 @@ import { Button, ButtonType } from "office-ui-fabric-react";
 import Header from "./Header";
 import HeroList, { HeroListItem } from "./HeroList";
 import Progress from "./Progress";
-import {getFileContent} from "../../fileUtils";
+import {getFileContents} from "../../fileUtils";
 import CreateButton from "./saga/CreateButton";
 import DebugButton from "./saga/DebugButton";
 import CommitButton from "./saga/CommitButton";
@@ -56,14 +56,14 @@ export default class App extends React.Component {
     });
   }
 
-  sendFile = async () => {
+  createRemote = async () => {
     try {
-      const fileContent = await getFileContent();
+      const fileContents = await getFileContents();
       console.log("Got file, ", fileContent);
       const response = await postData(
         "https://excel.sagalab.org/file", 
         {
-          "fileContent": fileContent
+          "fileContents": fileContents
         }
       )
       console.log(response);
@@ -164,6 +164,14 @@ export default class App extends React.Component {
             onClick={this.testStorage}
           >
             Test Storage
+          </Button>
+          <Button
+            className="ms-welcome_Action"
+            buttonType={ButtonType.hero}
+            iconProps={{ iconName: "ChevronRight" }}
+            onClick={this.createRemote}
+          >
+            Test Create Remote
           </Button>
           <Button
             className="ms-welcome_Action"

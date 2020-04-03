@@ -2,7 +2,7 @@ import base64js from 'base64-js';
 
 /* global Office */
 
-export async function getFileContent() {
+export async function getFileContents() {
     return await getCompressedDocument();
 }
 

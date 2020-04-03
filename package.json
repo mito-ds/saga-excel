@@ -36,7 +36,8 @@
     "jquery": "^3.4.1",
     "office-ui-fabric-react": "^7.105.2",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "uuid": "^7.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
