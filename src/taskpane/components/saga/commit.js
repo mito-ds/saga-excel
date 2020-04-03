@@ -18,7 +18,7 @@ export async function getCommitIDFromBranch(context, branch) {
     // TODO: handle case where branch doesn't exist!
     foundRange.load("address")
     await context.sync();
-    const commitRangeAddress = "C" + foundRange.address.split("saga!B")[1];
+    const commitRangeAddress = "C" + foundRange.address.split("saga!C")[1];
     const commitRange = worksheet.getRange(commitRangeAddress);
     commitRange.load("values");
     await context.sync();
@@ -71,7 +71,8 @@ async function updateBranchCommitID(context, branch, commitID) {
     // TODO: handle case where branch doesn't exist!
     foundRange.load("address")
     await context.sync();
-    const commitRangeAddress = "C" + foundRange.address.split("saga!B")[1];
+    console.log("FOUND ADDRESS: ", foundRange.address)
+    const commitRangeAddress = "D" + foundRange.address.split("saga!C")[1];
     console.log("commitRangeAddress", commitRangeAddress);
     const commitRange = worksheet.getRange(commitRangeAddress);
     commitRange.values = [[commitID]];
