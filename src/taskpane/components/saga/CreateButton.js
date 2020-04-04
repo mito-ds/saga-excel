@@ -26,8 +26,8 @@ async function setupCommitHeaders(context) {
         return;
     }
 
-    const headerRange = worksheet.getRange("A1:C1");
-    headerRange.values = [["commit", "parent", "num"]];
+    const headerRange = worksheet.getRange("A1:E1");
+    headerRange.values = [["commit", "parent", "num", "name", "message"]];
 
     await context.sync();
 }

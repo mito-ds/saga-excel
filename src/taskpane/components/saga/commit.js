@@ -40,16 +40,16 @@ export async function getHeadBranch(context) {
 /*
 Returns the branch in the HEAD variable
 */
-async function addCommitID(context, commitID, parentID) {
+async function addCommitID(context, commitID, parentID, commitName, commitMessage) {
     const worksheet = context.workbook.worksheets.getItem("saga-commits");
     const range = worksheet.getUsedRange();
     range.load('rowCount');
     await context.sync();
     const rowCount = range.rowCount;
-    const newRangeAddress = 'A' + (rowCount + 1) + ":C" + (rowCount + 1);
+    const newRangeAddress = 'A' + (rowCount + 1) + ":E" + (rowCount + 1);
     console.log(newRange);
     const newRange = worksheet.getRange(newRangeAddress);
-    newRange.values = [[commitID, parentID, 1]];
+    newRange.values = [[commitID, parentID, 1, commitName, commitMessage]];
     // TODO: numSheets = sheetNames.length, and save
 
     return context.sync();
@@ -105,7 +105,7 @@ async function saveSheets(context, sheetNames, commitID) {
 /*
 Creates a new commit on the given branch
 */
-export async function commit(context, branch) {
+export async function commit(context, commitName, commitMessage, branch) {
     if (!branch) {
         branch = await getHeadBranch(context);
     }
@@ -132,7 +132,7 @@ export async function commit(context, branch) {
     console.log("PARENT ID", parentID);
     await updateBranchCommitID(context, branch, commitID);
     console.log("updated branch commit id");
-    await addCommitID(context, commitID, parentID);
+    await addCommitID(context, commitID, parentID, commitName, commitMessage);
     console.log("added commit id");
 
     return context.sync();
