@@ -167,7 +167,7 @@ export default class Project {
     /*
     Returns true if CommitID exists; false otherwise
     */
-    checkCommitIDExists(commitID) {    
+    checkCommitIDExists = async (commitID) => {    
         //Get the Commit Worksheet
         const commitRange = await this.getCommitRangeWithValues();
         return commitRange.values.some(row => row[0] === commitID);

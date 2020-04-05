@@ -1,5 +1,6 @@
 import { getSheetsWithNames, copySheet, deleteNonsagaSheets } from "./sagaUtils";
-import Project from `./Project`;
+import Project from "./Project";
+
 
 /*
 Restores the state of a given commit to the active state
