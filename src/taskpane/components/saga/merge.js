@@ -1,7 +1,8 @@
-import { getHeadBranch, getCommitIDFromBranch, commit, getCommitRangeWithValues } from './commit';
-import { checkBranchExists } from './branch';
+import { commit } from './commit';
 import { getSheetsWithNames, copySheet, getFormulas } from "./sagaUtils";
 import { diff3Merge2d } from "./mergeUtils";
+import Project from "./Project";
+
 
 
 function buildGraph(values) {
@@ -23,10 +24,10 @@ function getOriginName(sheet) {
 }
 
 
-async function getOriginCommitID(context, branch1, branch2) {
-    const commitRange = await getCommitRangeWithValues(context);
-    const branch1CommitID = await getCommitIDFromBranch(context, branch1);
-    const branch2CommitID = await getCommitIDFromBranch(context, branch2);
+async function getOriginCommitID(project, branch1, branch2) {
+    const commitRange = await project.getCommitRangeWithValues();
+    const branch1CommitID = await project.getCommitIDFromBranch(branch1);
+    const branch2CommitID = await project.getCommitIDFromBranch(branch2);
     
     // Then, we read in all the commits
     const graph = buildGraph(commitRange.values);
@@ -61,18 +62,21 @@ function toColumnName(num) {
 
 
 export async function mergeBranch(context, branch) {
-    // Get the head branch
-    const headBranch = await getHeadBranch(context);
+    const project = new Project(context);
+
     // Check that this branch exists
-    const branchExists = await checkBranchExists(context, branch);
+    const branchExists = await project.checkBranchExists(branch);
     if (!branchExists) {
         console.error(`Cannot merge ${branch} as it does not exist`);
         return;
     }
-    const branchCommitID = await getCommitIDFromBranch(context, branch);
+    const branchCommitID = await project.getCommitIDFromBranch(branch);
+
+    // Get the head branch
+    const headBranch = await project.getHeadBranch();
 
     // Get the origin commit id for these two branches
-    const originCommitID = await getOriginCommitID(context, headBranch, branch);
+    const originCommitID = await getOriginCommitID(project, headBranch, branch);
     const originSheetNameBase = `saga-${originCommitID}-`
 
     // Get the sheets from both branch

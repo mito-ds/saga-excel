@@ -1,32 +1,169 @@
+import { updateMetadataItem } from "./sagaUtils";
 
-/*
+
 
 export default class Project {
     constructor(context) {
         this.context = context;
     }
 
-
-    getCommitIDFromBranch = (branch) => {
-        // find the instance of the branch in the saga sheet
-        // return null if it doesn't exist (maybe "") works too
-        const worksheet = context.workbook.worksheets.getItem("saga");
-        var searchRange = worksheet.getRange("C1:C10"); // TODO: name this object!
-        // TODO: don't just get B10 you fool!!!! This will be a bug once more than 10 branches!
-        var foundRange = searchRange.find(branch, {
-            completeMatch: true, // find will match the whole cell value
-            matchCase: false, // find will not match case
-        });
-        // TODO: handle case where branch doesn't exist!
-        foundRange.load("address")
-        await context.sync();
-        const commitRangeAddress = "C" + foundRange.address.split("saga!C")[1];
-        const commitRange = worksheet.getRange(commitRangeAddress);
-        commitRange.load("values");
-        await context.sync();
-        const commitID = commitRange.values[0][0];
-        return commitID;
+    getBranchRange = async () => {
+        console.log("CONTEXT:", this.context)
+        const worksheet = this.context.workbook.worksheets.getItem(`saga`);
+        const branchItem = worksheet.names.getItem(`branches`);
+        branchItem.load(`value`);
+        await this.context.sync();
+        return worksheet.getRange(branchItem.value);
+    }
+    
+    getBranchRangeWithValues = async () => {
+        const branchRange = await this.getBranchRange(this.context);
+        branchRange.load("values");
+        await this.context.sync();
+        return branchRange;
     }
 
-*/
+    getHeadRange = async () => {
+        const worksheet = this.context.workbook.worksheets.getItem(`saga`);
+        const headItem = worksheet.names.getItem(`HEAD`);
+        headItem.load(`value`);
+        await this.context.sync();
+        // Uh, i dont' know why, but have to call this twice sometimes???
+        // TODO: figure out why, lol
+        headItem.load(`value`);
+        await this.context.sync();
+
+        console.log(headItem);
+        return worksheet.getRange(headItem.value);
+    }
+
+    getHeadRangeWithValues = async () => {
+        const headRange = await this.getHeadRange(this.context);
+        headRange.load("values");
+        await this.context.sync();
+        console.log(headRange);
+        return headRange;
+    }
+
+    getCommitRange = async () => {
+        const worksheet = this.context.workbook.worksheets.getItem(`saga`);
+        const commitItem = worksheet.names.getItem(`commits`);
+        commitItem.load(`value`);
+        await this.context.sync();
+        return worksheet.getRange(commitItem.value);
+    }
+
+    getCommitRangeWithValues = async () => {
+        const commitRange = await this.getCommitRange(this.context);
+        commitRange.load("values");
+        commitRange.load("address");
+        commitRange.load("rowCount")
+        await this.context.sync();
+        console.log(commitRange);
+        return commitRange;
+    }
+
+
+    /*
+    Returns the branch in the HEAD variable
+    */
+    getHeadBranch = async () => {
+        const headRange = await this.getHeadRangeWithValues(this.context);
+        return headRange.values[0][0];
+    }
+
+
+    /*
+    Gets the commit ID for a given branch name, 
+    returns null? if the branch does not exist, 
+    and "" if the branch has no previous commits on it
+    */
+    getCommitIDFromBranch = async (branch) => {
+        const branchRange = await this.getBranchRangeWithValues(this.context);
+        
+        const row = branchRange.values.find(row => {
+            return row[0] === branch;
+        })
+
+        if (!row) {
+            return null;
+        }
+        return row[1];
+    }
+
+
+    /*
+    Returns the branch in the HEAD variable
+    */
+    updateBranchCommitID = async (branch, commitID) => {
+        const branchRange = await this.getBranchRangeWithValues(this.context);
+
+        const newBranches = branchRange.values.map(row => {
+            if (row[0] === branch) {
+                return [branch, commitID];
+            }
+            return row;
+        })
+
+        branchRange.values = newBranches;
+
+        return this.context.sync();
+    }
+
+
+    // Inserts a single row directly below range (which must be same # of cols as range)
+    // Returns the new range including these values
+    insertRowBelowRange = async (range, values) => {
+        
+        // Make sure row count and address are defined
+        range.load("rowCount");
+        range.load("address");
+        await this.context.sync();
+
+        // TODO: handle cases where "!" or ":" is in the sheet name 
+        const [sheetName, address] = range.address.split(`!`)
+        const [addTopRight, addBotLeft] = address.split(`:`)
+        const topRightCol = addTopRight.match(`[A-Z]+`)[0];
+        const topRightRow = addTopRight.match(`[0-9]+`)[0];
+        const botLeftCol = addBotLeft.match(`[A-Z]+`)[0];
+        const botLeftRow = addBotLeft.match(`[0-9]+`)[0];
+
+        const worksheet = this.context.workbook.worksheets.getItem(sheetName);
+
+        // Now, we actually insert the column
+        const nextRow = parseInt(botLeftRow) + 1;
+        const rowInsertAddress = `${sheetName}!${topRightCol}${nextRow}:${botLeftCol}${nextRow}`;
+        const rowInsertRange = worksheet.getRange(rowInsertAddress);
+        rowInsertRange.values = values;
+
+        // We then return a new range that represents the old range union new row
+        
+        const newRangeAddress = `${sheetName}!${topRightCol}${topRightRow}:${botLeftCol}${nextRow}`;
+        const newRange = worksheet.getRange(newRangeAddress);
+
+        await this.context.sync();
+
+        return newRange;
+    }
+
+
+    /*
+    TODO
+    */
+    addCommitID = async (commitID, parentID) => {
+        const commitRange = await this.getCommitRangeWithValues(this.context);
+
+        // Insert the values into the sheet
+        const newRange = await this.insertRowBelowRange(commitRange, [[commitID, parentID]]);
+
+        await updateMetadataItem(this.context, `commits`, newRange);
+    }
+
+    checkBranchExists = async (branch) => {
+        const branchRange = await this.getBranchRangeWithValues();
+        return branchRange.values.some(row => row[0] === branch);
+    }
+
+
+}
 

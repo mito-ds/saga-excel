@@ -1,6 +1,5 @@
 import { getSheetsWithNames, copySheet } from "./sagaUtils";
-import { checkBranchExists } from "./branch";
-import { getCommitIDFromBranch, getHeadRange } from "./commit";
+import Project from './Project';
 
 
 async function deleteNonsagaSheets(context) {
@@ -18,16 +17,17 @@ Creates a new commit on the given branch
 */
 export async function checkoutBranch(context, branch) {
     // TODO: don't let ppl check out if there are changed sheets!
+    const project = new Project(context);
 
     // Only let people checkout branches that exist
-    const branchExists = await checkBranchExists(context, branch);
+    const branchExists = await project.checkBranchExists(branch);
     if (!branchExists) {
         console.error(`Cannot checkout ${branch} as it does not exist.`);
         return;
     }
 
     // Find the commit for a branch
-    const commitID = await getCommitIDFromBranch(context, branch);
+    const commitID = await project.getCommitIDFromBranch(branch);
 
     // Find those sheets that we should copy back
     let sheets = await getSheetsWithNames(context);
@@ -52,7 +52,7 @@ export async function checkoutBranch(context, branch) {
     }
 
     // Finially, update the head branch
-    const headRange = await getHeadRange(context);
+    const headRange = await project.getHeadRange();
     headRange.values = [[branch]];
 
     await context.sync();
