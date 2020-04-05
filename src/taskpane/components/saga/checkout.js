@@ -1,4 +1,4 @@
-import { getSheetsWithNames, copySheet } from "./sagaUtils";
+import { getSheetsWithNames, copySheet, deleteNonsagaSheets } from "./sagaUtils";
 import { checkBranchExists } from "./branch";
 /*
 Gets the commit ID for a given branch name, 
@@ -24,17 +24,6 @@ async function getCommitIDFromBranch(context, branch) {
     await context.sync();
     const commitID = commitRange.values[0][0];
     return commitID;
-}
-
-async function deleteNonsagaSheets(context) {
-    let sheets = await getSheetsWithNames(context);
-    sheets = sheets.filter(sheet => {
-        return !sheet.name.startsWith("saga");
-    })
-
-    sheets.forEach(sheet => sheet.delete());
-
-    await context.sync();
 }
 
 /*

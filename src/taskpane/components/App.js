@@ -6,7 +6,7 @@ import Progress from "./Progress";
 import {getFileContents} from "../../fileUtils";
 import CreateButton from "./saga/CreateButton";
 import DebugButton from "./saga/DebugButton";
-import CommitButton from "./saga/CommitButton";
+import SeePreviousCommitForm from "./saga/SeePreviousCommitForm";
 import CommitForm from "./saga/CommitForm";
 import CleanupButton from "./saga/CleanupButton";
 import CreateBranchInput from "./saga/CreateBranchInput";
@@ -261,6 +261,7 @@ export default class App extends React.Component {
           <CreateBranchInput/>
           <CheckoutBranchInput/>
           <MergeBranchInput/>
+          <SeePreviousCommitForm/>
         </HeroList>
       </div>
     );

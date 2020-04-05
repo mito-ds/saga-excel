@@ -47,7 +47,6 @@ async function addCommitID(context, commitID, parentID, commitName, commitMessag
     await context.sync();
     const rowCount = range.rowCount;
     const newRangeAddress = 'A' + (rowCount + 1) + ":E" + (rowCount + 1);
-    console.log(newRange);
     const newRange = worksheet.getRange(newRangeAddress);
     newRange.values = [[commitID, parentID, 1, commitName, commitMessage]];
     // TODO: numSheets = sheetNames.length, and save
