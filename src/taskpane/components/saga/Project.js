@@ -164,6 +164,13 @@ export default class Project {
         return branchRange.values.some(row => row[0] === branch);
     }
 
-
+    /*
+    Returns true if CommitID exists; false otherwise
+    */
+    checkCommitIDExists(commitID) {    
+        //Get the Commit Worksheet
+        const commitRange = await this.getCommitRangeWithValues();
+        return commitRange.values.some(row => row[0] === commitID);
+    }
 }
 

@@ -1,40 +1,15 @@
 import { getSheetsWithNames, copySheet, deleteNonsagaSheets } from "./sagaUtils";
-
-
-/*
-Returns true if CommitID exists; false otherwise
-*/
-async function doesCommitIDExist(context, commitID) {    
-    //Get the Commit Worksheet
-    const commitWorksheet = context.workbook.worksheets.getItem("saga-commits");
-    var searchRange = commitWorksheet.getRange("A1:A10"); // TODO: name this object = column of all commits!
-     
-    var foundRange = searchRange.findOrNullObject(commitID, {
-        completeMatch: true, // find will match the whole cell value
-        matchCase: false, // find will not match case
-    });
-
-    foundRange.load("values");
-    await context.sync();
-
-    // Return True / False
-    if (foundRange.isNullObject) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
+import Project from `./Project`;
 
 /*
 Restores the state of a given commit to the active state
 */
 export async function restoreCommit(context, commitID) {
-
+    const project = new Project(context);
 
     // Check if CommitID Exists
-    const CommitIDExists = await doesCommitIDExist(context, commitID);
-    if (!CommitIDExists) {
+    const commitIDExists = project.checkCommitIDExists(commitID);
+    if (!commitIDExists) {
         return;
     }
 
