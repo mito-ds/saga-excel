@@ -94,3 +94,20 @@ export async function getFormulas(context, sheetName) {
   await context.sync();
   return usedRange.formulas;
 }
+
+/*
+Deletes all sheets whose name does not begin with "saga"
+*/
+export async function deleteNonsagaSheets(context) {
+    let sheets = await getSheetsWithNames(context);
+    sheets = sheets.filter(sheet => {
+        return !sheet.name.startsWith("saga");
+    })
+
+    sheets.forEach(sheet => sheet.delete());
+
+    await context.sync();
+}
+
+
+

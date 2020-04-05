@@ -150,11 +150,11 @@ export default class Project {
     /*
     TODO
     */
-    addCommitID = async (commitID, parentID) => {
+    addCommitID = async (commitID, parentID, commitName, commitMessage) => {
         const commitRange = await this.getCommitRangeWithValues(this.context);
 
         // Insert the values into the sheet
-        const newRange = await this.insertRowBelowRange(commitRange, [[commitID, parentID]]);
+        const newRange = await this.insertRowBelowRange(commitRange, [[commitID, parentID, commitName, commitMessage]]);
 
         await updateMetadataItem(this.context, `commits`, newRange);
     }

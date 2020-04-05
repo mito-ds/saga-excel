@@ -24,10 +24,10 @@ async function setupSagaSheet(context) {
     worksheet.names.add("branches", branchRange)
     branchRange.values = [["master", ""]];
 
-    // Setup, name range for commit id => parent commit id mapping
-    const commitRange = worksheet.getRange("D1:E1");
+    // Setup, name range for commit id => (parent commit id, name, message) mapping
+    const commitRange = worksheet.getRange("D1:G1");
     worksheet.names.add("commits", commitRange)
-    commitRange.values = [["", ""]];
+    commitRange.values = [["", "", "", ""]];
 
     return context.sync();
 }

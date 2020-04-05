@@ -27,7 +27,7 @@ async function saveSheets(context, sheetNames, commitID) {
 /*
 Creates a new commit on the given branch
 */
-export async function commit(context, branch) {
+export async function commit(context, commitName, commitMessage, branch) {
     const project = new Project(context);
 
     if (!branch) {
@@ -52,7 +52,7 @@ export async function commit(context, branch) {
     // save the commit id with it's parent
     const parentID = await project.getCommitIDFromBranch(branch);
     await project.updateBranchCommitID(branch, commitID);
-    await project.addCommitID(commitID, parentID);
+    await project.addCommitID(commitID, parentID, commitName, commitMessage);
 
     return context.sync();
 }
