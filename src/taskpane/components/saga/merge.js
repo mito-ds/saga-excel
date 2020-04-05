@@ -1,4 +1,4 @@
-import { getHeadBranch, getCommitIDFromBranch, commit } from './commit';
+import { getHeadBranch, getCommitIDFromBranch, commit, getCommitRangeWithValues } from './commit';
 import { checkBranchExists } from './branch';
 import { getSheetsWithNames, copySheet, getFormulas } from "./sagaUtils";
 import { diff3Merge2d } from "./mergeUtils";
@@ -24,14 +24,11 @@ function getOriginName(sheet) {
 
 
 async function getOriginCommitID(context, branch1, branch2) {
-    const sheet = context.workbook.worksheets.getItem("saga-commits");
+    const commitRange = await getCommitRangeWithValues(context);
     const branch1CommitID = await getCommitIDFromBranch(context, branch1);
     const branch2CommitID = await getCommitIDFromBranch(context, branch2);
     
     // Then, we read in all the commits
-    const commitRange = sheet.getRange("A1:B10");
-    commitRange.load("values");
-    await context.sync();
     const graph = buildGraph(commitRange.values);
 
     let reached = {'': true};
@@ -158,17 +155,16 @@ export async function mergeBranch(context, branch) {
         const originName = getOriginName(sheet);
         const originSheetName = originSheetNameBase + originName;
 
-        console.log(`getting formulas for:`, originSheetName)
         const originFormulas = await getFormulas(context, originSheetName);
-        console.log(`getting formulas for:`, originName)
         const headFormulas = await getFormulas(context, originName);
-        console.log(`getting formulas for:`, sheet.name)
         const branchFormulas = await getFormulas(context, sheet.name);
-        console.log("GOT FORMULAS")
+        console.log("GOT FORMULAS", originFormulas, headFormulas, branchFormulas);
         const merge = diff3Merge2d(originFormulas, headFormulas, branchFormulas);
+        console.log("got merge", merge);
 
         // Finially, we get the range
         const mergeSheet = context.workbook.worksheets.getItem(originName);
+        console.log("here1")
 
         for (let i = 0; i < merge.length; i++) {
             const len = merge[i].length;
@@ -178,8 +174,10 @@ export async function mergeBranch(context, branch) {
             const rowRange = mergeSheet.getRange(rangeAddress);
             rowRange.values = [merge[i]];
         }
+        console.log("here2")
         context.sync();
     }
+    console.log("commiting")
 
     // Finially, after we have merged everything, we can make a commit to lock it in
     await commit(context);

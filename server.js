@@ -44,7 +44,6 @@ app.post('/project/:id', async function (req, res) {
     const id = base64js.fromByteArray(req.body.id);
     files[id] = fileContents;
     res.json({"id": id});
-    res.end(200);
     console.log(req.params.id);
 })
 

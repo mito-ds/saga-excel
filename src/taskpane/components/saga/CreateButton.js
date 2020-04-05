@@ -7,50 +7,29 @@ import $ from "jquery";
 
 /* global Button, console, Excel */
 
-
-async function firstCommit() {
-    // Copies over the original sheets; has no parent!
-    
-}
-
-
 /*
 Sets up the headers for the commit worksheet, if they don't already exist
 */
-async function setupCommitHeaders(context) {
-    // get the commit worksheet
-    const worksheet = context.workbook.worksheets.getItemOrNullObject("saga-commits");
+async function setupSagaSheet(context) {
+    // First, we create the sheet
+    const worksheet = await createSheet(context, "saga", Excel.SheetVisibility.visible);
 
-    if (worksheet === null) {
-        console.log("Worksheet saga-commits does not exist. Did you create the saga project?");
-        return;
-    }
+    // Setup, name range for head branch
+    const headRange = worksheet.getRange("A1");
+    worksheet.names.add(`HEAD`, headRange)
+    headRange.values = [["master"]];
 
-    const headerRange = worksheet.getRange("A1:C1");
-    headerRange.values = [["commit", "parent", "num"]];
+    // Setup, name range for branch name => commit mapping
+    const branchRange = worksheet.getRange("B1:C1");
+    worksheet.names.add("branches", branchRange)
+    branchRange.values = [["master", ""]];
 
-    await context.sync();
-}
+    // Setup, name range for commit id => parent commit id mapping
+    const commitRange = worksheet.getRange("D1:E1");
+    worksheet.names.add("commits", commitRange)
+    commitRange.values = [["", ""]];
 
-/*
-Sets up the headers for the commit worksheet, if they don't already exist
-*/
-async function setupMetadataHeaders(context) {
-    // get the commit worksheet
-    const worksheet = context.workbook.worksheets.getItemOrNullObject("saga");
-
-    if (worksheet === null) {
-        console.log("Worksheet saga does not exist. Did you create the saga project?");
-        return;
-    }
-
-    const headerRange = worksheet.getRange("A1:D2");
-    headerRange.values = [
-        ["HEAD", "remote", "branch", "commit"],
-        ["master", "", "master", ""]
-    ];
-
-    await context.sync();
+    return context.sync();
 }
 
 
@@ -75,11 +54,15 @@ async function createRemote(context) {
         {
             "fileContents": fileContents
         }
-    )
-    const remoteUrl = `https://excel.sagalab.org/project/${response["id"]}`;
-    // Saves the remote url
-    const range = context.workbook.worksheets.getItemOrNullObject("saga").getRange("B2");
-    range.values = remoteUrl;
+    );
+    const worksheet = context.workbook.worksheets.getItem("saga");
+
+    const remoteURL = `https://excel.sagalab.org/project/${response["id"]}`;
+
+    // Setup, name range for remote url
+    const remoteRange = worksheet.getRange("A2");
+    worksheet.names.add("remote", remoteRange)
+    remoteRange.values = [[remoteURL]]
 
     return context.sync();
 }
@@ -89,17 +72,11 @@ async function createRemote(context) {
 async function createSaga() {
     try {
         await Excel.run(async context => {
-            // Create the metadata sheetS
-            // TODO: name all the things! https://docs.microsoft.com/en-us/javascript/api/excel/excel.nameditemcollection?view=excel-js-preview
-
-            await createSheet(context, "saga", Excel.SheetVisibility.visible);
-            await createSheet(context, "saga-commits", Excel.SheetVisibility.visible);
-            await setupCommitHeaders(context);
-            await setupMetadataHeaders(context);
-            // We also are going to try and create a remote project
-            await createRemote(context);
-
+            // Create the metadata sheet
+            await setupSagaSheet(context);
             
+            // Try and create a remote project
+            await createRemote(context);
 
             return context.sync();
         });

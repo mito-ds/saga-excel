@@ -1,37 +1,13 @@
 import { getSheetsWithNames, copySheet } from "./sagaUtils";
 import { checkBranchExists } from "./branch";
-/*
-Gets the commit ID for a given branch name, 
-returns null? if the branch does not exist, 
-and "" if the branch has no previous commits on it
-*/
-async function getCommitIDFromBranch(context, branch) {
-    // find the instance of the branch in the saga sheet
-    // return null if it doesn't exist (maybe "") works too
-    const worksheet = context.workbook.worksheets.getItem("saga");
-    let searchRange = worksheet.getRange("C1:C10"); // TODO: name this object!
-    // TODO: don't just get B10 you fool!!!! This will be a bug once more than 10 branches!
-    let foundRange = searchRange.find(branch, {
-        completeMatch: true, // find will match the whole cell value
-        matchCase: false, // find will not match case
-    });
-    // TODO: handle case where branch doesn't exist!
-    foundRange.load("address")
-    await context.sync();
-    const commitRangeAddress = "C" + foundRange.address.split("saga!B")[1];
-    const commitRange = worksheet.getRange(commitRangeAddress);
-    commitRange.load("values");
-    await context.sync();
-    const commitID = commitRange.values[0][0];
-    return commitID;
-}
+import { getCommitIDFromBranch, getHeadRange } from "./commit";
+
 
 async function deleteNonsagaSheets(context) {
     let sheets = await getSheetsWithNames(context);
     sheets = sheets.filter(sheet => {
         return !sheet.name.startsWith("saga");
     })
-
     sheets.forEach(sheet => sheet.delete());
 
     await context.sync();
@@ -76,9 +52,8 @@ export async function checkoutBranch(context, branch) {
     }
 
     // Finially, update the head branch
-    const sheet = context.workbook.worksheets.getItem("saga");
-    const range = sheet.getRange("A2");
-    range.values = [[branch]];
+    const headRange = await getHeadRange(context);
+    headRange.values = [[branch]];
 
-    return context.sync();
+    await context.sync();
 }

@@ -14,6 +14,21 @@ export async function getSheetsWithNames(context) {
     return sheets.items;
 }
 
+
+/*
+Update the value of a named item in the saga metadata sheet.
+Errors if the item does not exist
+*/
+export async function updateMetadataItem(context, itemName, newItem) {
+    const worksheet = context.workbook.worksheets.getItem("saga");
+
+    const oldItem = worksheet.names.getItem(itemName);
+    oldItem.delete();
+    worksheet.names.add(itemName, newItem);
+
+    await context.sync();
+}
+
 /*
 Creates a new sheet with the given name and visibility. 
 Errors if a sheet with that name already exists.
@@ -31,7 +46,9 @@ export async function createSheet(context, worksheetName, worksheetVisibility) {
 
     console.log(`Created sheet ${worksheetName} and set to ${worksheetVisibility}`);
 
-    return context.sync();
+    await context.sync();
+
+    return copiedSheet;
 }
 
 /*

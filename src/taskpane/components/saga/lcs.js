@@ -70,6 +70,10 @@ export function longestCommonSubsequence(aValues, bValues) {
 }
 
 function sim(a, b) {
+    //if ((a === null ||  || b  == null) {
+    //    return a === b ? 1 : 0;
+    //}
+    
     const numShared = a.filter(function(el) {
         return b.indexOf(el) >= 0;
     }).length;

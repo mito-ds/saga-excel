@@ -205,11 +205,13 @@ export function diff3Merge(origin, aValues, bValues) {
 
 export function diff3Merge2d(origin, aValues, bValues) {
     // First, we're going to match the rows to eachother
+
     const aMatches = longestCommonSubsequence2d(origin, aValues);
     const bMatches = longestCommonSubsequence2d(origin, bValues);
     const mergedMatches = mergeMatches(aMatches, bMatches, origin.length);
 
     const output = []
+
 
     // Now, we're going to loop over each of the rows and merge them indivigually
     for (let i = 0; i < mergedMatches.length; i++) {
