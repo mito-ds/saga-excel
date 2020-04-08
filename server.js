@@ -63,6 +63,7 @@ app.get('/checkhead/:id', async function (req, res) {
 
     const headCommitID = req.body.headCommitID;
     const parentCommitID = req.body.parentCommitID;
+    console.log(headCommitID, parentCommitID)
 
     const BRANCH_STATE_HEAD = 0;
     const BRANCH_STATE_AHEAD = 1;
@@ -71,9 +72,9 @@ app.get('/checkhead/:id', async function (req, res) {
 
     const project = projects[id];
 
-    if (headCommitID == project.headCommitID) {
+    if (headCommitID === project.headCommitID) {
         res.json({branch_state: BRANCH_STATE_HEAD});
-    } else if (parentCommitID == project.headCommitID) {
+    } else if (parentCommitID === project.headCommitID) {
         res.json({branch_state: BRANCH_STATE_AHEAD});
     } else if (headCommitID in project.child) {
         res.json({branch_state: BRANCH_STATE_BEHIND});
