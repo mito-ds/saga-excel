@@ -13,19 +13,45 @@ app.use(function(req, res, next) {
 
 app.use(bodyParser.json());
 
-files = {}
+projects = {}
 
 app.get('/', function (req, res) {
     res.json({"key": "value"});
 });
 
+function createProject(id, fileContents) {
+    if (id in projects) {
+        console.error(`Error: a project already exists with id: ${id}`)
+        return false;
+    }
+
+    projects[id] = {}
+    projects[id].contents = {}
+    projects[id].parent = {}
+    projects[id].child = {}
+
+    return true;
+}
+
 app.post('/create', async function (req, res) {
-    const fileContents = base64js.fromByteArray(req.body.fileContents);
     const id = uuidv4();
-    console.log(`saving at ${id}`);
-    files[id] = fileContents;
+    console.log(`Creating a project a ${id}`);
+
+    const fileContents = base64js.fromByteArray(req.body.fileContents);
+
+    project[id].headContents = fileContents;
     res.json({"id": id});
 });
+
+// Route to post an update to a project
+app.post('/checkhead/:id', async function (req, res) {
+
+    const headCommitID = req.body.headCommitID;
+    const parentCommitID = req.body.parentCommitID;
+
+    console.log(`checking head for ${headCommitID}, ${parentCommitID}`);
+    res.end(200);
+})
 
 app.get('/project/:id', async function (req, res) {
     // TODO: we should also send back a filename?
@@ -41,9 +67,12 @@ app.get('/project/:id', async function (req, res) {
 // Route to post an update to a project
 app.post('/project/:id', async function (req, res) {
     const fileContents = base64js.fromByteArray(req.body.fileContents);
-    const id = base64js.fromByteArray(req.body.id);
+    const id = req.body.id;
+    console.log(`updating at ${id}`);
+
     files[id] = fileContents;
     res.json({"id": id});
+    res.end(200);
     console.log(req.params.id);
 })
 
