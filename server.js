@@ -41,6 +41,7 @@ app.post('/create', async function (req, res) {
     const fileContents = base64js.fromByteArray(req.body.fileContents);
 
     if (createProject(id, fileContents)) {
+        console.log(projects);
         res.json({"id": id});
     } else {
         res.json({"id": ""});
