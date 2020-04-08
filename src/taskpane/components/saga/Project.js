@@ -59,8 +59,29 @@ export default class Project {
         commitRange.load("address");
         commitRange.load("rowCount")
         await this.context.sync();
-        console.log(commitRange);
         return commitRange;
+    }
+
+    getRemoteRange = async () => {
+        const worksheet = this.context.workbook.worksheets.getItem(`saga`);
+        const remoteItem = worksheet.names.getItem(`remote`);
+        remoteItem.load(`value`);
+        await this.context.sync();
+        return worksheet.getRange(remoteItem.value);
+    }
+
+    getRemoteRangeWithValues = async () => {
+        const remoteRange = await this.getRemoteRange(this.context);
+        remoteRange.load("values");
+        remoteRange.load("address");
+        remoteRange.load("rowCount")
+        await this.context.sync();
+        return remoteRange;
+    }
+
+    getRemoteURL = async () => {
+        const remoteRange = await this.getRemoteRangeWithValues(this.context);
+        return remoteRange.values[0][0];
     }
 
 
@@ -91,6 +112,24 @@ export default class Project {
         return row[1];
     }
 
+    /*
+    Gets the commit ID for a given branch name, 
+    returns null? if the branch does not exist, 
+    and "" if the branch has no previous commits on it
+    */
+    getParentCommitID = async (commitID) => {
+        const commitRange = await this.getCommitRangeWithValues(this.context);
+
+        const row = commitRange.values.find(row => {
+            return row[0] === commitID;
+        })
+
+        if (!row) {
+            return null;
+        }
+        return row[1];
+    }
+
 
     /*
     Returns the branch in the HEAD variable
@@ -109,6 +148,7 @@ export default class Project {
 
         return this.context.sync();
     }
+
 
 
     // Inserts a single row directly below range (which must be same # of cols as range)
