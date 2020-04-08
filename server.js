@@ -54,7 +54,7 @@ const checkProjectID = (req, res, next) => {
 }
 
 // Route to post an update to a project
-app.post('/checkhead/:id', checkProjectID, async function (req, res) {
+app.get('/checkhead/:id', checkProjectID, async function (req, res) {
 
     if (!(id in projects)) {
         res.status(404).end(); // If the project does not exist,
