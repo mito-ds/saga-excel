@@ -53,7 +53,8 @@ app.get('/checkhead/:id', async function (req, res) {
 
     const id = req.params.id;
 
-    console.log(`checking head at ${id}, ${projects}`);
+    console.log(`checking head at ${id}`);
+    console.log(projects);
 
     if (!(id in projects)) {
         res.status(404).end(); // If the project does not exist, we say so
