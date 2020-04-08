@@ -25,10 +25,11 @@ function createProject(id, fileContents) {
         return false;
     }
 
-    projects[id] = {}
-    projects[id].contents = {}
-    projects[id].parent = {}
-    projects[id].child = {}
+    projects[id] = {};
+    projects[id].contents = {};
+    projects[id].parent = {};
+    projects[id].child = {};
+    projects[id].headCommitID = "";
 
     return true;
 }
@@ -39,12 +40,25 @@ app.post('/create', async function (req, res) {
 
     const fileContents = base64js.fromByteArray(req.body.fileContents);
 
-    project[id].headContents = fileContents;
-    res.json({"id": id});
+    if (createProject(id, fileContents)) {
+        res.json({"id": id});
+    } else {
+        res.json({"id": ""});
+    }
 });
 
+const checkProjectID = (req, res, next) => {
+    console.log(`checking ${req.body.id}`)
+    next();
+
+}
+
 // Route to post an update to a project
-app.post('/checkhead/:id', async function (req, res) {
+app.post('/checkhead/:id', checkProjectID, async function (req, res) {
+
+    if (!(id in projects)) {
+        res.status(404).end(); // If the project does not exist,
+    }
 
     const headCommitID = req.body.headCommitID;
     const parentCommitID = req.body.parentCommitID;
