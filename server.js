@@ -47,24 +47,35 @@ app.post('/create', async function (req, res) {
     }
 });
 
-const checkProjectID = (req, res, next) => {
-    console.log(`checking ${req.body.id}`)
-    next();
-
-}
-
 // Route to post an update to a project
-app.get('/checkhead/:id', checkProjectID, async function (req, res) {
+app.get('/checkhead/:id', async function (req, res) {
+
+    const id = req.body.id;
 
     if (!(id in projects)) {
-        res.status(404).end(); // If the project does not exist,
+        res.status(404).end(); // If the project does not exist, we say so
+        return;
     }
 
     const headCommitID = req.body.headCommitID;
     const parentCommitID = req.body.parentCommitID;
 
-    console.log(`checking head for ${headCommitID}, ${parentCommitID}`);
-    res.end(200);
+    const BRANCH_STATE_HEAD = 0;
+    const BRANCH_STATE_AHEAD = 1;
+    const BRANCH_STATE_BEHIND = 2;
+    const BRANCH_STATE_FORKED = 3;
+
+    const project = projects[id];
+
+    if (headCommitID == project.headCommitID) {
+        res.json({branch_state: BRANCH_STATE_HEAD});
+    } else if (parentCommitID == project.headCommitID) {
+        res.json({branch_state: BRANCH_STATE_AHEAD});
+    } else if (headCommitID in project.child) {
+        res.json({branch_state: BRANCH_STATE_BEHIND});
+    } else {
+        res.json({branch_state: BRANCH_STATE_FORKED});
+    }
 })
 
 app.get('/project/:id', async function (req, res) {
