@@ -1,5 +1,7 @@
 import { getSheetsWithNames, copySheet, getRandomID, updateMetadataItem } from "./sagaUtils";
 import Project from "./Project";
+import { createBranch } from "./branch";
+import { checkoutBranch } from "./checkout";
 
 /*
 Saves a copy off all current non-saga sheets.
@@ -28,19 +30,22 @@ async function saveSheets(context, sheetNames, commitID) {
 Display Dialog box to request user to name personal branch
 */
 async function showUnamedPersonalBranchDialog(project, url) {
-    await Office.context.ui.displayDialogAsync(url, {height:40,width:40}, function(result){
-        const dialog = result.value;
-
-        if (result.status == Office.AsyncResultStatus.Failed) {
-            console.log('error');
-        }
-
-        dialog.addEventHandler(Office.EventType.DialogMessageReceived, function(responseMessage){
-            console.log('message received');
-            project.updatePersonalBranchName(responseMessage.message)
-            dialog.close();
-        });
-    }); 
+    var branchName = new Promise(function (resolve, reject) {
+        Office.context.ui.displayDialogAsync(url, {height:40,width:40}, function(result) {
+            const dialog = result.value;
+    
+            if (result.status == Office.AsyncResultStatus.Failed) {
+                console.log('error in unamed personal branch dialog');
+            }
+    
+            dialog.addEventHandler(Office.EventType.DialogMessageReceived, function(responseMessage) {
+                branchName = responseMessage.message
+                resolve(branchName)
+                dialog.close();
+            });
+        }); 
+    }) 
+    return branchName 
 }
 
 /*
@@ -55,9 +60,9 @@ async function showPermissionDeniedDialog(project, url) {
         }
 
         dialog.addEventHandler(Office.EventType.DialogMessageReceived, function(responseMessage){
-            console.log('message received');
             dialog.close();
         });
+
     }); 
 }
 
@@ -71,8 +76,13 @@ export async function commit(context, commitName, commitMessage, branch) {
     const personalBranchNameRange = await project.getPersonalBranchNameWithValues();
     const personalBranchName = personalBranchNameRange.values[0][0];
 
+    // If they have not yet set the personal branch name
     if (personalBranchName == "") {
-        await showUnamedPersonalBranchDialog(project, '/src/taskpane/components/UnamedPersonalBranchDialog.html')
+        // Show dialog box promting user for personal branch name
+        const personalBranchName = await showUnamedPersonalBranchDialog(project, '/src/taskpane/components/UnamedPersonalBranchDialog.html')
+        await project.updatePersonalBranchName(personalBranchName);
+        await createBranch(context, personalBranchName);
+        await checkoutBranch(context, personalBranchName);
         return;
     }
 

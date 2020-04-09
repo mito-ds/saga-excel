@@ -9,7 +9,6 @@ export default class Project {
     }
 
     getBranchRange = async () => {
-        console.log("CONTEXT:", this.context)
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
         const branchItem = worksheet.names.getItem(`branches`);
         branchItem.load(`value`);
@@ -185,7 +184,7 @@ export default class Project {
         var personalBranchNameRange = await this.getPersonalBranchNameRange(this.context);
         personalBranchNameRange.values = [[personalBranchName]];
         await this.context.sync();
-        return personalBanchName;
+        return;
     }
 
 
