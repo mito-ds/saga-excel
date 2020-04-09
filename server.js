@@ -34,7 +34,7 @@ function createProject(id) {
     projects[id].contents = {};
     projects[id].parent = {};
     projects[id].child = {};
-    projects[id].commitSheets = {};
+    projects[id].commitSheets = {"": []};
     projects[id].headCommitID = "";
 
     return true;
