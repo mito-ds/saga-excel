@@ -1,4 +1,5 @@
 import Project from "./Project"
+import qs from 'qs';
 
 export async function updateShared(context) {
     const project = new Project(context);
@@ -8,12 +9,13 @@ export async function updateShared(context) {
 
     const axios = await project.getAxios();
 
-    const reponse = await axios.request({
+    const response = await axios.request({
       url: "/checkhead",
       params: {
         headCommitID: headCommitID,
         parentCommitID: parentCommitID
       },
+      paramsSerializer: (params) => {qs.stringify(params)}
     })
 
     console.log(response)

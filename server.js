@@ -50,6 +50,7 @@ app.post('/create', async function (req, res) {
 
 // Route to post an update to a project
 app.get('/project/:id/checkhead', async function (req, res) {
+    console.log(req.originalUrl)
 
     const id = req.params.id;
 
