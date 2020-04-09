@@ -1,4 +1,5 @@
 import { updateMetadataItem } from "./sagaUtils";
+import axios from 'axios';
 
 
 
@@ -8,7 +9,6 @@ export default class Project {
     }
 
     getBranchRange = async () => {
-        console.log("CONTEXT:", this.context)
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
         const branchItem = worksheet.names.getItem(`branches`);
         branchItem.load(`value`);
@@ -33,7 +33,6 @@ export default class Project {
         headItem.load(`value`);
         await this.context.sync();
 
-        console.log(headItem);
         return worksheet.getRange(headItem.value);
     }
 
@@ -41,7 +40,6 @@ export default class Project {
         const headRange = await this.getHeadRange(this.context);
         headRange.load("values");
         await this.context.sync();
-        console.log(headRange);
         return headRange;
     }
 
@@ -82,6 +80,18 @@ export default class Project {
     getRemoteURL = async () => {
         const remoteRange = await this.getRemoteRangeWithValues(this.context);
         return remoteRange.values[0][0];
+    }
+
+    /*
+    An instance for interacting with the remote branch
+    */
+    getAxios = async () => {
+        // TODO: we probably wanna replace this with a "remote" object!
+        const remoteURL = await this.getRemoteURL();
+        const instance = axios.create({
+            baseURL: remoteURL
+        });
+        return instance;
     }
 
 
@@ -211,6 +221,20 @@ export default class Project {
         //Get the Commit Worksheet
         const commitRange = await this.getCommitRangeWithValues();
         return commitRange.values.some(row => row[0] === commitID);
+    }
+
+    /*
+    Efficiently gets all the worksheet objects with all their names loaded
+    */
+    getSheetsWithNames = async () => {
+        const sheets = this.context.workbook.worksheets;
+
+        sheets.load("$none");
+        await context.sync();
+
+        sheets.items.forEach(sheet => sheet.load("name"));
+        await context.sync();
+        return sheets.items;
     }
 }
 

@@ -27,7 +27,7 @@ async function saveSheets(context, sheetNames, commitID) {
 /*
 Creates a new commit on the given branch
 */
-export async function commit(context, commitName, commitMessage, branch) {
+export async function commit(context, commitName, commitMessage, branch, commitID) {
     const project = new Project(context);
 
     if (!branch) {
@@ -37,7 +37,10 @@ export async function commit(context, commitName, commitMessage, branch) {
     console.log(`making a commit on branch ${branch}`)
 
     // Create a new commit ID
-    const commitID = getRandomID();
+    
+    if (!commitID) {
+        commitID = getRandomID();
+    }
 
     // Find the names of all the sheets we have to copy to this commit
     const sheets = (await getSheetsWithNames(context)).filter((sheet) => {

@@ -12,6 +12,7 @@ import CleanupButton from "./saga/CleanupButton";
 import CreateBranchInput from "./saga/CreateBranchInput";
 import CheckoutBranchInput from "./saga/CheckoutInput";
 import MergeBranchInput from "./saga/MergeBranchInput";
+import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
 import {updateShared} from './saga/sync';
 import $ from "jquery";
 
@@ -134,7 +135,6 @@ export default class App extends React.Component {
   }
 
   updateShared = async () => {
-    console.log(`pushing`)
     try {
       await Excel.run(async context => {
         await updateShared(context);
@@ -148,7 +148,6 @@ export default class App extends React.Component {
   }
 
   testPull = async () => {
-    console.log(`pushing`)
     try {
       await Excel.run(async context => {
         // First, we get the ID
@@ -247,6 +246,7 @@ export default class App extends React.Component {
           <CheckoutBranchInput/>
           <MergeBranchInput/>
           <SeePreviousCommitForm/>
+          <CreateFromRemoteForm/>
         </HeroList>
       </div>
     );
