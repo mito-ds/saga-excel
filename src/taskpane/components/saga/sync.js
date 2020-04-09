@@ -9,14 +9,11 @@ export async function updateShared(context) {
 
     const axios = await project.getAxios();
 
-    const response = await axios.request({
-      url: "/checkhead",
+    const response = axios.get('/checkhead', {
       params: {
         headCommitID: headCommitID,
         parentCommitID: parentCommitID
-      },
-      paramsSerializer: (params) => {qs.stringify(params)}
-    })
-
+      }
+    });
     console.log(response)
 }
