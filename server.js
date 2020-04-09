@@ -136,7 +136,7 @@ app.get('/project/:id', async function (req, res) {
         var commitSheets = [];
         while (currCommitID !== project.headCommitID) {
             commitIDs.push(currCommitID);
-            commitSheets.push(project.commitSheets[currCommitID])
+            commitSheets.push(...project.commitSheets[currCommitID])
             currCommitID = project.child[currCommitID];
         }
 
