@@ -34,7 +34,7 @@ function createProject(id) {
     projects[id].contents = {};
     projects[id].parent = {};
     projects[id].child = {};
-    projects[id].commitSheets = {"": []};
+    projects[id].commitSheets = {};
     projects[id].headCommitID = "";
 
     return true;
@@ -131,7 +131,7 @@ app.get('/project/:id', async function (req, res) {
 
     // If the branch state is behind, we report everything you need to catch up
     if (branchState === BRANCH_STATE_BEHIND) {
-        var currCommitID = headCommitID;
+        var currCommitID = project.child[currCommitID];
         var commitIDs = [];
         var commitSheets = [];
         while (currCommitID !== undefined) {
