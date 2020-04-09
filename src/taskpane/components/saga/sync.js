@@ -21,8 +21,7 @@ async function postData(url, data) {
     const response = await $.ajax({
       type: "GET",
       url: url,
-      contentType: "application/json",
-      data: JSON.stringify(data)
+      data: data
     }).promise();
     return response;
   }
