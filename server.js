@@ -134,7 +134,7 @@ app.get('/project/:id', async function (req, res) {
         var currCommitID = headCommitID;
         var commitIDs = [];
         var commitSheets = [];
-        while (currCommitID !== project.headCommitID) {
+        while (currCommitID !== undefined) {
             commitIDs.push(currCommitID);
             project.commitSheets[currCommitID].forEach(commitSheet => {
                 commitSheets.push(commitSheet);
