@@ -230,10 +230,10 @@ export default class Project {
         const sheets = this.context.workbook.worksheets;
 
         sheets.load("$none");
-        await context.sync();
+        await this.context.sync();
 
         sheets.items.forEach(sheet => sheet.load("name"));
-        await context.sync();
+        await this.context.sync();
         return sheets.items;
     }
 }

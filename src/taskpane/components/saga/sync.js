@@ -9,15 +9,21 @@ const BRANCH_STATE_BEHIND = 2;
 const BRANCH_STATE_FORKED = 3;
 
 
-async function handleAhead(remoteURL, headCommitID, parentCommitID) {
+async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
   const fileContents = await getFileContents();
-  console.log(`FILE CONTENTS: ${fileContents}`);
+  const sheets = await project.getSheetsWithNames();
+  const masterSheets = sheets.filter(sheet => {
+    return sheet.name.startsWith(`saga-${headCommitID}`);
+  }).map(sheet => sheet.name);
+
+  console.log(`Master Sheets: ${masterSheets}`);
   const updateResponse = await axios.post(
     remoteURL,
     {
       headCommitID: headCommitID,
       parentCommitID: parentCommitID,
-      fileContents: fileContents
+      fileContents: fileContents,
+      masterSheets: masterSheets
     }
   );
   // We need to now check if the update was successful
@@ -29,13 +35,6 @@ async function handleAhead(remoteURL, headCommitID, parentCommitID) {
 }
 
 async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID) {
-  
-  // Making sure master is already checked out
-  const headBranch = project.getHeadBranch();
-  if (headBranch !== `master`) {
-    console.error("Can only get update from server when master is checked out.")
-    return false;
-  }
 
   // Deleted all checked out master branches
   await deleteNonsagaSheets(project.context);
@@ -47,6 +46,8 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
       parentCommitID: parentCommitID
     }
   });
+  console.log(response.data);
+  return;
 
   // TODO: error check the response
 
@@ -58,6 +59,8 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
     fileContents,
     masterSheets
   );
+
+
 
 
 
@@ -77,7 +80,15 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
 
 export async function updateShared(context) {
     const project = new Project(context);
+
+    // Making sure master is already checked out
+    // TODO: we can relax this eventually!
     const headBranch = await project.getHeadBranch();
+    if (headBranch !== `master`) {
+      console.error("Can only do updates when master is checked out.")
+      return false;
+    }
+
     const headCommitID = await project.getCommitIDFromBranch(headBranch);
     const parentCommitID = await project.getParentCommitID(headCommitID);
 
@@ -99,7 +110,7 @@ export async function updateShared(context) {
       console.log(`Already up to date with server`);
       return true;
     } else if (branchState === BRANCH_STATE_AHEAD) {
-      const handledAhead = await handleAhead(remoteURL, headCommitID, parentCommitID);
+      const handledAhead = await handleAhead(project, remoteURL, headCommitID, parentCommitID);
       if (handledAhead) {
         console.log(`Updated master on server`);
         return true;
