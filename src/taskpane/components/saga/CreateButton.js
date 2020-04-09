@@ -29,6 +29,11 @@ async function setupSagaSheet(context) {
     worksheet.names.add("commits", commitRange)
     commitRange.values = [["", "", "", ""]];
 
+    //Setup, name range for personal branch identifier
+    const personalBranchName = worksheet.getRange("A3");
+    worksheet.names.add('personalBranchName', personalBranchName);
+    personalBranchName.values=[[""]];
+
     return context.sync();
 }
 
