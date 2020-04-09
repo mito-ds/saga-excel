@@ -9,7 +9,7 @@ export async function updateShared(context) {
 
     const axios = await project.getAxios();
 
-    const response = axios.get('/checkhead', {
+    const response = await axios.get('/checkhead', {
       params: {
         headCommitID: headCommitID,
         parentCommitID: parentCommitID
