@@ -36,9 +36,6 @@ async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
 
 async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID) {
 
-  // Deleted all checked out master branches
-  await deleteNonsagaSheets(project.context);
-
   // Merge in the sheet
   const response = await axios.get(remoteURL, {
     params: {

@@ -131,7 +131,7 @@ app.get('/project/:id', async function (req, res) {
 
     // If the branch state is behind, we report everything you need to catch up
     if (branchState === BRANCH_STATE_BEHIND) {
-        var currCommitID = project.child[currCommitID];
+        var currCommitID = project.child[headCommitID];
         var commitIDs = [];
         var commitSheets = [];
         while (currCommitID !== undefined) {
