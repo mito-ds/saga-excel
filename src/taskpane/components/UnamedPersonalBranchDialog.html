@@ -1,0 +1,31 @@
+<script src="//appsforoffice.microsoft.com/lib/beta/hosted/office.js"></script>
+
+<style>
+  /* The alert message box */
+  .alert {
+    padding: 20px;
+    background-color: #f44336; /* Red */
+    color: white;
+    margin-bottom: 15px;
+  }
+
+</style>
+
+<script type="text/javascript">
+  function reportBranchName() {
+      var chosenName = document.getElementById("name").value;
+      Office.context.ui.messageParent(chosenName);
+  };
+</script>
+
+
+
+<div class="alert">
+  <p>Unable to merge because you have not indicated your personal branch.</p>
+  <p>Please tell us the name of your personal branch and then merge again. </p>
+  <form onSubmit="reportBranchName();">
+    <label for="fname">What is the name of your personal branch?</label>
+    <input type="text" id="name" value="">
+    <input type="submit" value="Submit">
+  </form>
+</div>
