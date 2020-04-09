@@ -12,6 +12,7 @@ import CleanupButton from "./saga/CleanupButton";
 import CreateBranchInput from "./saga/CreateBranchInput";
 import CheckoutBranchInput from "./saga/CheckoutInput";
 import MergeBranchInput from "./saga/MergeBranchInput";
+import {updateShared} from './saga/sync';
 import $ from "jquery";
 
 
@@ -132,27 +133,11 @@ export default class App extends React.Component {
     }    
   }
 
-  testPush = async () => {
+  updateShared = async () => {
     console.log(`pushing`)
     try {
       await Excel.run(async context => {
-        const fileContents = await getFileContents();
-        const remoteRange = context.workbook.worksheets.getItemOrNullObject("saga").getRange("B2");
-        remoteRange.load('values');
-        await context.sync();
-        var remoteURL = remoteRange.values[0][0];
-        const id = remoteURL.split("/")[remoteURL.split("/").length - 1];
-
-        console.log(`pushing to ${remoteURL}`)
-
-        const response = await postData(
-          remoteURL,
-          {
-            "fileContents": fileContents,
-            "id": id
-          }
-        )
-        console.log(response);
+        await updateShared(context);
       });
     } catch (error) {
       console.error(error);
@@ -241,9 +226,9 @@ export default class App extends React.Component {
             className="ms-welcome_Action"
             buttonType={ButtonType.hero}
             iconProps={{ iconName: "ChevronRight" }}
-            onClick={this.testPush}
+            onClick={this.updateShared}
           >
-            Test Push
+            updateShared
           </Button>
           <Button
             className="ms-welcome_Action"
