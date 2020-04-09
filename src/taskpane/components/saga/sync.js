@@ -43,36 +43,35 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
       parentCommitID: parentCommitID
     }
   });
-  console.log(response.data);
-  return;
+  // TODO: error check!
 
-  // TODO: error check the response
+  const branchState = response.data.branchState;
+  if (branchState !== BRANCH_STATE_BEHIND) {
+    console.error("Error getting update from server, not behind.");
+    return;
+  }
 
   const fileContents = response.data.fileContents;
-  const masterSheets = ["Sheet1"]//response.data.masterSheets;
+  const commitIDs = response.data.commitIDs;
+  const commitSheets = response.data.commitSheets;
 
-  const worksheets = context.workbook.worksheets;
+  // We only merge in the commit sheets
+  const worksheets = project.context.workbook.worksheets;
   worksheets.addFromBase64(
     fileContents,
-    masterSheets
+    commitSheets,
+    Excel.WorksheetPositionType.end
   );
 
-
-
-
-
-
-  // TODO: we want to merge in the new commit on master. 
-  // This is the same as:
-    // Making sure master is already checked out
-    // Delete all checked out master shit
-    // Save only the master shit (e.g. don't take any of their saga stuff)
-    // Then, make a commit !
-
-  
-
-  
-  console.log(response);
+  // Then, we add the commit IDs to the commit database
+  var parentID = headCommitID;
+  for (let i = 0; i < commitIDs.length; i++) {
+    const commitID = commitIDs[i];
+    await project.updateBranchCommitID("master", commitID);
+    await project.addCommitID(commitID, parentID, "from remote", "from remote");
+    parentID = commitID;
+  }
+  return;
 }
 
 export async function updateShared(context) {
