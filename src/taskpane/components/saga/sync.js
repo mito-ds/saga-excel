@@ -1,30 +1,4 @@
-import $ from "jquery";
 import Project from "./Project"
-
-
-async function postData(url, data) {
-    // Default options are marked with *
-  
-    const response = await $.ajax({
-      type: "POST",
-      url: url,
-      contentType: "application/json",
-      data: JSON.stringify(data)
-    }).promise();
-    return response;
-  }
-  
-  async function getData(url, data) {
-    // Default options are marked with *
-    console.log(JSON.stringify(data));
-  
-    const response = await $.ajax({
-      type: "GET",
-      url: url,
-      data: data
-    }).promise();
-    return response;
-  }
 
 export async function updateShared(context) {
     const project = new Project(context);
@@ -32,13 +6,15 @@ export async function updateShared(context) {
     const headCommitID = await project.getCommitIDFromBranch(headBranch);
     const parentCommitID = await project.getParentCommitID(headCommitID);
 
-    const url = (await project.getRemoteURL()).replace("project", "checkhead");
-    console.log(url)
+    const axios = await project.getAxios();
 
-    const response = await getData(url, {headCommitId: headCommitID, parentCommitID: parentCommitID});
+    const reponse = await axios.request({
+      url: "/checkhead",
+      params: {
+        headCommitID: headCommitID,
+        parentCommitID: parentCommitID
+      },
+    })
 
-    
-
-
-    console.log(response);
+    console.log(response)
 }
