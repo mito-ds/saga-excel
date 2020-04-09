@@ -10,7 +10,7 @@ async function createFromURL(url) {
   try {
       await Excel.run(async context => {
         const project = new Project(context);
-        const sheets = await getSheetsWithNames(context);
+        const sheets = await project.getSheetsWithNames();
 
         for (let i = 1; i < sheets.length; i++) {
           sheets[i].delete();
@@ -19,6 +19,8 @@ async function createFromURL(url) {
         sheets[0].name = "saga-tmp"
 
         await context.sync()
+
+        console.log(`requesting ${url}`);
 
         const response = await axios.get(
           url, 
@@ -41,6 +43,7 @@ async function createFromURL(url) {
         worksheets.addFromBase64(
           fileContents
         );
+        await context.sync();
 
         sheets[0].delete();
         await context.sync();

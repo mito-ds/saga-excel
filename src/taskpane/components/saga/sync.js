@@ -12,18 +12,18 @@ const BRANCH_STATE_FORKED = 3;
 async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
   const fileContents = await getFileContents();
   const sheets = await project.getSheetsWithNames();
-  const masterSheets = sheets.filter(sheet => {
+  const commitSheets = sheets.filter(sheet => {
     return sheet.name.startsWith(`saga-${headCommitID}`);
   }).map(sheet => sheet.name);
 
-  console.log(`Master Sheets: ${masterSheets}`);
+  console.log(`Master Sheets: ${commitSheets}`);
   const updateResponse = await axios.post(
     remoteURL,
     {
       headCommitID: headCommitID,
       parentCommitID: parentCommitID,
       fileContents: fileContents,
-      masterSheets: masterSheets
+      commitSheets: commitSheets
     }
   );
   // We need to now check if the update was successful
