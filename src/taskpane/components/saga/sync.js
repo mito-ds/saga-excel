@@ -16,6 +16,7 @@ async function postData(url, data) {
   
   async function getData(url, data) {
     // Default options are marked with *
+    console.log(JSON.stringify(data));
   
     const response = await $.ajax({
       type: "GET",

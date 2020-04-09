@@ -61,8 +61,8 @@ app.get('/checkhead/:id', async function (req, res) {
         return;
     }
 
-    const headCommitID = req.body.headCommitID;
-    const parentCommitID = req.body.parentCommitID;
+    const headCommitID = req.params.headCommitID;
+    const parentCommitID = req.params.parentCommitID;
     console.log(headCommitID, parentCommitID)
 
     const BRANCH_STATE_HEAD = 0;
