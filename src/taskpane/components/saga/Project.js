@@ -182,7 +182,7 @@ export default class Project {
         var personalBranchNameRange = await this.getPersonalBranchNameRange(this.context);
         personalBranchNameRange.values = [[personalBranchName]];
         await this.context.sync();
-        return personalBanchName;
+        return;
     }
 
 
