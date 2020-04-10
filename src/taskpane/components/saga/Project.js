@@ -1,4 +1,5 @@
 import { updateMetadataItem } from "./sagaUtils";
+import axios from 'axios';
 
 
 
@@ -8,7 +9,6 @@ export default class Project {
     }
 
     getBranchRange = async () => {
-        console.log("CONTEXT:", this.context)
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
         const branchItem = worksheet.names.getItem(`branches`);
         branchItem.load(`value`);
@@ -33,7 +33,6 @@ export default class Project {
         headItem.load(`value`);
         await this.context.sync();
 
-        console.log(headItem);
         return worksheet.getRange(headItem.value);
     }
 
@@ -41,8 +40,31 @@ export default class Project {
         const headRange = await this.getHeadRange(this.context);
         headRange.load("values");
         await this.context.sync();
-        console.log(headRange);
         return headRange;
+    }
+
+    getPersonalBranchNameRange = async () => {
+        const worksheet = this.context.workbook.worksheets.getItem(`saga`);
+        const personalBranchNameRange = worksheet.names.getItem(`personalBranchName`);
+        personalBranchNameRange.load(`value`);
+        await this.context.sync();
+        return worksheet.getRange(personalBranchNameRange.value)
+    }
+
+    getPersonalBranchNameWithValues = async () => {
+        const personalBranchNamesRange = await this.getPersonalBranchNameRange(this.context)
+        personalBranchNamesRange.load("values")
+        await this.context.sync();
+        return personalBranchNamesRange
+    }
+
+    getPersonalBranch = async () => {
+        
+        const personalBranchNamesRange = await this.getPersonalBranchNameRange(this.context)
+        personalBranchNamesRange.load("values")
+        await this.context.sync();
+        console.log(personalBranchNamesRange)
+        return personalBranchNamesRange
     }
 
     getCommitRange = async () => {
@@ -59,8 +81,41 @@ export default class Project {
         commitRange.load("address");
         commitRange.load("rowCount")
         await this.context.sync();
-        console.log(commitRange);
         return commitRange;
+    }
+
+    getRemoteRange = async () => {
+        const worksheet = this.context.workbook.worksheets.getItem(`saga`);
+        const remoteItem = worksheet.names.getItem(`remote`);
+        remoteItem.load(`value`);
+        await this.context.sync();
+        return worksheet.getRange(remoteItem.value);
+    }
+
+    getRemoteRangeWithValues = async () => {
+        const remoteRange = await this.getRemoteRange(this.context);
+        remoteRange.load("values");
+        remoteRange.load("address");
+        remoteRange.load("rowCount")
+        await this.context.sync();
+        return remoteRange;
+    }
+
+    getRemoteURL = async () => {
+        const remoteRange = await this.getRemoteRangeWithValues(this.context);
+        return remoteRange.values[0][0];
+    }
+
+    /*
+    An instance for interacting with the remote branch
+    */
+    getAxios = async () => {
+        // TODO: we probably wanna replace this with a "remote" object!
+        const remoteURL = await this.getRemoteURL();
+        const instance = axios.create({
+            baseURL: remoteURL
+        });
+        return instance;
     }
 
 
@@ -91,6 +146,24 @@ export default class Project {
         return row[1];
     }
 
+    /*
+    Gets the commit ID for a given branch name, 
+    returns null? if the branch does not exist, 
+    and "" if the branch has no previous commits on it
+    */
+    getParentCommitID = async (commitID) => {
+        const commitRange = await this.getCommitRangeWithValues(this.context);
+
+        const row = commitRange.values.find(row => {
+            return row[0] === commitID;
+        })
+
+        if (!row) {
+            return null;
+        }
+        return row[1];
+    }
+
 
     /*
     Returns the branch in the HEAD variable
@@ -108,6 +181,16 @@ export default class Project {
         branchRange.values = newBranches;
 
         return this.context.sync();
+    }
+
+    /*
+    updates the personal branch name to @param personalBranchName
+    */
+    updatePersonalBranchName = async (personalBranchName) => {
+        var personalBranchNameRange = await this.getPersonalBranchNameRange(this.context);
+        personalBranchNameRange.values = [[personalBranchName]];
+        await this.context.sync();
+        return;
     }
 
 
@@ -171,6 +254,20 @@ export default class Project {
         //Get the Commit Worksheet
         const commitRange = await this.getCommitRangeWithValues();
         return commitRange.values.some(row => row[0] === commitID);
+    }
+
+    /*
+    Efficiently gets all the worksheet objects with all their names loaded
+    */
+    getSheetsWithNames = async () => {
+        const sheets = this.context.workbook.worksheets;
+
+        sheets.load("$none");
+        await this.context.sync();
+
+        sheets.items.forEach(sheet => sheet.load("name"));
+        await this.context.sync();
+        return sheets.items;
     }
 }
 

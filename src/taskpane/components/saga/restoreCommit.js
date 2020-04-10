@@ -6,10 +6,10 @@ import Project from "./Project";
 Restores the state of a given commit to the active state
 */
 export async function restoreCommit(context, commitID) {
-    const project = new Project(context);
+    const project = await new Project(context);
 
     // Check if CommitID Exists
-    const commitIDExists = project.checkCommitIDExists(commitID);
+    const commitIDExists = await project.checkCommitIDExists(commitID);
     if (!commitIDExists) {
         return;
     }

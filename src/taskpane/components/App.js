@@ -8,7 +8,8 @@ import CommitForm from "./saga/CommitForm";
 import CleanupButton from "./saga/CleanupButton";
 import CreateBranchInput from "./saga/CreateBranchInput";
 import CheckoutBranchInput from "./saga/CheckoutInput";
-import MergeBranchInput from "./saga/MergeBranchInput";
+import CheckinButton from "./saga/CheckinButton";
+import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
 
 /* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
 
@@ -60,8 +61,8 @@ export default class App extends React.Component {
           <CommitForm/>
           <CreateBranchInput/>
           <CheckoutBranchInput/>
-          <MergeBranchInput/>
           <SeePreviousCommitForm/>
+          <CreateFromRemoteForm/>
         </HeroList>
       </div>
     );

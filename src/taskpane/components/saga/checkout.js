@@ -2,7 +2,7 @@ import { getSheetsWithNames, copySheet } from "./sagaUtils";
 import Project from './Project';
 
 
-async function deleteNonsagaSheets(context) {
+export async function deleteNonsagaSheets(context) {
     let sheets = await getSheetsWithNames(context);
     sheets = sheets.filter(sheet => {
         return !sheet.name.startsWith("saga");
