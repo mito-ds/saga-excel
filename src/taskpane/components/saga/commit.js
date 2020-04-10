@@ -77,7 +77,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     const personalBranchName = personalBranchNameRange.values[0][0];
 
     // If they have not yet set the personal branch name
-    if (personalBranchName == "") {
+    if (personalBranchName === "") {
         // Show dialog box promting user for personal branch name
         const personalBranchName = await showUnamedPersonalBranchDialog()
         await project.updatePersonalBranchName(personalBranchName);
