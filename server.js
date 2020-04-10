@@ -22,7 +22,7 @@ projects = {}
 
 app.get('/', function (req, res) {
     const urls = Object.keys(projects).map(id => `https://excel.sagalab.org/project/${id}`);
-    res.json(urls);
+    res.json(Object.keys(projects));
 });
 
 function createProject(id) {

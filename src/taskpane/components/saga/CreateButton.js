@@ -2,7 +2,7 @@ import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
 import { createSheet } from "./sagaUtils";
 import { getFileContents } from "../../../fileUtils";
-import $ from "jquery";
+import axios from "axios"
 
 
 /* global Button, console, Excel */
@@ -37,32 +37,17 @@ async function setupSagaSheet(context) {
     return context.sync();
 }
 
-
-async function postData(url, data) {
-    // Default options are marked with *
-    console.log("POSTING DATA:", data);
-  
-    const response = await $.ajax({
-      type: "POST",
-      url: url,
-      contentType: "application/json",
-      data: JSON.stringify(data)
-    }).promise();
-    return response;
-}
-
 async function createRemote(context) {
     const fileContents = await getFileContents();
     // TODO: handle errors here, we don't know what the network is going to do
-    const response = await postData(
-        "https://excel.sagalab.org/create", 
-        {
-            "fileContents": fileContents
-        }
+    const response = await axios.post(
+        "https://excel.sagalab.org/create",
+        {"fileContents": fileContents}
     );
+    
     const worksheet = context.workbook.worksheets.getItem("saga");
 
-    const remoteURL = `https://excel.sagalab.org/project/${response["id"]}`;
+    const remoteURL = `https://excel.sagalab.org/project/${response.data.id}`;
 
     // Setup, name range for remote url
     const remoteRange = worksheet.getRange("A2");

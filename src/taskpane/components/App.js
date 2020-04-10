@@ -10,8 +10,17 @@ import CreateBranchInput from "./saga/CreateBranchInput";
 import CheckoutBranchInput from "./saga/CheckoutInput";
 import CheckinButton from "./saga/CheckinButton";
 import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
+import { updateShared } from "./saga/sync";
 
 /* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
+
+function sync() {
+  Excel.run(async (context) => {
+    console.log("Refreshing shared...")
+    await updateShared(context);
+  });
+}
+
 
 export default class App extends React.Component {
   constructor(props, context) {
@@ -19,6 +28,8 @@ export default class App extends React.Component {
     this.state = {
       listItems: []
     };
+    // Try and sync the app every 10 seconds
+    setInterval(sync, 10000);
   }
 
   componentDidMount() {
@@ -58,6 +69,7 @@ export default class App extends React.Component {
           </p>
           <CreateButton/>
           <CleanupButton/>
+          <CheckinButton/>
           <CommitForm/>
           <CreateBranchInput/>
           <CheckoutBranchInput/>

@@ -173,13 +173,26 @@ export async function checkin(context) {
         return;
     }
 
-    console.log("MERGING");
+    const project = new Project(context);
+    const personalBranchRange = await project.getPersonalBranchNameWithValues();
+    const personalBranch = personalBranchRange.values[0][0];
+    const headBranch = await project.getHeadBranch();
 
+    if (headBranch !== personalBranch) {
+        console.error("Please check out your personal branch before checking in.");
+        return;
+    }
+
+    // Make a commit on the personal branch    
+    await commit(context, `check in of ${personalBranch}`, "", personalBranch);
+    // Merge this commit into the shared branch
     await doMerge(context);
 
+    // Try and update the server with this newly merged sheets
     const updatedWithMerge = await updateShared(context);
 
     if (!updatedWithMerge) {
         console.error("Checked in data may have not been been shared...");
+        // TODO: handle this case with some better UI...
     }
 }
