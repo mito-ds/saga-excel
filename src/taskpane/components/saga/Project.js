@@ -43,6 +43,22 @@ export default class Project {
         return headRange;
     }
 
+    getPersonalBranchNameRange = async () => {
+        const worksheet = this.context.workbook.worksheets.getItem(`saga`);
+        const personalBranchNameRange = worksheet.names.getItem(`personalBranchName`);
+        personalBranchNameRange.load(`value`);
+        await this.context.sync();
+        return worksheet.getRange(personalBranchNameRange.value)
+    }
+
+    getPersonalBranchNameWithValues = async () => {
+        const personalBranchNamesRange = await this.getPersonalBranchNameRange(this.context)
+        personalBranchNamesRange.load("values")
+        await this.context.sync();
+        console.log(personalBranchNamesRange)
+        return personalBranchNamesRange
+    }
+
     getCommitRange = async () => {
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
         const commitItem = worksheet.names.getItem(`commits`);
@@ -159,6 +175,15 @@ export default class Project {
         return this.context.sync();
     }
 
+    /*
+    updates the personal branch name to @param personalBranchName
+    */
+    updatePersonalBranchName = async (personalBranchName) => {
+        var personalBranchNameRange = await this.getPersonalBranchNameRange(this.context);
+        personalBranchNameRange.values = [[personalBranchName]];
+        await this.context.sync();
+        return personalBanchName;
+    }
 
 
     // Inserts a single row directly below range (which must be same # of cols as range)
