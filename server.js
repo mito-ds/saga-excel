@@ -21,7 +21,8 @@ app.use(bodyParser.json());
 projects = {}
 
 app.get('/', function (req, res) {
-    res.json(Object.keys(projects));
+    const urls = Object.keys(projects).map(id => `https://excel.sagalab.org/project/${id}`);
+    res.json(urls);
 });
 
 function createProject(id) {
