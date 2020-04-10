@@ -52,7 +52,7 @@ async function showUnamedPersonalBranchDialog() {
 Display Dialog box to inform user they are not on their personal branch
 */
 async function showPermissionDeniedDialog() {
-    await Office.context.ui.displayDialogAsync('/src/taskpane/components/LockedPersonalBranchDialog.html', {height:40,width:40}, function(result){
+    await Office.context.ui.displayDialogAsync('/src/taskpane/components/LockedPersonalBranchDialog.html', {height:40,width:40}, function(result) {
         const dialog = result.value;
 
         if (result.status == Office.AsyncResultStatus.Failed) {
