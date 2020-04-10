@@ -29,9 +29,9 @@ async function saveSheets(context, sheetNames, commitID) {
 /*
 Display Dialog box to request user to name personal branch
 */
-async function showUnamedPersonalBranchDialog(project, url) {
+async function showUnamedPersonalBranchDialog() {
     var branchName = new Promise(function (resolve, reject) {
-        Office.context.ui.displayDialogAsync(url, {height:40,width:40}, function(result) {
+        Office.context.ui.displayDialogAsync('/src/taskpane/components/UnamedPersonalBranchDialog.html', {height:40,width:40}, function(result) {
             const dialog = result.value;
     
             if (result.status == Office.AsyncResultStatus.Failed) {
@@ -51,8 +51,8 @@ async function showUnamedPersonalBranchDialog(project, url) {
 /*
 Display Dialog box to inform user they are not on their personal branch
 */
-async function showPermissionDeniedDialog(project, url) {
-    await Office.context.ui.displayDialogAsync(url, {height:40,width:40}, function(result){
+async function showPermissionDeniedDialog() {
+    await Office.context.ui.displayDialogAsync('/src/taskpane/components/LockedPersonalBranchDialog.html', {height:40,width:40}, function(result){
         const dialog = result.value;
 
         if (result.status == Office.AsyncResultStatus.Failed) {
@@ -79,7 +79,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     // If they have not yet set the personal branch name
     if (personalBranchName == "") {
         // Show dialog box promting user for personal branch name
-        const personalBranchName = await showUnamedPersonalBranchDialog(project, '/src/taskpane/components/UnamedPersonalBranchDialog.html')
+        const personalBranchName = await showUnamedPersonalBranchDialog()
         await project.updatePersonalBranchName(personalBranchName);
         await createBranch(context, personalBranchName);
         await checkoutBranch(context, personalBranchName);
@@ -94,7 +94,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     /* COMMENTED DUE TO https://github.com/saga-vcs/saga-excel/issues/7
     if (personalBranchName !== branch) {
         console.log("you do not have permission to commit to this branch")
-        await showPermissionDeniedDialog(project, '/src/taskpane/components/LockedPersonalBranchDialog.html')
+        await showPermissionDeniedDialog()
         return;
     } */
 
