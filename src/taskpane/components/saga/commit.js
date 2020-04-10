@@ -1,4 +1,4 @@
-import { getSheetsWithNames, copySheet, getRandomID, updateMetadataItem } from "./sagaUtils";
+import { getSheetsWithNames, copySheet, getRandomID } from "./sagaUtils";
 import Project from "./Project";
 import { createBranch } from "./branch";
 import { checkoutBranch } from "./checkout";
@@ -91,15 +91,15 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     }
 
     // Ensure user has permission to commit to branch
+    /* COMMENTED DUE TO https://github.com/saga-vcs/saga-excel/issues/7
     if (personalBranchName !== branch) {
         console.log("you do not have permission to commit to this branch")
         await showPermissionDeniedDialog(project, '/src/taskpane/components/LockedPersonalBranchDialog.html')
         return;
-    }
+    } */
 
     console.log(`making a commit on branch ${branch}`)
 
-    // Create a new commit ID
     
     if (!commitID) {
         commitID = getRandomID();

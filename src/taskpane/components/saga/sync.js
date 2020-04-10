@@ -1,7 +1,6 @@
-import Project from "./Project"
-import axios from "axios"
+import Project from "./Project";
+import axios from "axios";
 import { getFileContents } from "../../../fileUtils";
-import { deleteNonsagaSheets } from "./checkout";
 
 const BRANCH_STATE_HEAD = 0;
 const BRANCH_STATE_AHEAD = 1;
@@ -44,11 +43,17 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
     }
   });
   // TODO: error check!
+  if (response.status === 404) {
+    // TODO: we need to handle the case where there is no remote!
+    console.error("Error getting update from server, project doesn't exist");
+    return false;
+  } 
+
 
   const branchState = response.data.branchState;
   if (branchState !== BRANCH_STATE_BEHIND) {
     console.error("Error getting update from server, not behind.");
-    return;
+    return false;
   }
 
   const fileContents = response.data.fileContents;
@@ -71,27 +76,16 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
     await project.addCommitID(commitID, parentID, "from remote", "from remote");
     parentID = commitID;
   }
-  return;
+  console.log(`Local updated from server.`);
+  return true;
 }
 
 export async function updateShared(context) {
     const project = new Project(context);
 
-    // Making sure master is already checked out
-    // TODO: we can relax this eventually!
-    const headBranch = await project.getHeadBranch();
-    if (headBranch !== `master`) {
-      console.error("Can only do updates when master is checked out.")
-      return false;
-    }
-
-    const headCommitID = await project.getCommitIDFromBranch(headBranch);
+    const headCommitID = await project.getCommitIDFromBranch(`master`);
     const parentCommitID = await project.getParentCommitID(headCommitID);
-
     const remoteURL = await project.getRemoteURL();
-
-    console.log(headCommitID, parentCommitID);
-
 
     const response = await axios.get(`${remoteURL}/checkhead`, {
       params: {
@@ -99,8 +93,13 @@ export async function updateShared(context) {
         parentCommitID: parentCommitID
       }
     });
+
+    if (response.status === 404) {
+      console.log("Project does not exist.");
+      return false;
+    }
+
     const branchState = response.data.branch_state;
-    console.log(`branch state ${branchState}`)
 
     if (branchState === BRANCH_STATE_HEAD) {
       console.log(`Already up to date with server`);
@@ -108,15 +107,17 @@ export async function updateShared(context) {
     } else if (branchState === BRANCH_STATE_AHEAD) {
       const handledAhead = await handleAhead(project, remoteURL, headCommitID, parentCommitID);
       if (handledAhead) {
-        console.log(`Updated master on server`);
+        console.log(`Local was ahead... updated master on server.`);
         return true;
       } else {
         console.error(`Error: cannot update because`, updateResponse);
         return false;
       }      
     } else if (branchState === BRANCH_STATE_BEHIND) {
-      await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
+      const updated = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
+      return updated;
     } else {
       console.error("Cannot update shared as is forked from shared :(");
+      return false;
     }
 }

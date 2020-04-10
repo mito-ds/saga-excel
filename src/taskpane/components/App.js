@@ -11,7 +11,7 @@ import CommitForm from "./saga/CommitForm";
 import CleanupButton from "./saga/CleanupButton";
 import CreateBranchInput from "./saga/CreateBranchInput";
 import CheckoutBranchInput from "./saga/CheckoutInput";
-import MergeBranchInput from "./saga/MergeBranchInput";
+import CheckinButton from "./saga/CheckinButton";
 import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
 import {updateShared} from './saga/sync';
 import $ from "jquery";
@@ -237,14 +237,13 @@ export default class App extends React.Component {
           >
             Test Pull
           </Button>
-
+          <CheckinButton/>
           <CreateButton/>
           <CleanupButton/>
           <DebugButton/>
           <CommitForm/>
           <CreateBranchInput/>
           <CheckoutBranchInput/>
-          <MergeBranchInput/>
           <SeePreviousCommitForm/>
           <CreateFromRemoteForm/>
         </HeroList>

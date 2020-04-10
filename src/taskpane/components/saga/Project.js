@@ -55,6 +55,14 @@ export default class Project {
         const personalBranchNamesRange = await this.getPersonalBranchNameRange(this.context)
         personalBranchNamesRange.load("values")
         await this.context.sync();
+        return personalBranchNamesRange
+    }
+
+    getPersonalBranch = async () => {
+        
+        const personalBranchNamesRange = await this.getPersonalBranchNameRange(this.context)
+        personalBranchNamesRange.load("values")
+        await this.context.sync();
         console.log(personalBranchNamesRange)
         return personalBranchNamesRange
     }
