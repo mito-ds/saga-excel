@@ -116,6 +116,7 @@ export async function updateShared(context) {
       }      
     } else if (branchState === BRANCH_STATE_BEHIND) {
       await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
+    } else {
+      console.error("Cannot update shared as is forked from shared :(");
     }
-    
 }
