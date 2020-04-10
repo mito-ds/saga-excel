@@ -73,8 +73,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     const project = new Project(context);
 
     // Get the name of the personal branch of the committing user
-    const personalBranchNameRange = await project.getPersonalBranchNameWithValues();
-    const personalBranchName = personalBranchNameRange.values[0][0];
+    const personalBranchName = await project.getPersonalBranchName()
 
     // If they have not yet set the personal branch name
     if (personalBranchName === "") {
