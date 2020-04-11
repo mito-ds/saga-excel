@@ -3,6 +3,7 @@ import { Button, ButtonType } from "office-ui-fabric-react";
 import { createSheet } from "./sagaUtils";
 import { getFileContents } from "../../../fileUtils";
 import $ from "jquery";
+import { executeCommit } from "./commit";
 
 
 /* global Button, console, Excel */
@@ -82,6 +83,9 @@ async function createSaga() {
             
             // Try and create a remote project
             await createRemote(context);
+
+            // Create the first commit 
+            await executeCommit(context, "Create Saga Project", "Deafult First Commit on creation of saga project");
 
             return context.sync();
         });

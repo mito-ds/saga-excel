@@ -67,9 +67,9 @@ async function showPermissionDeniedDialog() {
 }
 
 /*
-Creates a new commit on the given branch
+Validate Commit Attempt: checks if user has permission to commit to branch
 */
-export async function commit(context, commitName, commitMessage, branch, commitID) {
+async function validateCommit(context, branch) {
     const project = new Project(context);
 
     // Get the name of the personal branch of the committing user
@@ -82,7 +82,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
         await project.updatePersonalBranchName(personalBranchName);
         await createBranch(context, personalBranchName);
         await checkoutBranch(context, personalBranchName);
-        return;
+        return false;
     }
 
     if (!branch) {
@@ -94,12 +94,26 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     if (personalBranchName !== branch) {
         console.log("you do not have permission to commit to this branch")
         await showPermissionDeniedDialog()
-        return;
+        return false;
     } */
+
+    return true;
+}
+
+/*
+Create Commit
+*/
+export async function executeCommit(context, commitName, commitMessage, branch, commitID) {
+    const project = new Project(context);
+
+    // Get the name of the personal branch of the committing user
+
+    if (!branch) {
+        branch = await project.getHeadBranch();
+    }
 
     console.log(`making a commit on branch ${branch}`)
 
-    
     if (!commitID) {
         commitID = getRandomID();
     }
@@ -120,4 +134,15 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     await project.addCommitID(commitID, parentID, commitName, commitMessage);
 
     return context.sync();
+}
+
+/*
+Creates a new commit on the given branch
+*/
+export async function commit(context, commitName, commitMessage, branch, commitID) {
+    const permissionGranted = await validateCommit(context)
+    if (permissionGranted) {
+        await executeCommit(context, commitName, commitMessage, branch, commitID)
+        return;
+    }
 }
