@@ -6,7 +6,7 @@ import { commit } from "./commit";
 import axios from "axios"
 
 
-/* global Button, console, Excel */
+/* global Excel, OfficeExtension */
 
 /*
 Sets up the headers for the commit worksheet, if they don't already exist

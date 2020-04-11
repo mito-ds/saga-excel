@@ -4,6 +4,8 @@ import { diff3Merge2d } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
 
+/* global Excel */
+
 /**
  * Takes a positive integer and returns the corresponding column name.
  * @param {number} num  The positive integer to convert to a column name.
@@ -74,10 +76,12 @@ const doMerge = async (context) => {
     })
 
     // Sheets that have been removed from the head branch, but where in the origin branch
+    /*
     const deletedSheets = personalSheets.filter(sheet => {
         const ex = checkExistance(sheet);
         return !ex.inMaster && ex.inOrigin;
     })
+    */
 
     // Now, we actually need to merge the sheets 
     const mergeSheets = personalSheets.filter(sheet => {

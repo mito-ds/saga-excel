@@ -1,5 +1,4 @@
 import { diff3Merge, diff3Merge2d } from "./mergeUtils";
-import { isExportDeclaration } from "typescript";
 
 test('should merge unchanged empty', () => {  
     expect(diff3Merge([], [], [])).toEqual([]);
@@ -53,11 +52,14 @@ test('2d should edit one', () => {
     expect(diff3Merge2d([[1, 2]], [[1, 2]], [[1, 2, 3]])).toEqual([[1, 2, 3]]);
 });
 
-
 test('2d should allow non conflicting changes in one', () => {  
     expect(diff3Merge2d([[1, 2]], [[0, 1, 2]], [[1, 2, 3]])).toEqual([[0, 1, 2, 3]]);
 });
-// TODO: test:
 
-// a = [[1], [2]], b = [[1], [2], [3], [4]], o = [[1], [2]]
+test('2d should add mulitple rows', () => {  
+    expect(diff3Merge2d([[1], [2]], [[1], [2]], [[1], [2], [3], [4]])).toEqual([[1], [2], [3], [4]]);
+});
 
+test('2d should add mulitple rows and extend too', () => {  
+    expect(diff3Merge2d([[1], [2]], [[1, 6], [2, 7]], [[1], [2], [3], [4]])).toEqual([[1, 6], [2, 7], [3], [4]]);
+});
