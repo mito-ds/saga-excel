@@ -41,8 +41,22 @@ test('2d should merge insert one', () => {
     expect(diff3Merge2d([], [], [[1]])).toEqual([[1]]);
 });
 
+test('2d should merge insert many', () => {  
+    expect(diff3Merge2d([], [], [[1, 2], [3, 4]])).toEqual([[1, 2], [3, 4]]);
+});
+
+test('2d should merge delete one', () => {  
+    expect(diff3Merge2d([[1]], [], [[1]])).toEqual([]);
+});
+
+test('2d should edit one', () => {  
+    expect(diff3Merge2d([[1, 2]], [[1, 2]], [[1, 2, 3]])).toEqual([[1, 2, 3]]);
+});
 
 
+test('2d should allow non conflicting changes in one', () => {  
+    expect(diff3Merge2d([[1, 2]], [[0, 1, 2]], [[1, 2, 3]])).toEqual([[0, 1, 2, 3]]);
+});
 // TODO: test:
 
 // a = [[1], [2]], b = [[1], [2], [3], [4]], o = [[1], [2]]

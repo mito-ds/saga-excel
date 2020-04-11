@@ -66,12 +66,18 @@ function getChunkStarts(aMatches, bMatches, oLength, oIndex) {
     return null;
 }
 
-function diff3Chunks(origin, aValues, bValues) {
+function diff3Chunks(origin, aValues, bValues, dimension) {
     let chunks = [];
     let oIndex = 0, aIndex = 0, bIndex = 0;
 
-    const aMatches = longestCommonSubsequence(origin, aValues);
-    const bMatches = longestCommonSubsequence(origin, bValues);
+    let aMatches, bMatches;
+    if (dimension === 1) {
+        aMatches = longestCommonSubsequence(origin, aValues);
+        bMatches = longestCommonSubsequence(origin, bValues);
+    } else if (dimension === 2) {
+        aMatches = longestCommonSubsequence2d(origin, aValues);
+        bMatches = longestCommonSubsequence2d(origin, bValues);
+    }
 
     let inc = getChunkInc(origin, aValues, bValues, aMatches, bMatches, oIndex, aIndex, bIndex);
     while (inc !== null) {
@@ -111,77 +117,146 @@ function diff3Chunks(origin, aValues, bValues) {
     return chunks;
 }
 
-function arraysEqual(a, b) {
-    // Checks array element equality, ignoring the empty string
+function arraysEqual(a, b, dimension) {
     if (a === b) return true;
     if (a == null || b == null) return false;
-  
-    for (var i = 0; i < max(a.length, b.length); i++) {
-        if (i >= a.length) {
-            if (b[i] !== "") return false;
-        } else if (i >= b.length) {
-            if (a[i] !== "") return false;
-        } else {
-            if (a[i] === "" || b[i] === "") {
-                continue;
-            }
 
-            if (a[i] !== b[i]) return false;
+    if (dimension === 1) {      
+        /*
+        In the case where we are comparing two arrays, we ignore
+        empty things. If the arrays only differ at places where 
+        there are empty strings, than we consider them equal. 
+        */ 
+        for (var i = 0; i < max(a.length, b.length); i++) {
+            if (i >= a.length) {
+                if (b[i] !== "") return false;
+            } else if (i >= b.length) {
+                if (a[i] !== "") return false;
+            } else {
+                if (a[i] === "" || b[i] === "") {
+                    continue;
+                }
+    
+                if (a[i] !== b[i]) return false;
+            }
         }
+        return true;
+    } else if (dimension == 2) {
+        /*
+        If these arrays have subarrays, then we recurse and compare each of these 
+        sub-arrays.
+        */
+
+        if (a.length !== b.length) {
+            return false;
+        }
+
+        for (let i = 0; i < a.length; i++) {
+            if (!arraysEqual(a[i], b[i], 1)) {
+                return false;
+            }
+        }
+        return true;
+
+
+        // TODO: the above equivalent for ignoring empty strings, for ignoring empty subarrays?
     }
-    return true;
+    
   }
 
-function stableChunk(origin, aValues, bValues, chunk) {
+function stableChunk(origin, aValues, bValues, chunk, dimension) {
     let oRange, aRange, bRange;
     [oRange, aRange, bRange] = chunk;
 
-    const aEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), aValues.slice(aRange[0], aRange[1]));
-    const bEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), bValues.slice(bRange[0], bRange[1]));
+    const aEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), aValues.slice(aRange[0], aRange[1]), dimension);
+    const bEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), bValues.slice(bRange[0], bRange[1]), dimension);
     return (aEqO && bEqO);
 }
 
 
-function changedInA(origin, aValues, bValues, chunk) {
+function changedInA(origin, aValues, bValues, chunk, dimension) {
     let oRange, aRange, bRange;
     [oRange, aRange, bRange] = chunk;
-    const aEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), aValues.slice(aRange[0], aRange[1]));
-    const bEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), bValues.slice(bRange[0], bRange[1]));
+    const aEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), aValues.slice(aRange[0], aRange[1]), dimension);
+    const bEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), bValues.slice(bRange[0], bRange[1]), dimension);
     return (!aEqO && bEqO);
 }
 
-function changedInB(origin, aValues, bValues, chunk) {
+function changedInB(origin, aValues, bValues, chunk, dimension) {
     let oRange, aRange, bRange;
     [oRange, aRange, bRange] = chunk;
-    const aEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), aValues.slice(aRange[0], aRange[1]));
-    const bEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), bValues.slice(bRange[0], bRange[1]));
+    const aEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), aValues.slice(aRange[0], aRange[1]), dimension);
+    const bEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), bValues.slice(bRange[0], bRange[1]), dimension);
     return (aEqO && !bEqO);
 }
 
-function conflicting(origin, aValues, bValues, chunk) {
+function conflicting(origin, aValues, bValues, chunk, dimension) {
     let oRange, aRange, bRange;
     [oRange, aRange, bRange] = chunk;
-    const aEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), aValues.slice(aRange[0], aRange[1]));
-    const bEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), bValues.slice(bRange[0], bRange[1]));
+    const aEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), aValues.slice(aRange[0], aRange[1]), dimension);
+    const bEqO = arraysEqual(origin.slice(oRange[0], oRange[1]), bValues.slice(bRange[0], bRange[1]), dimension);
     return (!aEqO && !bEqO);
 }
 
-function getOut(origin, aValues, bValues, chunks) {
+function zipLongest(o, a, b) {
+    const maxLength = max(o.length, a.length, b.length);
+    var output = Array.from({length: maxLength}, e => Array(3).fill(null));
+    for (let i = 0; i < o.length; i++) {
+        output[i][0] = o[i];
+    }
+    for (let i = 0; i < a.length; i++) {
+        output[i][1] = a[i];
+    }
+    for (let i = 0; i < b.length; i++) {
+        output[i][2] = b[i];
+    }
+    return output;
+}
+
+function getOut(origin, aValues, bValues, chunks, dimension) {
 
     var out = []
     for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
         let oRange, aRange, bRange;
         [oRange, aRange, bRange] = chunk;
-        if (stableChunk(origin, aValues, bValues, chunk) || conflicting(origin, aValues, bValues, chunk)) {
+        if (stableChunk(origin, aValues, bValues, chunk, dimension)) {
             out.push(
                 [origin.slice(oRange[0], oRange[1]), aValues.slice(aRange[0], aRange[1]), bValues.slice(bRange[0], bRange[1])]
             )
-        } else if (changedInA(origin, aValues, bValues, chunk)) {
+        } else if (conflicting(origin, aValues, bValues, chunk, dimension)) {
+            /*
+            If the arrays are conflicting, and there are subarrays then we try and
+            merge those.
+            */
+            if (dimension === 1)  {
+                out.push(
+                    [origin.slice(oRange[0], oRange[1]), aValues.slice(aRange[0], aRange[1]), bValues.slice(bRange[0], bRange[1])]
+                )
+            } else if (dimension === 2) {
+                // TODO: maybe there's an LCS thing we should do here
+                const oSlice = origin.slice(oRange[0], oRange[1]);
+                const aSlice = aValues.slice(aRange[0], aRange[1]);
+                const bSlice = bValues.slice(bRange[0], bRange[1]);
+                const zippedSlices = zipLongest(oSlice, aSlice, bSlice);
+                const recursiveMerge = [];
+                zippedSlices.forEach(slices => {
+                    recursiveMerge.push(
+                        diff3Merge(slices[0], slices[1], slices[2])
+                    );
+                });
+
+                out.push(
+                    [recursiveMerge, recursiveMerge, recursiveMerge]
+                )
+            }
+
+        } else if (changedInA(origin, aValues, bValues, chunk, dimension)) {
             out.push(
                 [aValues.slice(aRange[0], aRange[1]), aValues.slice(aRange[0], aRange[1]), aValues.slice(aRange[0], aRange[1])]
             )
-        } else if (changedInB(origin, aValues, bValues, chunk)) {
+        } else if (changedInB(origin, aValues, bValues, chunk, dimension)) {
+
             out.push(
                 [bValues.slice(bRange[0], bRange[1]), bValues.slice(bRange[0], bRange[1]), bValues.slice(bRange[0], bRange[1])]
             )
@@ -193,13 +268,17 @@ function getOut(origin, aValues, bValues, chunks) {
 
 }
 
-function diff3(origin, aValues, bValues) {
-    const chunks = diff3Chunks(origin, aValues, bValues);
-    return getOut(origin, aValues, bValues, chunks)
+function diff3(origin, aValues, bValues, dimension) {
+    if (!aValues || !bValues ) {
+        return !origin ? [] : origin;
+    }
+
+    const chunks = diff3Chunks(origin, aValues, bValues, dimension);
+    return getOut(origin, aValues, bValues, chunks, dimension)
 }
 
 export function diff3Merge(origin, aValues, bValues) {
-    const out = diff3(origin, aValues, bValues);
+    const out = diff3(origin, aValues, bValues, 1);
     var merge = [];
 
     for (let i = 0; i < out.length; i++) {
@@ -211,23 +290,13 @@ export function diff3Merge(origin, aValues, bValues) {
 }
 
 export function diff3Merge2d(origin, aValues, bValues) {
-    // First, we're going to match the rows to eachother
+    const out = diff3(origin, aValues, bValues, 2);
+    var merge = [];
 
-    const aMatches = longestCommonSubsequence2d(origin, aValues);
-    const bMatches = longestCommonSubsequence2d(origin, bValues);
-    const mergedMatches = mergeMatches(aMatches, bMatches, origin.length);
-
-    const output = []
-
-
-    // Now, we're going to loop over each of the rows and merge them indivigually
-    for (let i = 0; i < mergedMatches.length; i++) {
-        let aIdx, bIdx;
-        [aIdx, bIdx] = mergedMatches[i];
-
-        const mergedRow = diff3Merge(origin[i], aValues[aIdx], bValues[bIdx]);
-        output.push(mergedRow);
+    for (let i = 0; i < out.length; i++) {
+        // just get origin for now
+        merge.push(...out[i][0]);
     }
 
-    return output;
+    return merge;
 }
