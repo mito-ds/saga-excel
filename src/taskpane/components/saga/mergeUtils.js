@@ -5,17 +5,24 @@ function getChunkInc(origin, aValues, bValues, aMatches, bMatches, oIndex, aInde
 
     const mergedMatches = mergeMatches(aMatches, bMatches, origin.length);
 
-    // First, we find the first index that isn't matched
-    for (let i = oIndex; i < mergedMatches.length; i++) {
-        let aIdx, bIdx;
-        [aIdx, bIdx] = mergedMatches[i];
+    if (mergedMatches.length === 0) {
+        return null;
+    }
 
-        if (aIdx === null || bIdx == null) {
-            return i - oIndex;
+    // We want to find the first index i, such that either it's not matched, or 
+    // it's matched to a non-consecutive thing.
+
+    for (let i = oIndex; i < mergedMatches.length; i++) {
+        let [aIdx, bIdx] = mergedMatches[i];
+        let increment = i - oIndex;
+        if (aIdx === null || bIdx === null) {
+            return increment;
+        }
+        if (aIdx !== aIndex + increment || bIdx !== bIndex + increment) {
+            return increment;
         }
     }
 
-    // If we haven't returned, we check there's nothing not matched at the end
     let aIdxLast, bIdxLast;
     [aIdxLast, bIdxLast] = mergedMatches[mergedMatches.length - 1];
     if ((aIdxLast !== aValues.length - 1) || (bIdxLast !== bValues.length - 1)) {

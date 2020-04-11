@@ -24,7 +24,8 @@
     "start:web": "office-addin-debugging start manifest.xml web",
     "stop": "office-addin-debugging stop manifest.xml",
     "validate": "office-addin-manifest validate manifest.xml",
-    "watch": "webpack --mode development --watch"
+    "watch": "webpack --mode development --watch",
+    "test": "jest"
   },
   "dependencies": {
     "@microsoft/office-js": "^1.1.38",
@@ -65,6 +66,7 @@
     "file-loader": "^4.3.0",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
+    "jest": "^25.3.0",
     "less": "^3.11.1",
     "less-loader": "^5.0.0",
     "office-addin-cli": "^1.0.7",

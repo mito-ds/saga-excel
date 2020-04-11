@@ -18,9 +18,14 @@ function equal(a, b) {
 
 
 export function longestCommonSubsequence(aValues, bValues) {
+    // If the values are undefined or null, no lcs exists
+    if (!aValues || !bValues) {
+        return [];
+    }
+
     // aValues, bValues are arrays; this builds a longest common subsequence out of them
-    const n = aValues.length;
-    const m = bValues.length;
+    const m = aValues.length;
+    const n = bValues.length;
 
     // Make our cache array
     let L = new Array();
@@ -28,11 +33,11 @@ export function longestCommonSubsequence(aValues, bValues) {
         L.push(new Array(n + 1));
     }
 
+
     for (let i = 0; i < m + 1; i++) {
         for (let j = 0; j < n + 1; j++) {
             if (i == 0 || j == 0) {
                 L[i][j] = 0
-
             } else {
                 L[i][j] = max(
                     equal(aValues[i - 1], bValues[j - 1]) + L[i - 1][j - 1],
@@ -69,10 +74,15 @@ export function longestCommonSubsequence(aValues, bValues) {
     return matches
 }
 
-function sim(a, b) {
-    //if ((a === null ||  || b  == null) {
-    //    return a === b ? 1 : 0;
-    //}
+export function sim(a, b) {
+
+    if (!a || !b) {
+        return a === b ? 1 : 0;
+    }
+
+    if (a.length === 0 || b.length === 0) {
+        return a.length === b.length ? 1 : 0;
+    }
     
     const numShared = a.filter(function(el) {
         return b.indexOf(el) >= 0;
@@ -83,6 +93,16 @@ function sim(a, b) {
 
 
 export function longestCommonSubsequence2d(aValues, bValues) {
+
+    // If the values are undefined or null, no lcs exists
+    if (!aValues || !bValues) {
+        return [];
+    }
+
+    if (aValues.length === 0 || bValues.length === 0) {
+        return [];
+    }
+
     // aValues, bValues are arrays with arrays in them
     // we first build a mapping between these nested arrays    
     const n = aValues.length;
