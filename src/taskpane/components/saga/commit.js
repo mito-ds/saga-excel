@@ -1,7 +1,5 @@
 import { getSheetsWithNames, copySheet, getRandomID } from "./sagaUtils";
 import Project from "./Project";
-import { createBranch } from "./branch";
-import { checkoutBranch } from "./checkout";
 
 /*
 Saves a copy off all current non-saga sheets.
@@ -27,83 +25,9 @@ async function saveSheets(context, sheetNames, commitID) {
 }
 
 /*
-Display Dialog box to request user to name personal branch
-*/
-async function showUnamedPersonalBranchDialog() {
-    var branchName = new Promise(function (resolve, reject) {
-        Office.context.ui.displayDialogAsync('/src/taskpane/components/UnamedPersonalBranchDialog.html', {height:40,width:40}, function(result) {
-            const dialog = result.value;
-    
-            if (result.status == Office.AsyncResultStatus.Failed) {
-                console.log('error in unamed personal branch dialog');
-            }
-    
-            dialog.addEventHandler(Office.EventType.DialogMessageReceived, function(responseMessage) {
-                branchName = responseMessage.message
-                resolve(branchName)
-                dialog.close();
-            });
-        }); 
-    }) 
-    return branchName 
-}
-
-/*
-Display Dialog box to inform user they are not on their personal branch
-*/
-async function showPermissionDeniedDialog() {
-    await Office.context.ui.displayDialogAsync('/src/taskpane/components/LockedPersonalBranchDialog.html', {height:40,width:40}, function(result) {
-        const dialog = result.value;
-
-        if (result.status == Office.AsyncResultStatus.Failed) {
-            console.log('error');
-        }
-
-        dialog.addEventHandler(Office.EventType.DialogMessageReceived, function(responseMessage){
-            dialog.close();
-        });
-
-    }); 
-}
-
-/*
-Validate Commit Attempt: checks if user has permission to commit to branch
-*/
-async function validateCommit(context, branch) {
-    const project = new Project(context);
-
-    // Get the name of the personal branch of the committing user
-    const personalBranchName = await project.getPersonalBranchName()
-
-    // If they have not yet set the personal branch name
-    if (personalBranchName === "") {
-        // Show dialog box promting user for personal branch name
-        const personalBranchName = await showUnamedPersonalBranchDialog()
-        await project.updatePersonalBranchName(personalBranchName);
-        await createBranch(context, personalBranchName);
-        await checkoutBranch(context, personalBranchName);
-        return false;
-    }
-
-    if (!branch) {
-        branch = await project.getHeadBranch();
-    }
-
-    // Ensure user has permission to commit to branch
-    /* COMMENTED DUE TO https://github.com/saga-vcs/saga-excel/issues/7
-    if (personalBranchName !== branch) {
-        console.log("you do not have permission to commit to this branch")
-        await showPermissionDeniedDialog()
-        return false;
-    } */
-
-    return true;
-}
-
-/*
 Create Commit
 */
-export async function executeCommit(context, commitName, commitMessage, branch, commitID) {
+export async function commit(context, commitName, commitMessage, branch, commitID) {
     const project = new Project(context);
 
     // Get the name of the personal branch of the committing user
@@ -134,15 +58,4 @@ export async function executeCommit(context, commitName, commitMessage, branch, 
     await project.addCommitID(commitID, parentID, commitName, commitMessage);
 
     return context.sync();
-}
-
-/*
-Creates a new commit on the given branch
-*/
-export async function commit(context, commitName, commitMessage, branch, commitID) {
-    const permissionGranted = await validateCommit(context)
-    if (permissionGranted) {
-        await executeCommit(context, commitName, commitMessage, branch, commitID)
-        return;
-    }
 }
