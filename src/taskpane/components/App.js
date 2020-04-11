@@ -15,6 +15,7 @@ import { updateShared } from "./saga/sync";
 /* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
 
 function sync() {
+  // TODO: wrap in try catch!
   Excel.run(async (context) => {
     console.log("Refreshing shared...")
     await updateShared(context);

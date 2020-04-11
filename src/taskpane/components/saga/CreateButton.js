@@ -2,6 +2,7 @@ import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
 import { createSheet } from "./sagaUtils";
 import { getFileContents } from "../../../fileUtils";
+import { commit } from "./commit";
 import axios from "axios"
 
 
@@ -67,6 +68,9 @@ async function createSaga() {
             
             // Try and create a remote project
             await createRemote(context);
+
+            // Create the first commit 
+            await commit(context, "Create Saga Project", "Deafult First Commit on creation of saga project");
 
             return context.sync();
         });

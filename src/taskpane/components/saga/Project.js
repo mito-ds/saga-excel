@@ -58,6 +58,13 @@ export default class Project {
         return personalBranchNamesRange
     }
 
+    // Get only the name of the personal branch
+    getPersonalBranchName = async () => {
+        const personalBranchNameRange = await this.getPersonalBranchNameWithValues();
+        return personalBranchNameRange.values[0][0];
+    }
+    
+
     getPersonalBranch = async () => {
         
         const personalBranchNamesRange = await this.getPersonalBranchNameRange(this.context)
