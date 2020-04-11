@@ -1,27 +1,26 @@
 {
-  "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "react",
-    "@typescript-eslint",
-    "office-addins"
-  ],
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "jsx": true
+    "env": {
+        "browser": true,
+        "es6": true
     },
-    "project": "./tsconfig.json"
-  },
-  "extends": [
-    "plugin:office-addins/react"
-  ],
-  "rules": {
-    "react/prop-types": 0
-  },
-  "settings": {
-    "react": {
-      "version": "detect"
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended"
+    ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react"
+    ],
+    "rules": {
     }
-  }
 }
