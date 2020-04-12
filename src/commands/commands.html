@@ -14,8 +14,14 @@
     <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
     <meta http-equiv="pragma" content="no-cache" />
 
+    <!--import Jquery-->
+    <script src="jquery-3.4.1.min.js"></script>
+
     <!-- Office JavaScript API -->
     <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/beta/hosted/office.js"></script>
+    
+    <!--Load command.js to use js file for ease of use-->
+    <script src="createButton.js" type ="text/javasript"></script>
 
     <script>
         //The initialize function must be run each time a new page is loaded
@@ -27,10 +33,8 @@
 
         //Notice function needs to be in global namespace
         function writeText(event) {
-            console.log("here")
-
             //Consult Office.js API reference to see all you can do. This just shows the simplest action.
-            
+
             Office.context.document.setSelectedDataAsync("!!!ExecuteFunction Works with Prod Office.js Button ID=" + event.source.id,
                 function (asyncResult) {
                     var error = asyncResult.error;
@@ -42,20 +46,16 @@
                     }
                 });
             //Required, call event.completed to let the platform know you are done processing. 
-            event.completed();
+            event.completed()
         }
-
-
     </script>
-    
-
-
-
 
 </head>
 
+<!--Todo: Find a way to supress the body from rendering-->
 <body>
-    <!--The Function File Body is never displayed! :) -->
+    <p>This text should always be displayed</p>
+    <p id="debuggingText"></p>
 </body>
 
 </html>
