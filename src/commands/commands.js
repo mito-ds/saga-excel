@@ -6,6 +6,7 @@
 /* global global, Office, self, window */
 
 Office.onReady(() => {
+  console.log("Office is Ready")
   // If needed, Office.js is ready to be called
 });
 
@@ -26,6 +27,10 @@ function action(event) {
 
   // Be sure to indicate when the add-in command function is complete
   event.completed();
+}
+
+function test (event) {
+  console.log("Called Test Function from Ribbon Button")
 }
 
 function getGlobal() {
