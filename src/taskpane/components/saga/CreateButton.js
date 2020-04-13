@@ -60,7 +60,7 @@ async function createRemote(context) {
 
 
 
-async function createSaga() {
+export async function createSaga() {
     try {
         await Excel.run(async context => {
             // Create the metadata sheet

@@ -68,7 +68,7 @@ module.exports = async (env, options)  => {
       new HtmlWebpackPlugin({
           filename: "commands.html",
           template: "./src/commands/commands.html",
-          chunks: ["commands"]
+          chunks: ["commands", 'polyfill']
       }),
       new CopyWebpackPlugin([
           {

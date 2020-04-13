@@ -3,29 +3,26 @@
  * See LICENSE in the project root for license information.
  */
 
-/* global global, Office, self, window */
+//import {createSaga} from "../taskpane/components/saga/CreateButton";
+
+/* global global, Office, Excel */
 
 Office.onReady(() => {
   // If needed, Office.js is ready to be called
+  console.log("HERE")
 });
 
 /**
  * Shows a notification when the add-in command is executed.
  * @param event {Office.AddinCommands.Event}
  */
-function action(event) {
-  const message = {
-    type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
-    message: "Performed action.",
-    icon: "Icon.80x80",
-    persistent: true
-  };
-
-  // Show a notification message
-  Office.context.mailbox.item.notificationMessages.replaceAsync("action", message);
-
-  // Be sure to indicate when the add-in command function is complete
-  event.completed();
+async function action(event) {
+  // TEST
+  Excel.run(async context => {
+    console.log("RUNNING EXCEL SHIT");
+    await context.sync();
+    event.completed();
+  })
 }
 
 function getGlobal() {
