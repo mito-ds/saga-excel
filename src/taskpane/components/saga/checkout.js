@@ -1,5 +1,6 @@
 import { getSheetsWithNames, copySheet } from "./sagaUtils";
 import Project from './Project';
+import {commit} from './Commit';
 
 
 export async function deleteNonsagaSheets(context) {
@@ -25,6 +26,11 @@ export async function checkoutBranch(context, branch) {
         console.error(`Cannot checkout ${branch} as it does not exist.`);
         return;
     }
+
+    // Make commit on current branch to stop data loss
+    // TODO only make this commit if changes have occured since last commit
+    const currentBranch = await project.getHeadBranch();
+    await commit(context, "Automatic checkout commit", `Switching from ${currentBranch} to ${branch}`, currentBranch)
 
     // Find the commit for a branch
     const commitID = await project.getCommitIDFromBranch(branch);
