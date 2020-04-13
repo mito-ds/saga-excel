@@ -3,30 +3,11 @@
  * See LICENSE in the project root for license information.
  */
 
-import { createSaga } from "../taskpane/components/saga/CreateButton";
-
-
-
 /* global global, Office, self, window */
 
-
 Office.onReady(() => {
-  console.log("Office is ready")
   // If needed, Office.js is ready to be called
 });
-
-//The initialize function must be run each time a new page is loaded
-(function () {
-  Office.initialize = function (reason) {
-     //If you need to initialize something you can do so here. 
-  };
-})();
-
-//Notice function needs to be in global namespace
-async function writeText(event) {
-  await createSaga();
-  await event.completed();
-}
 
 /**
  * Shows a notification when the add-in command is executed.
@@ -61,4 +42,3 @@ const g = getGlobal();
 
 // the add-in command functions need to be available in global scope
 g.action = action;
-g.writeText = writeText;
