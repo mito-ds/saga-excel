@@ -10,6 +10,7 @@ import CreateBranchInput from "./saga/CreateBranchInput";
 import CheckoutBranchInput from "./saga/CheckoutInput";
 import CheckinButton from "./saga/CheckinButton";
 import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
+import ResetPersonalButton from './saga/ResetPersonalButton'
 import { updateShared } from "./saga/sync";
 
 /* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
@@ -76,6 +77,7 @@ export default class App extends React.Component {
           <CheckoutBranchInput/>
           <SeePreviousCommitForm/>
           <CreateFromRemoteForm/>
+          <ResetPersonalButton/>
         </HeroList>
       </div>
     );
