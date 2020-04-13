@@ -1,4 +1,6 @@
-import {max, longestCommonSubsequence, sim, longestCommonSubsequence2d} from "./lcs";
+import {longestCommonSubsequence, sim, longestCommonSubsequence2d} from "./lcs";
+
+/* global test, expect */
 
 /*
 Empty, null, or undefined inputs should behave correctly.
