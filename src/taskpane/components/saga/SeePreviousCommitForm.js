@@ -1,21 +1,5 @@
 import * as React from "react";
-import {restoreCommit} from "./restoreCommit";
-
-/* global Button, console, Excel */
-
-async function seePreviousCommit(commitID) {
-    try {
-        console.log("trying to restore commit")
-        await Excel.run(async context => {
-            await restoreCommit(context, commitID);
-        });
-      } catch (error) {
-        console.error(error);
-        if (error instanceof OfficeExtension.Error) {
-            console.error(error.debugInfo);
-        }
-    }
-}
+import {runRestoreCommit} from "../../../saga/restoreCommit";
 
 
 export default class SeePreviousCommitForm extends React.Component {
@@ -35,7 +19,7 @@ export default class SeePreviousCommitForm extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
     //Then, see a previous commit!
-    seePreviousCommit(this.state.commitID);
+    runRestoreCommit(this.state.commitID);
   }
 
   render() {

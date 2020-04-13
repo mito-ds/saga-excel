@@ -1,28 +1,5 @@
 import * as React from "react";
-import {commit} from "./commit";
-import {checkBranchPermission} from "./branch";
-
-/* global Button, console, Excel */
-
-async function makeNewCommit(name, message) {
-    try {
-        console.log("trying to commit")
-        await Excel.run(async context => {
-            const userPermission = await checkBranchPermission(context);
-            console.log("HERE")
-            console.log(userPermission)
-            if (userPermission) {
-              await commit(context, name, message);
-            }
-        });
-      } catch (error) {
-        console.error(error);
-        if (error instanceof OfficeExtension.Error) {
-            console.error(error.debugInfo);
-        }
-    }
-}
-
+import {runCommit} from "../../../saga/commit";
 
 export default class CommitForm extends React.Component {
   constructor(props) {
@@ -42,7 +19,7 @@ export default class CommitForm extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
     //Then, create a new commit!
-    makeNewCommit(this.state.name, this.state.message);
+    runCommit(this.state.name, this.state.message);
   }
 
   render() {

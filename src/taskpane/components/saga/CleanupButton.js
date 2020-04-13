@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
-import { getSheetsWithNames } from "./sagaUtils";
+import { getSheetsWithNames } from "../../../saga/sagaUtils";
 
-/* global Button, console, Excel */
+/* global Excel, OfficeExtension */
 
 async function cleanup() {
     try {

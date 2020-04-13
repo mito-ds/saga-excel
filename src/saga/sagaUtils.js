@@ -1,5 +1,7 @@
 
 
+/* global Excel */
+
 /*
 Efficiently gets all the worksheet objects with all their names loaded
 */

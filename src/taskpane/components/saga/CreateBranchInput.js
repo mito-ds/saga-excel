@@ -1,21 +1,5 @@
 import * as React from "react";
-import { createBranch } from "./branch";
-
-/* global console, Excel */
-
-
-async function runCreateBranch(branch) {
-  try {
-    await Excel.run(async context => {
-        await createBranch(context, branch);
-    });
-  } catch (error) {
-    console.error(error);
-    if (error instanceof OfficeExtension.Error) {
-        console.error(error.debugInfo);
-    }
-  }
-}
+import { runCreateBranch } from "../../../saga/branch";
 
 
 export default class CreateBranchInput extends React.Component {

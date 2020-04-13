@@ -1,5 +1,7 @@
 import { diff3Merge, diff3Merge2d } from "./mergeUtils";
 
+/* global test, expect */
+
 test('should merge unchanged empty', () => {  
     expect(diff3Merge([], [], [])).toEqual([]);
 });

@@ -2,12 +2,11 @@ import { updateMetadataItem } from "./sagaUtils";
 import axios from 'axios';
 
 
-
 export default class Project {
     constructor(context) {
         this.context = context;
     }
-
+    
     getBranchRange = async () => {
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
         const branchItem = worksheet.names.getItem(`branches`);

@@ -200,3 +200,16 @@ export async function checkin(context) {
         // TODO: handle this case with some better UI...
     }
 }
+
+export async function runCheckin() {
+    try {
+      await Excel.run(async context => {
+          await checkin(context);
+      });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof OfficeExtension.Error) {
+          console.error(error.debugInfo);
+      }
+    }
+  }

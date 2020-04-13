@@ -57,3 +57,16 @@ export async function checkoutBranch(context, branch) {
 
     await context.sync();
 }
+
+export async function runCheckoutBranch(branch) {
+    try {
+      await Excel.run(async context => {
+          await checkoutBranch(context, branch);
+      });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof OfficeExtension.Error) {
+          console.error(error.debugInfo);
+      }
+    }
+  }

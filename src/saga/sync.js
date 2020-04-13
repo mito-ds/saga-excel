@@ -1,11 +1,13 @@
 import Project from "./Project";
 import axios from "axios";
-import { getFileContents } from "../../../fileUtils";
+import { getFileContents } from "./fileUtils";
+
+/* global Excel */
 
 const BRANCH_STATE_HEAD = 0;
 const BRANCH_STATE_AHEAD = 1;
 const BRANCH_STATE_BEHIND = 2;
-const BRANCH_STATE_FORKED = 3;
+//const BRANCH_STATE_FORKED = 3;
 
 
 async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
@@ -110,7 +112,7 @@ export async function updateShared(context) {
         console.log(`Local was ahead... updated master on server.`);
         return true;
       } else {
-        console.error(`Error: cannot update because`, updateResponse);
+        console.error(`Error: cannot update because`, response);
         return false;
       }      
     } else if (branchState === BRANCH_STATE_BEHIND) {
@@ -121,3 +123,5 @@ export async function updateShared(context) {
       return false;
     }
 }
+
+// TODO: move the sync function here

@@ -1,6 +1,7 @@
 import { getSheetsWithNames, copySheet, deleteNonsagaSheets } from "./sagaUtils";
 import Project from "./Project";
 
+/* global Excel, OfficeExtension */
 
 /*
 Restores the state of a given commit to the active state
@@ -37,4 +38,19 @@ export async function restoreCommit(context, commitID) {
     }
     return;
 
+}
+
+
+export async function runRestoreCommit(commitID) {
+    try {
+        console.log("trying to restore commit")
+        await Excel.run(async context => {
+            await restoreCommit(context, commitID);
+        });
+      } catch (error) {
+        console.error(error);
+        if (error instanceof OfficeExtension.Error) {
+            console.error(error.debugInfo);
+        }
+    }
 }
