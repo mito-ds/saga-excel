@@ -9,18 +9,26 @@ import CleanupButton from "./saga/CleanupButton";
 import CreateBranchInput from "./saga/CreateBranchInput";
 import CheckoutBranchInput from "./saga/CheckoutInput";
 import CheckinButton from "./saga/CheckinButton";
+import RegisterFormattingHandler from "./saga/RegisterFormattingHandler";
 import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
 import { updateShared } from "./saga/sync";
 
-/* global Button, console, Excel, Header, HeroList, HeroListItem, Progress */
+/* global Excel, OfficeExtension */
 
-function sync() {
-  // TODO: wrap in try catch!
-  Excel.run(async (context) => {
-    console.log("Refreshing shared...")
-    await updateShared(context);
-  });
+function sync() {  
+  try {
+    Excel.run(async (context) => {
+      console.log("Refreshing shared...")
+      await updateShared(context);
+    });
+  } catch (error) {
+    console.error(error);
+    if (error instanceof OfficeExtension.Error) {
+        console.error(error.debugInfo);
+    }
+  }
 }
+
 
 
 export default class App extends React.Component {
@@ -30,7 +38,7 @@ export default class App extends React.Component {
       listItems: []
     };
     // Try and sync the app every 10 seconds
-    setInterval(sync, 10000);
+    //setInterval(sync, 10000);
   }
 
   componentDidMount() {
@@ -68,6 +76,7 @@ export default class App extends React.Component {
           <p className="ms-font-l">
             Use the buttons to interact with Saga.
           </p>
+          <RegisterFormattingHandler/>
           <CreateButton/>
           <CleanupButton/>
           <CheckinButton/>
