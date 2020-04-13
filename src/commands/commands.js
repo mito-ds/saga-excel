@@ -3,7 +3,7 @@
  * See LICENSE in the project root for license information.
  */
 
-//import {createSaga} from "../taskpane/components/saga/CreateButton";
+import { runCreateSaga } from "../saga/create"
 
 /* global global, Office, Excel */
 
@@ -17,12 +17,8 @@ Office.onReady(() => {
  * @param event {Office.AddinCommands.Event}
  */
 async function action(event) {
-  // TEST
-  Excel.run(async context => {
-    console.log("RUNNING EXCEL SHIT");
-    await context.sync();
-    event.completed();
-  })
+  await runCreateSaga();
+  event.completed();
 }
 
 function getGlobal() {
