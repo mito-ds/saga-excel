@@ -1,17 +1,19 @@
 import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
-import { runCreateSaga } from "../../../saga/create"
+import { runMerge } from "../../../saga/merge";
 
-export default class CreateButton extends React.Component {
+
+// This means merge into master
+export default class MergeButton extends React.Component {
   render() {
     return (
         <Button
             className="ms-welcome_Action"
             buttonType={ButtonType.hero}
             iconProps={{ iconName: "ChevronRight" }}
-            onClick={runCreateSaga}
+            onClick={runMerge}
           >
-            Create Saga
+            Check in
         </Button>
     );
   }

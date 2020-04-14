@@ -8,28 +8,29 @@ import CommitForm from "./saga/CommitForm";
 import CleanupButton from "./saga/CleanupButton";
 import CreateBranchInput from "./saga/CreateBranchInput";
 import CheckoutBranchInput from "./saga/CheckoutInput";
-import CheckinButton from "./saga/CheckinButton";
 import RegisterFormattingHandler from "./saga/RegisterFormattingHandler";
+import MergeButton from "./saga/MergeButton";
+import VisibleButton from "./saga/VisibleButton";
+import EmptyButton from "./saga/EmptyButton";
 import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
-import { updateShared } from "./saga/sync";
+import ResetPersonalButton from './saga/ResetPersonalButton'
 
-/* global Excel, OfficeExtension */
+/* global Excel */
 
-function sync() {  
-  try {
-    Excel.run(async (context) => {
-      console.log("Refreshing shared...")
-      await updateShared(context);
-    });
-  } catch (error) {
-    console.error(error);
-    if (error instanceof OfficeExtension.Error) {
-        console.error(error.debugInfo);
-    }
-  }
+var formattingEvents = [];
+
+function formattingHandler(event) {
+  formattingEvents.push(event);
+  console.log(formattingEvents);
 }
 
+function registerFormattingHandler() {
+  Excel.run(function (context) {
+    context.workbook.worksheets.onChanged.add(formattingHandler);
 
+    return context.sync();
+  })
+}
 
 export default class App extends React.Component {
   constructor(props, context) {
@@ -37,8 +38,6 @@ export default class App extends React.Component {
     this.state = {
       listItems: []
     };
-    // Try and sync the app every 10 seconds
-    //setInterval(sync, 10000);
   }
 
   componentDidMount() {
@@ -76,15 +75,17 @@ export default class App extends React.Component {
           <p className="ms-font-l">
             Use the buttons to interact with Saga.
           </p>
-          <RegisterFormattingHandler/>
           <CreateButton/>
           <CleanupButton/>
-          <CheckinButton/>
+          <MergeButton/>
+          <VisibleButton/>
+          <EmptyButton function={registerFormattingHandler} message={"register"}/>
           <CommitForm/>
           <CreateBranchInput/>
           <CheckoutBranchInput/>
           <SeePreviousCommitForm/>
           <CreateFromRemoteForm/>
+          <ResetPersonalButton/>
         </HeroList>
       </div>
     );

@@ -1,11 +1,14 @@
 import Project from "./Project";
 import axios from "axios";
-import { getFileContents } from "../../../fileUtils";
+import { getFileContents } from "./fileUtils";
+import { runOperation } from "./runOperation";
+
+/* global Excel, OfficeExtension */
 
 const BRANCH_STATE_HEAD = 0;
 const BRANCH_STATE_AHEAD = 1;
 const BRANCH_STATE_BEHIND = 2;
-const BRANCH_STATE_FORKED = 3;
+//const BRANCH_STATE_FORKED = 3;
 
 
 async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
@@ -110,7 +113,7 @@ export async function updateShared(context) {
         console.log(`Local was ahead... updated master on server.`);
         return true;
       } else {
-        console.error(`Error: cannot update because`, updateResponse);
+        console.error(`Error: cannot update because`, response);
         return false;
       }      
     } else if (branchState === BRANCH_STATE_BEHIND) {
@@ -120,4 +123,28 @@ export async function updateShared(context) {
       console.error("Cannot update shared as is forked from shared :(");
       return false;
     }
+}
+
+// TODO: move the sync function here
+
+async function sync() {
+  console.log("syncing...")
+  await runOperation(updateShared);
+}
+
+var syncInt;
+
+export function turnSyncOn() {
+  // If sync is not on, turn it on.
+  if (!syncInt) {
+    syncInt = setInterval(sync, 3000);
+  }
+}
+
+export function turnSyncOff() {
+  // If syncing is on, turn it off.
+  if (syncInt) {
+    clearInterval(syncInt);
+    syncInt = null;
+  }
 }

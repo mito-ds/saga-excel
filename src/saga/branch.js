@@ -3,11 +3,13 @@ import Project from "./Project";
 import {checkoutBranch} from "./checkout"
 
 
+/* global Excel, Office, OfficeExtension */
+
 /*
 Display Dialog box to request user to name personal branch
 */
 async function showUnamedPersonalBranchDialog() {
-    var branchName = new Promise(function (resolve, reject) {
+    var branchName = new Promise(function (resolve) {
         Office.context.ui.displayDialogAsync('/src/taskpane/components/UnamedPersonalBranchDialog.html', {height:40,width:40}, function(result) {
             const dialog = result.value;
     
@@ -36,7 +38,7 @@ async function showPermissionDeniedDialog() {
             console.log('error');
         }
 
-        dialog.addEventHandler(Office.EventType.DialogMessageReceived, function(responseMessage){
+        dialog.addEventHandler(Office.EventType.DialogMessageReceived, function(responseMessage) {
             dialog.close();
         });
 
@@ -99,3 +101,17 @@ export async function createBranch(context, branch) {
     
     return;
 } 
+
+
+export async function runCreateBranch(branch) {
+  try {
+    await Excel.run(async context => {
+        await createBranch(context, branch);
+    });
+  } catch (error) {
+    console.error(error);
+    if (error instanceof OfficeExtension.Error) {
+        console.error(error.debugInfo);
+    }
+  }
+}

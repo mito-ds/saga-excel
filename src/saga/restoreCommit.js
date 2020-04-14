@@ -1,6 +1,8 @@
 import { getSheetsWithNames, copySheet, deleteNonsagaSheets } from "./sagaUtils";
 import Project from "./Project";
+import { runOperation } from "./runOperation";
 
+/* global Excel */
 
 /*
 Restores the state of a given commit to the active state
@@ -37,4 +39,9 @@ export async function restoreCommit(context, commitID) {
     }
     return;
 
+}
+
+
+export async function runRestoreCommit(commitID) {
+    await runOperation(restoreCommit, commitID);
 }

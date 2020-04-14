@@ -1,4 +1,4 @@
-import {max, longestCommonSubsequence, longestCommonSubsequence2d} from "./lcs";
+import {longestCommonSubsequence, longestCommonSubsequence2d} from "./lcs";
 
 
 function getChunkInc(origin, aValues, bValues, aMatches, bMatches, oIndex, aIndex, bIndex) {
@@ -127,7 +127,7 @@ function arraysEqual(a, b, dimension) {
         empty things. If the arrays only differ at places where 
         there are empty strings, than we consider them equal. 
         */ 
-        for (var i = 0; i < max(a.length, b.length); i++) {
+        for (var i = 0; i < Math.max(a.length, b.length); i++) {
             if (i >= a.length) {
                 if (b[i] !== "") return false;
             } else if (i >= b.length) {
@@ -199,7 +199,7 @@ function conflicting(origin, aValues, bValues, chunk, dimension) {
 }
 
 function zipLongest(o, a, b) {
-    const maxLength = max(o.length, a.length, b.length);
+    const maxLength = Math.max(o.length, a.length, b.length);
     var output = Array.from({length: maxLength}, e => Array(3).fill(null));
     for (let i = 0; i < o.length; i++) {
         output[i][0] = o[i];
@@ -290,6 +290,8 @@ export function diff3Merge(origin, aValues, bValues) {
 }
 
 export function diff3Merge2d(origin, aValues, bValues) {
+    console.log("MERGING")
+    console.log(origin, aValues, bValues);
     const out = diff3(origin, aValues, bValues, 2);
     var merge = [];
 

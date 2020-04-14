@@ -1,5 +1,9 @@
 import { getSheetsWithNames, copySheet, getRandomID } from "./sagaUtils";
+import { checkBranchPermission } from "./branch";
 import Project from "./Project";
+import { runOperation } from "./runOperation";
+
+/* global Excel */
 
 /*
 Saves a copy off all current non-saga sheets.
@@ -58,4 +62,19 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     await project.addCommitID(commitID, parentID, commitName, commitMessage);
 
     return context.sync();
+}
+
+async function commitIfPermission(context, name, message) {
+    const userPermission = await checkBranchPermission(context);
+    if (userPermission) {
+        await commit(context, name, message);
+    } else {
+        console.error("Cannot commit as user does not have permission on this branch");
+    }
+}
+
+
+
+export async function runCommit(name, message) {
+    await runOperation(commitIfPermission, name, message);
 }

@@ -1,21 +1,5 @@
 import * as React from "react";
-import { checkoutBranch } from "./checkout";
-
-/* global console, Excel */
-
-
-async function runCheckoutBranch(branch) {
-  try {
-    await Excel.run(async context => {
-        await checkoutBranch(context, branch);
-    });
-  } catch (error) {
-    console.error(error);
-    if (error instanceof OfficeExtension.Error) {
-        console.error(error.debugInfo);
-    }
-  }
-}
+import { runCheckoutBranch } from "../../../saga/checkout";
 
 
 export default class CheckoutBranchInput extends React.Component {
@@ -41,7 +25,8 @@ export default class CheckoutBranchInput extends React.Component {
       <form onSubmit={this.handleSubmit}>
         <label>
           Checkout Branch:
-          <input type="text" value={this.state.value} onChange={this.handleChange} />        </label>
+          <input type="text" value={this.state.value} onChange={this.handleChange} />
+        </label>
         <input type="submit" value="Submit" />
       </form>
     );
