@@ -1,19 +1,21 @@
 import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
-import { runCheckin } from "../../../saga/checkin";
+import { runResetPersonalVersion } from "../../../saga/resetPersonal";
 
 
-// This means merge into master
-export default class CheckinButton extends React.Component {
+/* global */
+
+
+export default class ResetPersonalButton extends React.Component {
   render() {
     return (
         <Button
             className="ms-welcome_Action"
             buttonType={ButtonType.hero}
             iconProps={{ iconName: "ChevronRight" }}
-            onClick={runCheckin}
+            onClick={runResetPersonalVersion}
           >
-            Check in
+            Reset Personal Version
         </Button>
     );
   }

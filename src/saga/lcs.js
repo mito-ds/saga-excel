@@ -126,7 +126,7 @@ export function longestCommonSubsequence2d(aValues, bValues) {
     let i = m
     let j = n
     while (i > 0 && j > 0) {
-        if (sim(aValues[i - 1], bValues[j - 1]) + L[i - 1][j - 1] > Math.max(L[i - 1][j], L[i][j - 1])) {
+        if (sim(aValues[i - 1], bValues[j - 1]) + L[i - 1][j - 1] > max(L[i - 1][j], L[i][j - 1])) {
             matches.push(
                 [i - 1, j - 1, sim(aValues[i - 1], bValues[j - 1])]
             )

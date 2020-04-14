@@ -8,10 +8,11 @@ import CommitForm from "./saga/CommitForm";
 import CleanupButton from "./saga/CleanupButton";
 import CreateBranchInput from "./saga/CreateBranchInput";
 import CheckoutBranchInput from "./saga/CheckoutInput";
-import CheckinButton from "./saga/CheckinButton";
+import MergeButton from "./saga/MergeButton";
 import VisibleButton from "./saga/VisibleButton";
 import EmptyButton from "./saga/EmptyButton";
 import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
+import ResetPersonalButton from './saga/ResetPersonalButton'
 
 /* global Excel */
 
@@ -78,7 +79,7 @@ export default class App extends React.Component {
           </p>
           <CreateButton/>
           <CleanupButton/>
-          <CheckinButton/>
+          <MergeButton/>
           <VisibleButton/>
           <EmptyButton function={registerFormattingHandler} message={"register"}/>
           <CommitForm/>
@@ -86,6 +87,7 @@ export default class App extends React.Component {
           <CheckoutBranchInput/>
           <SeePreviousCommitForm/>
           <CreateFromRemoteForm/>
+          <ResetPersonalButton/>
         </HeroList>
       </div>
     );
