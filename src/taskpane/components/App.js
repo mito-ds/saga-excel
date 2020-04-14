@@ -11,12 +11,9 @@ import CheckoutBranchInput from "./saga/CheckoutInput";
 import CheckinButton from "./saga/CheckinButton";
 import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
 import ResetPersonalButton from './saga/ResetPersonalButton'
-import { updateShared } from "./saga/sync";
+//import { updateShared } from "./saga/sync";
 
 /* global */
-
-
-
 
 export default class App extends React.Component {
   constructor(props, context) {

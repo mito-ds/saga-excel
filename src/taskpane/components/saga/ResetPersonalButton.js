@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
-import { resetPersonalVersion } from "./ResetPersonal";
+import { resetPersonalVersion } from "../../../saga/ResetPersonal";
 
 
 /* global Excel, OfficeExtension */
