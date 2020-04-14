@@ -1,6 +1,7 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import Progress from "./Progress";
+import EmptyButton from "./saga/EmptyButton";
 import {runCreateSaga} from "../../saga/create";
 import Project from "../../saga/Project";
 
@@ -10,7 +11,22 @@ import Project from "../../saga/Project";
 
 import './App.css';
 
-/* global */
+/* global Excel */
+
+var formattingEvents = [];
+
+function formattingHandler(event) {
+  formattingEvents.push(event);
+  console.log(formattingEvents);
+}
+
+function registerFormattingHandler() {
+  Excel.run(function (context) {
+    context.workbook.worksheets.onChanged.add(formattingHandler);
+
+    return context.sync();
+})
+}
 
 // Hide the project link card when window loads
 function onload() {
@@ -93,6 +109,7 @@ export default class App extends React.Component {
                 <PrimaryButton className="submit-button" type="submit">Submit</PrimaryButton>
               </form>
             </div>
+            <EmptyButton function={registerFormattingHandler} message={"register"}/>
             <div className="floating-card" id="project-link-card" style={{display: "none"}}>
               <form className="form" onSubmit={copyToClipboard}>
                 <input className="project-link-div" id="project-link" disabled></input>

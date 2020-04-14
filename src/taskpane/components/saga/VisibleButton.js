@@ -1,19 +1,22 @@
 import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
-import { runCheckin } from "../../../saga/checkin";
 
+/* global Office */
 
-// This means merge into master
-export default class CheckinButton extends React.Component {
+async function toggle() {
+  await Office.addin.hide();
+}
+
+export default class VisibleButton extends React.Component {
   render() {
     return (
         <Button
             className="ms-welcome_Action"
             buttonType={ButtonType.hero}
             iconProps={{ iconName: "ChevronRight" }}
-            onClick={runCheckin}
+            onClick={toggle}
           >
-            Check in
+            Toggle Visibility
         </Button>
     );
   }

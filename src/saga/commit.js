@@ -1,8 +1,9 @@
 import { getSheetsWithNames, copySheet, getRandomID } from "./sagaUtils";
 import { checkBranchPermission } from "./branch";
 import Project from "./Project";
+import { runOperation } from "./runOperation";
 
-/* global Excel, OfficeExtension */
+/* global Excel */
 
 /*
 Saves a copy off all current non-saga sheets.
@@ -63,23 +64,17 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     return context.sync();
 }
 
+async function commitIfPermission(context, name, message) {
+    const userPermission = await checkBranchPermission(context);
+    if (userPermission) {
+        await commit(context, name, message);
+    } else {
+        console.error("Cannot commit as user does not have permission on this branch");
+    }
+}
+
 
 
 export async function runCommit(name, message) {
-    try {
-        console.log("trying to commit")
-        await Excel.run(async context => {
-            const userPermission = await checkBranchPermission(context);
-            console.log("HERE")
-            console.log(userPermission)
-            if (userPermission) {
-              await commit(context, name, message);
-            }
-        });
-      } catch (error) {
-        console.error(error);
-        if (error instanceof OfficeExtension.Error) {
-            console.error(error.debugInfo);
-        }
-    }
+    await runOperation(commitIfPermission, name, message);
 }

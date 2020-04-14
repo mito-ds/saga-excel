@@ -1,16 +1,5 @@
-export function max() {
-    const args = Array.prototype.slice.call(arguments);
-    return args.reduce((acc, val) => {
-        return acc > val ? acc : val;
-    })
-}
 
-function min() {
-    const args = Array.prototype.slice.call(arguments);
-    return args.reduce((acc, val) => {
-        return acc > val ? val : acc;
-    }, Number.MAX_SAFE_INTEGER)
-}
+
 
 function equal(a, b) {
     return (a === b) ? 1 : 0;
@@ -39,7 +28,7 @@ export function longestCommonSubsequence(aValues, bValues) {
             if (i == 0 || j == 0) {
                 L[i][j] = 0
             } else {
-                L[i][j] = max(
+                L[i][j] = Math.max(
                     equal(aValues[i - 1], bValues[j - 1]) + L[i - 1][j - 1],
                     L[i - 1][j],
                     L[i][j - 1]
@@ -56,7 +45,7 @@ export function longestCommonSubsequence(aValues, bValues) {
     let i = m
     let j = n
     while (i > 0 && j > 0) {
-        if (equal(aValues[i - 1], bValues[j - 1]) + L[i - 1][j - 1] > max(L[i - 1][j], L[i][j - 1])) {
+        if (equal(aValues[i - 1], bValues[j - 1]) + L[i - 1][j - 1] > Math.max(L[i - 1][j], L[i][j - 1])) {
             matches.push(
                 [i - 1, j - 1, equal(aValues[i - 1], bValues[j - 1])]
             )
@@ -120,7 +109,7 @@ export function longestCommonSubsequence2d(aValues, bValues) {
                 L[i][j] = 0
 
             } else {
-                L[i][j] = max(
+                L[i][j] = Math.max(
                     sim(aValues[i - 1], bValues[j - 1]) + L[i - 1][j - 1],
                     L[i - 1][j],
                     L[i][j - 1]

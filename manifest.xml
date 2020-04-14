@@ -22,6 +22,9 @@
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
     <Hosts>
       <Host xsi:type="Workbook">
+        <Runtimes>
+          <Runtime resid="Taskpane.Url" lifetime="long" />
+        </Runtimes>
         <DesktopFormFactor>
           <GetStarted>
             <Title resid="GetStarted.Title"/>

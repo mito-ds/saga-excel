@@ -1,21 +1,19 @@
 import * as React from "react";
 import { Button, ButtonType } from "office-ui-fabric-react";
-import { runResetPersonalVersion } from "../../../saga/resetPersonal";
+
+/* global Office */
 
 
-/* global */
-
-
-export default class ResetPersonalButton extends React.Component {
+export default class EmptyButton extends React.Component {
   render() {
     return (
         <Button
             className="ms-welcome_Action"
             buttonType={ButtonType.hero}
             iconProps={{ iconName: "ChevronRight" }}
-            onClick={runResetPersonalVersion}
+            onClick={this.props.function}
           >
-            Reset Personal Version
+            {this.props.message}
         </Button>
     );
   }

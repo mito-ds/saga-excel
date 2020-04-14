@@ -1,50 +1,11 @@
 import { commit } from './commit';
-import { getSheetsWithNames, copySheet, getFormulas } from "./sagaUtils";
+import { copySheet, getRandomID, getFormulas } from "./sagaUtils";
 import { diff3Merge2d } from "./mergeUtils";
+import { updateShared } from "./sync";
 import Project from "./Project";
+import { runOperation } from './runOperation';
 
-
-
-function buildGraph(values) {
-    let graph = {}
-    values.forEach(row => {
-        graph[row[0]] = row[1];
-    })
-    return graph;
-}
-
-// TODO: make sure this function is only called on commit sheets!
-function getOriginName(sheet) {
-    // TODO: make sure sheet.name is defined!
-    if (!sheet.name.startsWith(`saga`)) {
-        return sheet.name;
-    } 
-
-    return sheet.name.split(`-`)[2];
-}
-
-
-async function getOriginCommitID(project, branch1, branch2) {
-    const commitRange = await project.getCommitRangeWithValues();
-    const branch1CommitID = await project.getCommitIDFromBranch(branch1);
-    const branch2CommitID = await project.getCommitIDFromBranch(branch2);
-    
-    // Then, we read in all the commits
-    const graph = buildGraph(commitRange.values);
-
-    let reached = {'': true};
-    let curr = branch1CommitID;
-    while (curr !== '') {
-        reached[curr] = true;
-        curr = graph[curr];
-    }
-
-    curr = branch2CommitID;
-    while (!reached[curr]) {
-        curr = graph[curr];
-    }
-    return curr;
-}
+/* global Excel */
 
 /**
  * Takes a positive integer and returns the corresponding column name.
@@ -60,72 +21,92 @@ function toColumnName(num) {
 // Taken from https://cwestblog.com/2013/09/05/javascript-snippet-convert-number-to-column-name/
 
 
+const getCommitSheets = (sheets, commitID) => {
+    return sheets.filter(sheet => {
+        return sheet.name.startsWith(`saga-${commitID}`);
+    })
+}
 
-export async function mergeBranch(context, branch) {
+const getNonsagaSheets = (sheets) => {
+    return sheets.filter(sheet => {
+        return !sheet.name.startsWith(`saga`);
+    })
+}
+
+
+const doMerge = async (context) => {
     const project = new Project(context);
 
-    // Check that this branch exists
-    const branchExists = await project.checkBranchExists(branch);
-    if (!branchExists) {
-        console.error(`Cannot merge ${branch} as it does not exist`);
+    const personalBranchRange = await project.getPersonalBranchNameWithValues();
+    const personalBranch = personalBranchRange.values[0][0];
+
+    if (personalBranch === ``) {
+        console.error(`Cannot checkin personal branch as it does not exist.`);
         return;
     }
-    const branchCommitID = await project.getCommitIDFromBranch(branch);
 
-    // Get the head branch
-    const headBranch = await project.getHeadBranch();
+    const masterCommitID = await project.getCommitIDFromBranch(`master`);
+    const personalCommitID = await project.getCommitIDFromBranch(personalBranch);
 
-    // Get the origin commit id for these two branches
-    const originCommitID = await getOriginCommitID(project, headBranch, branch);
-    const originSheetNameBase = `saga-${originCommitID}-`
+    // Because we don't have commits, the least common ancestor is always 
+    // the parent of the personal commit ID
+    const originCommitID = await project.getParentCommitID(personalCommitID);
 
-    // Get the sheets from both branch
-    const sheets = await getSheetsWithNames(context);
-    const headSheets = sheets.filter(sheet => {
-        return !sheet.name.startsWith("saga");
-    })
-    const branchSheets = sheets.filter(sheet => {
-        return sheet.name.startsWith(`saga-${branchCommitID}`);
-    })
-    const originSheets = sheets.filter(sheet => {
-        return sheet.name.startsWith(`saga-${originCommitID}`);
-    })
+    const sheets = await project.getSheetsWithNames();
+
+    const masterSheets = getCommitSheets(sheets, masterCommitID);
+    const personalSheets = getNonsagaSheets(sheets);
+    const originSheets = getCommitSheets(sheets, originCommitID);
+
+    console.log("master sheets", masterSheets);
+    console.log("personalSheets", personalSheets);
+    console.log("originSheets", originSheets);
+
+    const masterPrefix = `saga-${masterCommitID}-`;
+    const originPrefix = `saga-${originCommitID}-`;
+    const newCommitID = getRandomID();
+    const newCommitPrefix = `saga-${newCommitID}-`;
+
 
     // Helper function for figuring out what sorta sheet this is
     function checkExistance(branchSheet) {
-        const oldName = getOriginName(branchSheet);
-        const inHead = (headSheets.find(s => {return s.name === oldName;}) !== undefined);
-        const inOrigin = (originSheets.find(s => {
-            return oldName === getOriginName(s);
-        }) !== undefined);
+        const masterName = masterPrefix + branchSheet.name;
+        const originName = originPrefix + branchSheet.name;
 
-        return {inHead: inHead, inOrigin: inOrigin};
+        console.log(masterName, originName);
+
+        const inMaster = (masterSheets.find(s => {return s.name === masterName;}) !== undefined);
+        const inOrigin = (originSheets.find(s => {return s.name === originName;}) !== undefined);
+
+        return {inMaster: inMaster, inOrigin: inOrigin};
     }
 
     // We can copy over sheets that are inserted into the branch, 
     // But were also not removed from the origin
-    const insertedSheets = branchSheets.filter(sheet => {
+    const insertedSheets = personalSheets.filter(sheet => {
         const ex = checkExistance(sheet);
-        return !ex.inHead && !ex.inOrigin;
+        return !ex.inMaster && !ex.inOrigin;
     })
 
     // Sheets that have been added in both the head branch and the 
     // merged branch, and so we have a conflict
-    const conflictSheets = branchSheets.filter(sheet => {
+    const conflictSheets = personalSheets.filter(sheet => {
         const ex = checkExistance(sheet);
-        return ex.inHead && !ex.inOrigin;
+        return ex.inMaster && !ex.inOrigin;
     })
 
     // Sheets that have been removed from the head branch, but where in the origin branch
-    const deletedSheets = branchSheets.filter(sheet => {
+    /*
+    const deletedSheets = personalSheets.filter(sheet => {
         const ex = checkExistance(sheet);
-        return !ex.inHead && ex.inOrigin;
+        return !ex.inMaster && ex.inOrigin;
     })
+    */
 
     // Now, we actually need to merge the sheets 
-    const mergeSheets = branchSheets.filter(sheet => {
+    const mergeSheets = personalSheets.filter(sheet => {
         const ex = checkExistance(sheet);
-        return ex.inHead && ex.inOrigin;
+        return ex.inMaster && ex.inOrigin;
     })
 
     if (conflictSheets.length > 0) {
@@ -135,54 +116,106 @@ export async function mergeBranch(context, branch) {
         return;
     }
 
-    // Now, we actually perform the copying and the merging
-
-
-    // Copy over the 
+    // Copy over the inserted sheets
     for (let i = 0; i < insertedSheets.length; i++) {
         // TODO: we might wanna do this at the end!
         // TODO: we can probably track sheet renames with sheet ID!
         const sheet = insertedSheets[i];
-        const dst = getOriginName(sheet);
+        const dst = newCommitPrefix + sheet.name;
         await copySheet(
             context, 
             sheet.name,
             dst,
-            Excel.WorksheetPositionType.beginning,
+            Excel.WorksheetPositionType.end,
             Excel.SheetVisibility.visible
         );
     }
 
     for (let i = 0; i < mergeSheets.length; i++) {
-        // TODO: optimize
+        // First, we copy all the merge sheets to a new destination
         const sheet = mergeSheets[i];
-        const originName = getOriginName(sheet);
-        const originSheetName = originSheetNameBase + originName;
 
-        const originFormulas = await getFormulas(context, originSheetName);
-        const headFormulas = await getFormulas(context, originName);
-        const branchFormulas = await getFormulas(context, sheet.name);
-        console.log("GOT FORMULAS", originFormulas, headFormulas, branchFormulas);
-        const merge = diff3Merge2d(originFormulas, headFormulas, branchFormulas);
-        console.log("got merge", merge);
+        const personalSheetName = sheet.name;
+        const masterSheetName = masterPrefix + personalSheetName;
+        const originSheetname = originPrefix + personalSheetName;
 
-        // Finially, we get the range
-        const mergeSheet = context.workbook.worksheets.getItem(originName);
-        console.log("here1")
+        const personalFormulas = await getFormulas(context, personalSheetName);
+        const masterFormulas = await getFormulas(context, masterSheetName);
+        const originFormulas = await getFormulas(context, originSheetname);
 
-        for (let i = 0; i < merge.length; i++) {
-            const len = merge[i].length;
+        // Merge the formulas
+        const mergeFormulas = diff3Merge2d(originFormulas, masterFormulas, personalFormulas);
+        
+        for (let i = 0; i < mergeFormulas.length; i++) {
+            const len = mergeFormulas[i].length;
             const endColumn = toColumnName(len);
             const rangeAddress = `A${i + 1}:${endColumn}${i+1}`;
-            console.log(`DATA: ${merge[i]}, ADDRESS: ${rangeAddress}`);
-            const rowRange = mergeSheet.getRange(rangeAddress);
-            rowRange.values = [merge[i]];
+            const rowRange = sheet.getRange(rangeAddress);
+            rowRange.values = [mergeFormulas[i]];
+            if (i % 40 === 0) {
+                // So we don't have too many waiting (there is a cap at 50?) TODO.
+                await context.sync();
+            }
         }
-        console.log("here2")
-        context.sync();
-    }
-    console.log("commiting")
 
-    // Finially, after we have merged everything, we can make a commit to lock it in
-    await commit(context);
+        const mergeDst = newCommitPrefix + sheet.name;
+
+        await copySheet(
+            context, 
+            personalSheetName,
+            mergeDst,
+            Excel.WorksheetPositionType.end,
+            Excel.SheetVisibility.visible
+        );
+    }
+
+    // Finially, after we have merged everything, we can log the commit to lock it in
+    await project.updateBranchCommitID(`master`, newCommitID);
+    await project.addCommitID(newCommitID, masterCommitID, `Merged in ${personalBranch}`, "");
+}
+
+/*
+Merging in is when a user merges their personal branch into the master branch.
+When this occurs, their merged changes are propagated to all other team members
+of this saga project. 
+
+As such, we first try to ensure that the user is caught up with the front of the
+remote master branch. If they are not, we try and sync them. If they can't sync, 
+we refuse to checkin (as this might lead to a fork).
+*/
+export async function merge(context) {
+
+    const updated = await updateShared(context);
+
+    if (!updated) {
+        console.error("Cannot checkin personal branch as shared branch may not be up to date.");
+        return;
+    }
+
+    const project = new Project(context);
+    const personalBranchRange = await project.getPersonalBranchNameWithValues();
+    const personalBranch = personalBranchRange.values[0][0];
+    const headBranch = await project.getHeadBranch();
+
+    if (headBranch !== personalBranch) {
+        console.error("Please check out your personal branch before checking in.");
+        return;
+    }
+
+    // Make a commit on the personal branch    
+    await commit(context, `check in of ${personalBranch}`, "", personalBranch);
+    // Merge this commit into the shared branch
+    await doMerge(context);
+
+    // Try and update the server with this newly merged sheets
+    const updatedWithMerge = await updateShared(context);
+
+    if (!updatedWithMerge) {
+        console.error("Checked in data may have not been been shared...");
+        // TODO: handle this case with some better UI...
+    }
+}
+
+export async function runMerge() {
+    await runOperation(merge);
 }
