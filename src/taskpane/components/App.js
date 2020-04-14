@@ -1,22 +1,29 @@
 import * as React from "react";
-import Header from "./Header";
 import { PrimaryButton } from '@fluentui/react';
-import HeroList from "./HeroList";
 import Progress from "./Progress";
-import CreateButton from "./saga/CreateButton";
-import SeePreviousCommitForm from "./saga/SeePreviousCommitForm";
-import CommitForm from "./saga/CommitForm";
-import CleanupButton from "./saga/CleanupButton";
-import CreateBranchInput from "./saga/CreateBranchInput";
-import CheckoutBranchInput from "./saga/CheckoutInput";
-import CheckinButton from "./saga/CheckinButton";
-import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
-import ResetPersonalButton from './saga/ResetPersonalButton'
+import {runCreateSaga} from "../../saga/create";
+import Project from "../../saga/Project";
+
+
 //import { updateShared } from "./saga/sync";
 
 import './App.css';
 
 /* global */
+
+async function createSagaProject (e) {
+  e.preventDefault();
+  console.log("running create saga")
+  const remoteURL = await runCreateSaga();
+  //const project = await new Project(context);
+  //const remoteURL = await project.getRemoteURL();
+  console.log(remoteURL);
+}
+
+function formSubmit (e) {
+  e.preventDefault();
+  console.log("testing function worked")
+}
 
 export default class App extends React.Component {
   constructor(props, context) {
@@ -45,7 +52,6 @@ export default class App extends React.Component {
     });
   }
 
-
   render() {
     const { title, isOfficeInitialized } = this.props;
 
@@ -64,9 +70,9 @@ export default class App extends React.Component {
           <div className="card-div">          
             <div className="floating-card">
               <p className="subtext">I’m using Saga knowing that it is in a pre-alpha stage. I understand that my data may be lost and <b>I will continue to backup my work.</b> </p>
-              <form className="form">
+              <form className="form" onSubmit={createSagaProject}>
                 <input className="email-input" placeholder="example@gmail.com" type="email"></input>
-                <PrimaryButton className="submit-button">Submit</PrimaryButton>
+                <PrimaryButton className="submit-button" type="submit">Submit</PrimaryButton>
               </form>
             </div>
           </div>

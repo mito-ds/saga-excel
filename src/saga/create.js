@@ -71,7 +71,17 @@ export async function runCreateSaga() {
             // Create the first commit 
             await commit(context, "Create Saga Project", "Deafult First Commit on creation of saga project");
 
-            return context.sync();
+            // Get remote range
+            const project = await new Project(context)
+            const remoteRange = await project.getRemoteRange()
+
+            return context.sync()
+              .then(async function () {
+                  console.log("in callback")
+                  // Get Remote URL
+                  const remoteURL = await project.getRemoteURL();
+                  return remoteURL;
+              });
         });
       } catch (error) {
         console.error(error);
