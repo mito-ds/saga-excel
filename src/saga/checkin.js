@@ -116,12 +116,6 @@ const doMerge = async (context) => {
         return;
     }
 
-    
-
-    function getName(sheet) {
-        return sheet.name.split(`-`)[2];
-    }
-
     // Copy over the inserted sheets
     for (let i = 0; i < insertedSheets.length; i++) {
         // TODO: we might wanna do this at the end!
@@ -145,19 +139,27 @@ const doMerge = async (context) => {
         const masterSheetName = masterPrefix + personalSheetName;
         const originSheetname = originPrefix + personalSheetName;
 
-        console.log("personalSheetName:", personalSheetName);
-        console.log("masterSheetName:", masterSheetName);
-        console.log("originSheetname:", originSheetname);
-
         const personalFormulas = await getFormulas(context, personalSheetName);
         const masterFormulas = await getFormulas(context, masterSheetName);
         const originFormulas = await getFormulas(context, originSheetname);
 
         // Merge the formulas
         const mergeFormulas = diff3Merge2d(originFormulas, masterFormulas, personalFormulas);
+        
+        for (let i = 0; i < mergeFormulas.length; i++) {
+            const len = mergeFormulas[i].length;
+            const endColumn = toColumnName(len);
+            const rangeAddress = `A${i + 1}:${endColumn}${i+1}`;
+            const rowRange = sheet.getRange(rangeAddress);
+            rowRange.values = [mergeFormulas[i]];
+            if (i % 40 === 0) {
+                // So we don't have too many waiting (there is a cap at 50?) TODO.
+                await context.sync();
+            }
+        }
 
         const mergeDst = newCommitPrefix + sheet.name;
-        console.log(`In merge, copying ${personalSheetName} to ${mergeDst}`)
+
         await copySheet(
             context, 
             personalSheetName,
@@ -165,16 +167,6 @@ const doMerge = async (context) => {
             Excel.WorksheetPositionType.end,
             Excel.SheetVisibility.visible
         );
-
-        const mergeSheet = context.workbook.worksheets.getItem(mergeDst);
-        for (let i = 0; i < mergeFormulas.length; i++) {
-            const len = mergeFormulas[i].length;
-            const endColumn = toColumnName(len);
-            const rangeAddress = `A${i + 1}:${endColumn}${i+1}`;
-            const rowRange = mergeSheet.getRange(rangeAddress);
-            rowRange.values = [mergeFormulas[i]];
-        }
-        await context.sync();
     }
 
     // Finially, after we have merged everything, we can log the commit to lock it in
