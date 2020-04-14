@@ -54,6 +54,7 @@
 .form {
     padding-left: 3vw;
     padding-right: 3vw;
+    padding-top: 2vh;
     padding-bottom: 2vh;
     display: flex;
     flex-flow: row wrap;
@@ -64,7 +65,7 @@
 .email-input{
     background-color: var(--form-input-color);
     color: var(--saga-red-color);
-    font-size: 12px;
+    font-size: 14px;
     width: 50vw;
     height: 3vh;
     border-radius: 4px;
@@ -75,6 +76,17 @@
     background-color: var(--saga-red-color);
     border-color: var(--saga-red-color);
     color: white;
+}
+
+.project-link-div {
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+    background-color: var(--form-input-color);
+    color: var(--saga-red-color);
+    font-size: 14px;
+    width: 60vw;
+    height: 3vh;
+    border-radius: 4px;
 }
 
 .footer {

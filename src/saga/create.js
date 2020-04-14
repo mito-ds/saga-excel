@@ -60,6 +60,7 @@ async function createRemote(context) {
 
 
 export async function runCreateSaga() {
+  return new Promise(async function (resolve) {
     try {
         await Excel.run(async context => {
             // Create the metadata sheet
@@ -73,15 +74,10 @@ export async function runCreateSaga() {
 
             // Get remote range
             const project = await new Project(context)
-            const remoteRange = await project.getRemoteRange()
+            const remoteURL = await project.getRemoteURL()
 
-            return context.sync()
-              .then(async function () {
-                  console.log("in callback")
-                  // Get Remote URL
-                  const remoteURL = await project.getRemoteURL();
-                  return remoteURL;
-              });
+            await context.sync()
+            await resolve(remoteURL)
         });
       } catch (error) {
         console.error(error);
@@ -89,6 +85,7 @@ export async function runCreateSaga() {
             console.error(error.debugInfo);
         }
     }
+  });
 }
 
 
