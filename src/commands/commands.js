@@ -5,6 +5,7 @@
 
 import { runCreateSaga } from "../saga/create"
 import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
+import { runResetPersonalVersion } from "../saga/resetPersonal.js"
 
 /* global global, Office */
 
@@ -22,7 +23,14 @@ async function action(event) {
 }
 
 async function switchVersion(event) {
+  // Todo: render message saying which branch they are on
   await runSwitchVersionFromRibbon()
+  event.completed();
+}
+
+async function resetPersonalVersion(event) {
+  // Todo: If on master, tell them they can't
+  await runResetPersonalVersion(); 
   event.completed();
 }
 
@@ -41,3 +49,4 @@ const g = getGlobal();
 // the add-in command functions need to be available in global scope
 g.action = action;
 g.switchVersion = switchVersion;
+g.resetPersonalVersion = resetPersonalVersion;

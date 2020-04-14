@@ -7,19 +7,6 @@ import { commit } from "./commit";
 /* global Excel */
 
 /*
-Saves a copy off all current non-saga sheets.
-If the sheet is named 'data', it will be saved at 
-'saga-{commitID}-data'
-*/
-
-async function copySheetsToPersonalVersion(context, sheetOriginalLocation, sheetDesitnationLocation) {
-    // TODO: could be done in parallel! we don't need to sync context during, hopefully.
-
-
-    return context.sync();
-}
-
-/*
 Create Commit
 */
 export async function resetPersonalVersion(context) {

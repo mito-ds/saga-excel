@@ -86,7 +86,7 @@
                     <bt:Image size="80" resid="ResetPersonalButtonIcon.80x80"/>
                   </Icon>
                   <Action xsi:type="ExecuteFunction">
-                    <FunctionName>action</FunctionName>
+                    <FunctionName>resetPersonalVersion</FunctionName>
                   </Action>
                 </Control>
                 <!--Share Project-->
