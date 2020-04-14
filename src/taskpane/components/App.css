@@ -1,0 +1,91 @@
+:root {
+    --light-grey-color: #F3F3F3;
+    --dark-grey-color: #8E8D8A;
+    --form-input-color: #E3E3E3;
+    --saga-red-color: #E98074;
+    --faded-saga-red-color: rgba(233, 128, 116, 0.44);
+}
+
+.taskpane {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.content {
+    flex: 1 0 auto;
+    padding: 10px;
+}
+
+.header {
+    margin-top: 5vh;
+    text-align: center;
+}
+
+.saga-logo {
+    margin: auto;
+    display: block;
+}
+
+.title-text {
+    font-size: 25px;
+}
+
+.card-div {
+    margin-left: 5vw;
+    margin-right: 5vw;
+    overflow-wrap: break-word;
+}
+
+.floating-card {
+    background-color: var(--light-grey-color);
+    border-radius: 3px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}     
+
+.subtext {
+    color: var(--dark-grey-color);
+    padding-top: 2vh;
+    padding-left: 3vw;
+    padding-right: 3vh;
+    font-size: 12px;
+}
+
+.form {
+    padding-left: 3vw;
+    padding-right: 3vw;
+    padding-bottom: 2vh;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.email-input{
+    background-color: var(--form-input-color);
+    color: var(--saga-red-color);
+    font-size: 12px;
+    width: 50vw;
+    height: 3vh;
+    border-radius: 4px;
+}
+
+.submit-button {
+    height: 4vh;
+    background-color: var(--saga-red-color);
+    border-color: var(--saga-red-color);
+    color: white;
+}
+
+.footer {
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.FAQ-text {
+    margin-bottom: 0px;
+}
+
+.disclaimer {
+    margin-top: 0px;;
+}
