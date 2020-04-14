@@ -1,8 +1,9 @@
 import Project from "./Project";
 import axios from "axios";
 import { getFileContents } from "./fileUtils";
+import { runOperation } from "./runOperation";
 
-/* global Excel */
+/* global Excel, OfficeExtension */
 
 const BRANCH_STATE_HEAD = 0;
 const BRANCH_STATE_AHEAD = 1;
@@ -125,3 +126,25 @@ export async function updateShared(context) {
 }
 
 // TODO: move the sync function here
+
+async function sync() {
+  console.log("syncing...")
+  await runOperation(updateShared);
+}
+
+var syncInt;
+
+export function turnSyncOn() {
+  // If sync is not on, turn it on.
+  if (!syncInt) {
+    syncInt = setInterval(sync, 3000);
+  }
+}
+
+export function turnSyncOff() {
+  // If syncing is on, turn it off.
+  if (syncInt) {
+    clearInterval(syncInt);
+    syncInt = null;
+  }
+}

@@ -73,3 +73,7 @@ test('2d should add mulitple rows and extend too', () => {
 test('2d should extend in both places', () => {  
     expect(diff3Merge2d([[1], [2], [3]], [[1, 4], [2], [3]], [[1], [2], [3, 5]])).toEqual([[1, 4], [2], [3, 5]]);
 });
+
+test('all equal', () => {  
+    expect(diff3Merge2d([["data"], [1], [2], [3]], [["data"], [1], [2], [3]], [["data"], [1], [2], [3]])).toEqual([["data"], [1], [2], [3]]);
+});

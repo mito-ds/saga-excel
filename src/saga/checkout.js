@@ -1,5 +1,8 @@
 import { getSheetsWithNames, copySheet } from "./sagaUtils";
 import Project from './Project';
+import { runOperation } from "./runOperation";
+
+/* global Excel */
 
 
 export async function deleteNonsagaSheets(context) {
@@ -59,14 +62,5 @@ export async function checkoutBranch(context, branch) {
 }
 
 export async function runCheckoutBranch(branch) {
-    try {
-      await Excel.run(async context => {
-          await checkoutBranch(context, branch);
-      });
-    } catch (error) {
-      console.error(error);
-      if (error instanceof OfficeExtension.Error) {
-          console.error(error.debugInfo);
-      }
-    }
-  }
+    await runOperation(checkoutBranch, branch);
+}

@@ -1,11 +1,13 @@
 import { createSheet } from "./sagaUtils";
 import { getFileContents } from "./fileUtils";
 import { commit } from "./commit";
+import { turnSyncOn } from "./sync";
 import Project from "./Project"
 import axios from "axios"
+import { runOperation } from "./runOperation";
 
 
-/* global Excel, OfficeExtension */
+/* global Excel */
 
 /*
 Sets up the headers for the commit worksheet, if they don't already exist
@@ -57,82 +59,78 @@ async function createRemote(context) {
     return context.sync();
 }
 
-
-
-export async function runCreateSaga() {
-    try {
-        await Excel.run(async context => {
-            // Create the metadata sheet
-            await setupSagaSheet(context);
+async function createSaga(context) {
+  // Create the metadata sheet
+  await setupSagaSheet(context);
             
-            // Try and create a remote project
-            await createRemote(context);
+  // Try and create a remote project
+  await createRemote(context);
 
-            // Create the first commit 
-            await commit(context, "Create Saga Project", "Deafult First Commit on creation of saga project");
+  // Create the first commit 
+  await commit(context, "Create Saga Project", "Saga project creation");
 
-            return context.sync();
-        });
-      } catch (error) {
-        console.error(error);
-        if (error instanceof OfficeExtension.Error) {
-            console.error(error.debugInfo);
-        }
-    }
+  // Start syncing this with master
+  turnSyncOn();
+
+  return context.sync();
 }
 
 
 
+export async function runCreateSaga() {
+  await runOperation(createSaga);
+}
 
-export async function runCreateFromURL(url) {
-    try {
-        await Excel.run(async context => {
-          const response = await axios.get(
-            url, 
-            {
-              params: {
-                headCommitID: ``,
-                parentCommitID: ``
-              }
-            }
-          );
-  
-          if (response.status === 404) {
-            console.error(`No project exists as ${url}`);
-            return;
-          }
-  
-          const fileContents = response.data.fileContents;
-          if (fileContents === `` || fileContents === undefined) {
-            console.error(`Project at ${url} is empty, nothing to pull.`);
-            return;
-          }
-  
-          const project = new Project(context);
-          const sheets = await project.getSheetsWithNames();
-  
-          for (let i = 1; i < sheets.length; i++) {
-            sheets[i].delete();
-          }
-  
-          sheets[0].name = "saga-tmp"
-  
-          await context.sync()
-  
-          const worksheets = context.workbook.worksheets;
-          worksheets.addFromBase64(
-            fileContents
-          );
-          await context.sync();
-  
-          sheets[0].delete();
-          await context.sync();
-          
-        });
-      } catch (error) {
-        console.error(error);
-        if (error instanceof OfficeExtension.Error) {
-            console.error(error.debugInfo);
+
+async function createFromURL(context, url) {
+  const response = await axios.get(
+    url, 
+    {
+      params: {
+        headCommitID: ``,
+        parentCommitID: ``
       }
     }
+  );
+
+  if (response.status === 404) {
+    console.error(`No project exists as ${url}`);
+    return;
+  }
+
+  const fileContents = response.data.fileContents;
+  if (fileContents === `` || fileContents === undefined) {
+    console.error(`Project at ${url} is empty, nothing to pull.`);
+    return;
+  }
+
+  const project = new Project(context);
+  const sheets = await project.getSheetsWithNames();
+
+  for (let i = 1; i < sheets.length; i++) {
+    sheets[i].delete();
+  }
+
+  sheets[0].name = "saga-tmp"
+
+  await context.sync()
+
+  const worksheets = context.workbook.worksheets;
+  worksheets.addFromBase64(
+    fileContents
+  );
+  await context.sync();
+
+  sheets[0].delete();
+  // TODO: we also have to clear the personal branch!
+
+  turnSyncOn();
+
+  await context.sync();
+}
+
+
+
+export async function runCreateFromURL(url) {
+  await runOperation(createFromURL, url);
   }

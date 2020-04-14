@@ -9,9 +9,26 @@ import CleanupButton from "./saga/CleanupButton";
 import CreateBranchInput from "./saga/CreateBranchInput";
 import CheckoutBranchInput from "./saga/CheckoutInput";
 import CheckinButton from "./saga/CheckinButton";
+import VisibleButton from "./saga/VisibleButton";
+import EmptyButton from "./saga/EmptyButton";
 import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
 
-/* global */
+/* global Excel */
+
+var formattingEvents = [];
+
+function formattingHandler(event) {
+  formattingEvents.push(event);
+  console.log(formattingEvents);
+}
+
+function registerFormattingHandler() {
+  Excel.run(function (context) {
+    context.workbook.worksheets.onChanged.add(formattingHandler);
+
+    return context.sync();
+})
+}
 
 
 
@@ -62,6 +79,8 @@ export default class App extends React.Component {
           <CreateButton/>
           <CleanupButton/>
           <CheckinButton/>
+          <VisibleButton/>
+          <EmptyButton function={registerFormattingHandler} message={"register"}/>
           <CommitForm/>
           <CreateBranchInput/>
           <CheckoutBranchInput/>

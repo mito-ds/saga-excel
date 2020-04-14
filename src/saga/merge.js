@@ -3,7 +3,7 @@ import { getSheetsWithNames, copySheet, getFormulas } from "./sagaUtils";
 import { diff3Merge2d } from "./mergeUtils";
 import Project from "./Project";
 
-
+/* global Excel */
 
 function buildGraph(values) {
     let graph = {}
@@ -117,10 +117,12 @@ export async function mergeBranch(context, branch) {
     })
 
     // Sheets that have been removed from the head branch, but where in the origin branch
+    /*
     const deletedSheets = branchSheets.filter(sheet => {
         const ex = checkExistance(sheet);
         return !ex.inHead && ex.inOrigin;
-    })
+    }) 
+    */
 
     // Now, we actually need to merge the sheets 
     const mergeSheets = branchSheets.filter(sheet => {
@@ -158,6 +160,10 @@ export async function mergeBranch(context, branch) {
         const sheet = mergeSheets[i];
         const originName = getOriginName(sheet);
         const originSheetName = originSheetNameBase + originName;
+
+        console.log("Origin:", originSheetName);
+        console.log("Head:", originSheetName);
+        console.log("Branch:", originSheetName);
 
         const originFormulas = await getFormulas(context, originSheetName);
         const headFormulas = await getFormulas(context, originName);

@@ -3,6 +3,7 @@ import { copySheet, getRandomID, getFormulas } from "./sagaUtils";
 import { diff3Merge2d } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
+import { runOperation } from './runOperation';
 
 /* global Excel */
 
@@ -202,14 +203,5 @@ export async function checkin(context) {
 }
 
 export async function runCheckin() {
-    try {
-      await Excel.run(async context => {
-          await checkin(context);
-      });
-    } catch (error) {
-      console.error(error);
-      if (error instanceof OfficeExtension.Error) {
-          console.error(error.debugInfo);
-      }
-    }
-  }
+    await runOperation(checkin);
+}
