@@ -4,6 +4,7 @@ import Progress from "./Progress";
 import EmptyButton from "./saga/EmptyButton";
 import {runCreateSagaFromTaskpane, setPersonalBranchName}  from "../../saga/create";
 import {runCreateBranch} from "../../saga/branch"
+import {runSwitchVersionFromRibbon} from "../../saga/checkout"
 import Project from "../../saga/Project";
 
 
@@ -23,7 +24,6 @@ function formattingHandler(event) {
 function registerFormattingHandler() {
   Excel.run(function (context) {
     context.workbook.worksheets.onChanged.add(formattingHandler);
-
     return context.sync();
 })
 }
@@ -31,13 +31,15 @@ function registerFormattingHandler() {
 // Create Saga Project
 async function createSagaProject (e) {
   e.preventDefault();
-  console.log("running create saga")
+  //
   const remoteURL = await runCreateSagaFromTaskpane();
 
+  //Create and checkout personal branch
   //Todo: Save email in database
   const email = document.getElementById('email-input').value
   await runCreateBranch(email)
   await setPersonalBranchName(email)
+  await runSwitchVersionFromRibbon()
   
   // Switch Taskpane Cards
   document.getElementById('email-card').style.display = "none"

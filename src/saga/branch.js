@@ -82,8 +82,6 @@ export async function checkBranchPermission(context, branch) {
 
 export async function createBranch(context, branch) {
     const project = new Project(context);
-    console.log("Creating Branch")
-    console.log(branch)
 
     // Don't create a branch if it already exists
     const branchExists = await project.checkBranchExists(branch);
@@ -108,7 +106,6 @@ export async function createBranch(context, branch) {
 export async function runCreateBranch(branch) {
   try {
     await Excel.run(async context => {
-        console.log("CREATING BRANCH CALEEDDD")
         await createBranch(context, branch);
     });
   } catch (error) {
