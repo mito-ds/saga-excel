@@ -38,23 +38,72 @@
                   <bt:Image size="32" resid="Icon.32x32"/>
                   <bt:Image size="80" resid="Icon.80x80"/>
                 </Icon>
-                <Control xsi:type="Button" id="TaskpaneButton">
-                  <Label resid="TaskpaneButton.Label"/>
+                <!--Merge Buttion-->
+                <Control xsi:type="Button" id="MergeButton">
+                  <Label resid="MergeButton.Label"/>
                   <Supertip>
-                    <Title resid="TaskpaneButton.Label"/>
-                    <Description resid="TaskpaneButton.Tooltip"/>
+                    <Title resid="MergeButton.Label"/>
+                    <Description resid="MergeButton.Tooltip"/>
                   </Supertip>
                   <Icon>
-                    <bt:Image size="16" resid="Icon.16x16"/>
-                    <bt:Image size="32" resid="Icon.32x32"/>
-                    <bt:Image size="80" resid="Icon.80x80"/>
+                    <bt:Image size="16" resid="MergeButtonIcon.16x16"/>
+                    <bt:Image size="32" resid="MergeButtonIcon.32x32"/>
+                    <bt:Image size="80" resid="MergeButtonIcon.80x80"/>
                   </Icon>
-                  <Action xsi:type="ShowTaskpane">
-                    <TaskpaneId>ButtonId1</TaskpaneId>
-                    <SourceLocation resid="Taskpane.Url"/>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>action</FunctionName>
                   </Action>
                 </Control>
-                <Control xsi:type="Button" id="MergeButton">
+                <!--Switch Version Button-->
+                <Control xsi:type="Button" id="VersionButton">
+                  <Label resid="VersionButton.Label"/>
+                  <Supertip>
+                    <Title resid="VersionButton.Label"/>
+                    <Description resid="MergeButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="VersionButtonIcon.16x16"/>
+                    <bt:Image size="32" resid="VersionButtonIcon.32x32"/>
+                    <bt:Image size="80" resid="VersionButtonIcon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>action</FunctionName>
+                  </Action>
+                </Control>
+                <!--Reset Personal Version Icon-->
+                <Control xsi:type="Button" id="ResetPersonalButton">
+                  <Label resid="ResetPersonalButton.Label"/>
+                  <Supertip>
+                    <Title resid="ResetPersonalButton.Label"/>
+                    <Description resid="MergeButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="ResetPersonalButtonIcon.16x16"/>
+                    <bt:Image size="32" resid="ResetPersonalButtonIcon.32x32"/>
+                    <bt:Image size="80" resid="ResetPersonalButtonIcon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>action</FunctionName>
+                  </Action>
+                </Control>
+                <!--Share Project-->
+                <Control xsi:type="Button" id="ShareProjectButton">
+                  <Label resid="ShareProjectButton.Label"/>
+                  <Supertip>
+                    <Title resid="ShareProjectButton.Label"/>
+                    <Description resid="MergeButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="ShareProjectButtonIcon.16x16"/>
+                    <bt:Image size="32" resid="ShareProjectButtonIcon.32x32"/>
+                    <bt:Image size="80" resid="ShareProjectButtonIcon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>action</FunctionName>
+                  </Action>
+                </Control>
+                <!--Create Saga Button-->
+                <Control xsi:type="Button" id="CreateSagaButton">
                   <Label resid="TaskpaneButton.Label"/>
                   <Supertip>
                     <Title resid="TaskpaneButton.Label"/>
@@ -77,9 +126,21 @@
     </Hosts>
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16x16" DefaultValue="https://localhost:3000/assets/icon-16.png"/>
-        <bt:Image id="Icon.32x32" DefaultValue="https://localhost:3000/assets/icon-32.png"/>
-        <bt:Image id="Icon.80x80" DefaultValue="https://localhost:3000/assets/icon-80.png"/>
+        <bt:Image id="Icon.16x16" DefaultValue="https://localhost:3000/assets/saga-logo/saga-logo-16.png"/>
+        <bt:Image id="Icon.32x32" DefaultValue="https://localhost:3000/assets/saga-logo/saga-logo-32.png"/>
+        <bt:Image id="Icon.80x80" DefaultValue="https://localhost:3000/assets/saga-logo/saga-logo-80.png"/>
+        <bt:Image id="MergeButtonIcon.16x16" DefaultValue="https://localhost:3000/assets/merge-icon/merge-icon-16.png"/>
+        <bt:Image id="MergeButtonIcon.32x32" DefaultValue="https://localhost:3000/assets/merge-icon/merge-icon-32.png"/>
+        <bt:Image id="MergeButtonIcon.80x80" DefaultValue="https://localhost:3000/assets/merge-icon/merge-icon-80.png"/>
+        <bt:Image id="VersionButtonIcon.16x16" DefaultValue="https://localhost:3000/assets/version-icon/version-icon-16.png"/>
+        <bt:Image id="VersionButtonIcon.32x32" DefaultValue="https://localhost:3000/assets/version-icon/version-icon-32.png"/>
+        <bt:Image id="VersionButtonIcon.80x80" DefaultValue="https://localhost:3000/assets/version-icon/version-icon-80.png"/>
+        <bt:Image id="ResetPersonalButtonIcon.16x16" DefaultValue="https://localhost:3000/assets/reset-icon/reset-icon-16.png"/>
+        <bt:Image id="ResetPersonalButtonIcon.32x32" DefaultValue="https://localhost:3000/assets/reset-icon/reset-icon-32.png"/>
+        <bt:Image id="ResetPersonalButtonIcon.80x80" DefaultValue="https://localhost:3000/assets/reset-icon/reset-icon-80.png"/>
+        <bt:Image id="ShareProjectButtonIcon.16x16" DefaultValue="https://localhost:3000/assets/share-icon/share-icon-16.png"/>
+        <bt:Image id="ShareProjectButtonIcon.32x32" DefaultValue="https://localhost:3000/assets/share-icon/share-icon-32.png"/>
+        <bt:Image id="ShareProjectButtonIcon.80x80" DefaultValue="https://localhost:3000/assets/share-icon/share-icon-80.png"/>
       </bt:Images>
       <bt:Urls>
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812"/>
@@ -89,11 +150,19 @@
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Get started with you Saga VCS!"/>
         <bt:String id="CommandsGroup.Label" DefaultValue="Commands Group"/>
-        <bt:String id="TaskpaneButton.Label" DefaultValue="Saga VCS"/>
+        <bt:String id="TaskpaneButton.Label" DefaultValue="Create Saga Project"/>
+        <bt:String id="MergeButton.Label" DefaultValue="Merge Versions"/>
+        <bt:String id="VersionButton.Label" DefaultValue="Switch Versions"/>
+        <bt:String id="ResetPersonalButton.Label" DefaultValue="Reset Personal"/>
+        <bt:String id="ShareProjectButton.Label" DefaultValue="Share Project"/>
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="GetStarted.Description" DefaultValue="Saga has loaded succesfully. Go to the HOME tab and click the 'Saga VCS' button to get started."/>
         <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to open Saga VCS"/>
+        <bt:String id="MergeButton.Tooltip" DefaultValue="Click to Merge your personal version into master"/>
+        <bt:String id="VersionButton.Tooltip" DefaultValue="Click to switch to a different version"/>
+        <bt:String id="ResetPersonalButton.Tooltip" DefaultValue="Click to reset your personal branch to master"/>
+        <bt:String id="ShareProjectButton.Tooltip" DefaultValue="Click to see project sharing link"/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>
