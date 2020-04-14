@@ -2,9 +2,8 @@ import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import Progress from "./Progress";
 import EmptyButton from "./saga/EmptyButton";
-import {runCreateSaga} from "../../saga/create";
+import {runCreateSagaFromTaskpane, setPersonalBranchName}  from "../../saga/create";
 import Project from "../../saga/Project";
-
 
 
 //import { updateShared } from "./saga/sync";
@@ -28,24 +27,22 @@ function registerFormattingHandler() {
 })
 }
 
-// Hide the project link card when window loads
-function onload() {
-  document.getElementById("project-link-card").style.display = "none";
-}
-
 // Create Saga Project
 async function createSagaProject (e) {
   e.preventDefault();
   console.log("running create saga")
-  const remoteURL = await runCreateSaga();
+  const remoteURL = await runCreateSagaFromTaskpane();
 
-  //Todo: Set personal branch name
+  //Todo: Save email in database
+  const email = document.getElementById('email-input').value
+  await setPersonalBranchName(email)
   
   // Switch Taskpane Cards
   document.getElementById('email-card').style.display = "none"
   document.getElementById("project-link-card").style.display = "block"
   document.getElementById("project-link").value = remoteURL;
   document.getElementById("title-text").innerText = "Send your Saga project link to your teamates to start collaborating"
+
 
 }
 
@@ -105,7 +102,7 @@ export default class App extends React.Component {
             <div className="floating-card" id="email-card">
               <p className="subtext">I’m using Saga knowing that it is in a pre-alpha stage. I understand that my data may be lost and <b>I will continue to backup my work.</b> </p>
               <form className="form" onSubmit={createSagaProject}>
-                <input className="email-input" placeholder="example@gmail.com" type="email"></input>
+                <input className="email-input" id="email-input" placeholder="example@gmail.com" type="email"></input>
                 <PrimaryButton className="submit-button" type="submit">Submit</PrimaryButton>
               </form>
             </div>

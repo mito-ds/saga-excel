@@ -75,7 +75,23 @@ async function createSaga(context) {
   return context.sync();
 }
 
-export async function runCreateSaga() {
+export async function setPersonalBranchName(personalBranchName) {
+  try {
+    await Excel.run(async context => {
+        // Set personal branch name
+        const project = await new Project(context);
+        await project.updatePersonalBranchName(personalBranchName)
+        return context.sync()
+    });
+  } catch (error) {
+    console.error(error);
+    if (error instanceof OfficeExtension.Error) {
+        console.error(error.debugInfo);
+    }
+  }
+}
+
+export async function runCreateSagaFromTaskpane() {
   return new Promise(async function (resolve) {
     try {
         await Excel.run(async context => {
@@ -92,6 +108,9 @@ export async function runCreateSaga() {
             const project = await new Project(context)
             const remoteURL = await project.getRemoteURL()
 
+            // Start syncing this with master
+            turnSyncOn();
+
             await context.sync()
             await resolve(remoteURL)
         });
@@ -103,8 +122,6 @@ export async function runCreateSaga() {
     }
   });
 }
-
-
 
 export async function runCreateSaga() {
   await runOperation(createSaga);
