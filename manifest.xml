@@ -70,7 +70,7 @@
                     <bt:Image size="80" resid="VersionButtonIcon.80x80"/>
                   </Icon>
                   <Action xsi:type="ExecuteFunction">
-                    <FunctionName>action</FunctionName>
+                    <FunctionName>switchVersion</FunctionName>
                   </Action>
                 </Control>
                 <!--Reset Personal Version Icon-->

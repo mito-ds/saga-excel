@@ -5,6 +5,31 @@ import {commit} from './commit';
 
 /* global Excel */
 
+export async function switchVersionFromRibbon(context) {
+    console.log("1")
+
+    const project = await new Project(context);
+
+    console.log("2")
+
+    // Get current branch
+    const currentBranch = await project.getHeadBranch();
+
+    console.log("3")
+    console.log(currentBranch)
+
+    // Switch Branches
+    if (currentBranch === 'master') {
+        const personalBranchName = await project.getPersonalBranchName();
+        await runCheckoutBranch(personalBranchName);
+    } else {
+        await runCheckoutBranch('master');
+    }
+
+    console.log("5")
+
+}
+
 
 export async function deleteNonsagaSheets(context) {
     let sheets = await getSheetsWithNames(context);
@@ -20,7 +45,6 @@ export async function deleteNonsagaSheets(context) {
 Creates a new commit on the given branch
 */
 export async function checkoutBranch(context, branch) {
-    // TODO: don't let ppl check out if there are changed sheets!
     const project = new Project(context);
 
     // Only let people checkout branches that exist
@@ -69,4 +93,8 @@ export async function checkoutBranch(context, branch) {
 
 export async function runCheckoutBranch(branch) {
     await runOperation(checkoutBranch, branch);
+}
+
+export async function runSwitchVersionFromRibbon() {
+    await runOperation(switchVersionFromRibbon)
 }

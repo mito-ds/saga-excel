@@ -3,6 +3,7 @@ import { PrimaryButton } from '@fluentui/react';
 import Progress from "./Progress";
 import EmptyButton from "./saga/EmptyButton";
 import {runCreateSagaFromTaskpane, setPersonalBranchName}  from "../../saga/create";
+import {runCreateBranch} from "../../saga/branch"
 import Project from "../../saga/Project";
 
 
@@ -35,6 +36,7 @@ async function createSagaProject (e) {
 
   //Todo: Save email in database
   const email = document.getElementById('email-input').value
+  await runCreateBranch(email)
   await setPersonalBranchName(email)
   
   // Switch Taskpane Cards

@@ -4,6 +4,7 @@
  */
 
 import { runCreateSaga } from "../saga/create"
+import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
 
 /* global global, Office */
 
@@ -17,6 +18,11 @@ Office.onReady(() => {
  */
 async function action(event) {
   await runCreateSaga();
+  event.completed();
+}
+
+async function switchVersion(event) {
+  await runSwitchVersionFromRibbon()
   event.completed();
 }
 
@@ -34,3 +40,4 @@ const g = getGlobal();
 
 // the add-in command functions need to be available in global scope
 g.action = action;
+g.switchVersion = switchVersion;

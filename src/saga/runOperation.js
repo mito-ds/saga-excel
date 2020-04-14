@@ -1,5 +1,6 @@
 import { turnSyncOff, turnSyncOn } from "./sync";
 
+
 /* global Excel, OfficeExtension */
 
 export async function runOperation(operation, ...rest) {
