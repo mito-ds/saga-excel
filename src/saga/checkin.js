@@ -27,6 +27,13 @@ const getCommitSheets = (sheets, commitID) => {
     })
 }
 
+const getNonsagaSheets = (sheets) => {
+    return sheets.filter(sheet => {
+        return !sheet.name.startsWith(`saga`);
+    })
+}
+
+
 const doMerge = async (context) => {
     const project = new Project(context);
 
@@ -48,13 +55,25 @@ const doMerge = async (context) => {
     const sheets = await project.getSheetsWithNames();
 
     const masterSheets = getCommitSheets(sheets, masterCommitID);
-    const personalSheets = getCommitSheets(sheets, personalCommitID);
+    const personalSheets = getNonsagaSheets(sheets);
     const originSheets = getCommitSheets(sheets, originCommitID);
+
+    console.log("master sheets", masterSheets);
+    console.log("personalSheets", personalSheets);
+    console.log("originSheets", originSheets);
+
+    const masterPrefix = `saga-${masterCommitID}-`;
+    const originPrefix = `saga-${originCommitID}-`;
+    const newCommitID = getRandomID();
+    const newCommitPrefix = `saga-${newCommitID}-`;
+
 
     // Helper function for figuring out what sorta sheet this is
     function checkExistance(branchSheet) {
-        const masterName = branchSheet.name.replace(personalCommitID, masterCommitID);
-        const originName = branchSheet.name.replace(personalCommitID, originCommitID);
+        const masterName = masterPrefix + branchSheet.name;
+        const originName = originPrefix + branchSheet.name;
+
+        console.log(masterName, originName);
 
         const inMaster = (masterSheets.find(s => {return s.name === masterName;}) !== undefined);
         const inOrigin = (originSheets.find(s => {return s.name === originName;}) !== undefined);
@@ -97,8 +116,7 @@ const doMerge = async (context) => {
         return;
     }
 
-    const newCommitID = getRandomID();
-    const newCommitPrefix = `saga-${newCommitID}`;
+    
 
     function getName(sheet) {
         return sheet.name.split(`-`)[2];
@@ -109,7 +127,7 @@ const doMerge = async (context) => {
         // TODO: we might wanna do this at the end!
         // TODO: we can probably track sheet renames with sheet ID!
         const sheet = insertedSheets[i];
-        const dst = `${newCommitPrefix}-${getName(sheet)}`;
+        const dst = newCommitPrefix + sheet.name;
         await copySheet(
             context, 
             sheet.name,
@@ -124,17 +142,21 @@ const doMerge = async (context) => {
         const sheet = mergeSheets[i];
 
         const personalSheetName = sheet.name;
-        const masterSheetName = personalSheetName.replace(personalCommitID, masterCommitID);
-        const originSheetname = personalSheetName.replace(personalCommitID, originCommitID);
+        const masterSheetName = masterPrefix + personalSheetName;
+        const originSheetname = originPrefix + personalSheetName;
+
+        console.log("personalSheetName:", personalSheetName);
+        console.log("masterSheetName:", masterSheetName);
+        console.log("originSheetname:", originSheetname);
 
         const personalFormulas = await getFormulas(context, personalSheetName);
         const masterFormulas = await getFormulas(context, masterSheetName);
         const originFormulas = await getFormulas(context, originSheetname);
 
         // Merge the formulas
-        const mergeFormulas = diff3Merge2d(personalFormulas, masterFormulas, originFormulas);
+        const mergeFormulas = diff3Merge2d(originFormulas, masterFormulas, personalFormulas);
 
-        const mergeDst = `${newCommitPrefix}-${getName(sheet)}`;
+        const mergeDst = newCommitPrefix + sheet.name;
         console.log(`In merge, copying ${personalSheetName} to ${mergeDst}`)
         await copySheet(
             context, 
