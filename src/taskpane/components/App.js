@@ -8,57 +8,44 @@ import CommitForm from "./saga/CommitForm";
 import CleanupButton from "./saga/CleanupButton";
 import CreateBranchInput from "./saga/CreateBranchInput";
 import CheckoutBranchInput from "./saga/CheckoutInput";
-import RegisterFormattingHandler from "./saga/RegisterFormattingHandler";
 import MergeButton from "./saga/MergeButton";
 import VisibleButton from "./saga/VisibleButton";
 import EmptyButton from "./saga/EmptyButton";
 import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
 import ResetPersonalButton from './saga/ResetPersonalButton'
+import axios from "axios";
 
 /* global Excel */
 
-var formattingEvents = [];
-
-function formattingHandler(event) {
-  formattingEvents.push(event);
-  console.log(formattingEvents);
-}
-
-function registerFormattingHandler() {
-  Excel.run(function (context) {
-    context.workbook.worksheets.onChanged.add(formattingHandler);
-
-    return context.sync();
-  })
-}
 
 export default class App extends React.Component {
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      listItems: []
-    };
+  constructor(props) {
+    super(props);
+    this.state = {events: []};
+
+    this.clearEvents = this.clearEvents.bind(this);
+    this.formattingHandler = this.formattingHandler.bind(this);
+    this.registerFormattingHandler = this.registerFormattingHandler.bind(this);
   }
 
-  componentDidMount() {
-    this.setState({
-      listItems: [
-        {
-          icon: "Ribbon",
-          primaryText: "Achieve more with Office integration"
-        },
-        {
-          icon: "Unlock",
-          primaryText: "Unlock features and functionality"
-        },
-        {
-          icon: "Design",
-          primaryText: "Create and visualize like a pro"
-        }
-      ]
+  clearEvents = (event) => {
+    this.setState({events: []});
+  }
+
+  formattingHandler = (event) => {
+    this.setState((state, props) => {
+      const newEvents = state.events.concat([event]);
+      return {events: newEvents};
     });
   }
 
+  registerFormattingHandler = async () => {
+    var handler = this.formattingHandler;
+    await Excel.run(function (context) {
+      context.workbook.worksheets.onFormatChanged.add(handler);
+      return context.sync();
+    })
+  }
 
   render() {
     const { title, isOfficeInitialized } = this.props;
@@ -77,9 +64,9 @@ export default class App extends React.Component {
           </p>
           <CreateButton/>
           <CleanupButton/>
-          <MergeButton/>
+          <MergeButton formattingEvents={this.state.events} clearFormattingEvents={this.clearEvents}/>
           <VisibleButton/>
-          <EmptyButton function={registerFormattingHandler} message={"register"}/>
+          <EmptyButton function={this.registerFormattingHandler} message={"register"}/>
           <CommitForm/>
           <CreateBranchInput/>
           <CheckoutBranchInput/>

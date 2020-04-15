@@ -11,9 +11,12 @@ export default class MergeButton extends React.Component {
             className="ms-welcome_Action"
             buttonType={ButtonType.hero}
             iconProps={{ iconName: "ChevronRight" }}
-            onClick={runMerge}
+            onClick={async () => {
+              await runMerge(this.props.formattingEvents);
+              this.props.clearFormattingEvents();
+            }}
           >
-            Check in
+            Merge
         </Button>
     );
   }

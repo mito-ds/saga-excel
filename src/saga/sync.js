@@ -18,7 +18,6 @@ async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
     return sheet.name.startsWith(`saga-${headCommitID}`);
   }).map(sheet => sheet.name);
 
-  console.log(`Master Sheets: ${commitSheets}`);
   const updateResponse = await axios.post(
     remoteURL,
     {

@@ -4,6 +4,7 @@ import { diff3Merge2d } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
 import { runOperation } from './runOperation';
+import { format } from 'office-ui-fabric-react';
 
 /* global Excel */
 
@@ -33,8 +34,12 @@ const getNonsagaSheets = (sheets) => {
     })
 }
 
+const getSheetWithID = (sheets, id) => {
+    return sheets.find(sheet => sheet._I === id);
+}
 
-const doMerge = async (context) => {
+
+const doMerge = async (context, formattingEvents) => {
     const project = new Project(context);
 
     const personalBranchRange = await project.getPersonalBranchNameWithValues();
@@ -131,6 +136,15 @@ const doMerge = async (context) => {
         );
     }
 
+    // We sort the formatting events by ID
+    var formattingEventsMap = {};
+    formattingEvents.forEach(event => {
+        if (!(event.worksheetId in formattingEventsMap)) {
+            formattingEventsMap[event.worksheetId] = [];
+        }
+        formattingEventsMap[event.worksheetId].push(event);
+    })
+
     for (let i = 0; i < mergeSheets.length; i++) {
         // First, we copy all the merge sheets to a new destination
         const sheet = mergeSheets[i];
@@ -145,12 +159,45 @@ const doMerge = async (context) => {
 
         // Merge the formulas
         const mergeFormulas = diff3Merge2d(originFormulas, masterFormulas, personalFormulas);
+
+        // We copy over the origin sheet to get the formatting
+        const tempDst = "saga- " + getRandomID();
+        await copySheet(
+            context, 
+            masterSheetName,
+            tempDst,
+            Excel.WorksheetPositionType.beginning,
+            Excel.SheetVisibility.visible
+        );
+        const mergeSheet = project.context.workbook.worksheets.getItem(tempDst);
+
+        // If there are formatting events for this sheet, we apply them
         
+        if (sheet._I in formattingEventsMap) {
+            const events = formattingEventsMap[sheet._I];
+            console.log(`Sheet id ${sheet._I} was in formatting events`, events);
+
+
+            // Then, we apply the formatting changes
+            for (let i = 0; i < events.length; i++) {
+                // First, we need to get the right workbook (let's just say sheet1 for now)
+                const address = events[i].address;
+                mergeSheet.getRange(address).copyFrom(sheet.getRange(address), Excel.RangeCopyType.formats);
+                
+                if (i % 40 === 0) {
+                    await context.sync();
+                }
+            }
+        } else {
+            console.log(`Sheet id ${sheet._I} was not in formatting events`, formattingEventsMap);
+        }
+
+        // Then, we update the values
         for (let i = 0; i < mergeFormulas.length; i++) {
             const len = mergeFormulas[i].length;
             const endColumn = toColumnName(len);
             const rangeAddress = `A${i + 1}:${endColumn}${i+1}`;
-            const rowRange = sheet.getRange(rangeAddress);
+            const rowRange = mergeSheet.getRange(rangeAddress);
             rowRange.values = [mergeFormulas[i]];
             if (i % 40 === 0) {
                 // So we don't have too many waiting (there is a cap at 50?) TODO.
@@ -158,15 +205,22 @@ const doMerge = async (context) => {
             }
         }
 
+        // Finially, we copy the tmp sheet to it's commit location
+
         const mergeDst = newCommitPrefix + sheet.name;
 
         await copySheet(
             context, 
-            personalSheetName,
+            tempDst,
             mergeDst,
             Excel.WorksheetPositionType.end,
             Excel.SheetVisibility.visible
         );
+
+        sheet.delete();
+        mergeSheet.name = personalSheetName;
+
+        await context.sync();
     }
 
     // Finially, after we have merged everything, we can log the commit to lock it in
@@ -183,7 +237,7 @@ As such, we first try to ensure that the user is caught up with the front of the
 remote master branch. If they are not, we try and sync them. If they can't sync, 
 we refuse to checkin (as this might lead to a fork).
 */
-export async function merge(context) {
+export async function merge(context, formattingEvents) {
 
     const updated = await updateShared(context);
 
@@ -205,7 +259,7 @@ export async function merge(context) {
     // Make a commit on the personal branch    
     await commit(context, `check in of ${personalBranch}`, "", personalBranch);
     // Merge this commit into the shared branch
-    await doMerge(context);
+    await doMerge(context, formattingEvents);
 
     // Try and update the server with this newly merged sheets
     const updatedWithMerge = await updateShared(context);
@@ -216,6 +270,6 @@ export async function merge(context) {
     }
 }
 
-export async function runMerge() {
-    await runOperation(merge);
+export async function runMerge(formattingEvents) {
+    await runOperation(merge, formattingEvents);
 }
