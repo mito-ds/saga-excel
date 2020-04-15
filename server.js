@@ -13,6 +13,10 @@ app.use(function(req, res, next) {
 
 app.use(bodyParser.json());
 
+// Add the projects API
 app.use('/project', projectRouter);
+
+// Serve all the assets for the add-in
+app.use(express.static('dist'))
 
 app.listen(3000);
