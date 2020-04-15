@@ -42,6 +42,10 @@ const getSheetWithID = (sheets, id) => {
 const doMerge = async (context, formattingEvents) => {
     const project = new Project(context);
 
+    if (formattingEvents == undefined) {
+        formattingEvents = []
+    }
+
     const personalBranchRange = await project.getPersonalBranchNameWithValues();
     const personalBranch = personalBranchRange.values[0][0];
 

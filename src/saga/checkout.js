@@ -30,16 +30,38 @@ export async function switchVersionFromRibbon(context) {
 
 }
 
-
-export async function deleteNonsagaSheets(context) {
+async function getNonSagaSheets(context) {
     let sheets = await getSheetsWithNames(context);
     sheets = sheets.filter(sheet => {
         return !sheet.name.startsWith("saga");
     })
+    return sheets;
+}
+
+/* 
+Deletes all sheets that do not start with 'saga'
+*/
+export async function deleteNonsagaSheets(context) {
+    const sheets = await getNonSagaSheets(context);
     sheets.forEach(sheet => sheet.delete());
 
     await context.sync();
 }
+
+/* 
+Lock worksheets
+*/
+async function lockWorksheets(context) {
+    const sheets = await getNonSagaSheets(context)
+    await Promise.all(sheets.map(async (sheet) => {
+        await sheet.load("protection/protected")
+        await context.sync()
+        //Todo: Add password to protect
+        await sheet.protection.protect()
+        await context.sync()
+    }));
+}
+
 
 /*
 Creates a new commit on the given branch
@@ -82,8 +104,13 @@ export async function checkoutBranch(context, branch) {
             sheet.name, 
             newName, 
             Excel.WorksheetPositionType.beginning, //TODO: we have to store og location
-            Excel.SheetVisibility.visible
+            Excel.SheetVisibility.visible,
         );
+    }
+
+    // If master, lock sheets
+    if (branch === 'master') {
+        lockWorksheets(context)
     }
 
     // Finially, update the head branch
