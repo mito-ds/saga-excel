@@ -3,7 +3,10 @@
  * See LICENSE in the project root for license information.
  */
 
-import { runCreateSaga } from "../saga/create"
+import { runCreateSaga, getRemoteURLFromTaskpane} from "../saga/create"
+import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
+import { runResetPersonalVersion } from "../saga/resetPersonal.js"
+import { runMerge } from "../saga/merge.js"
 
 /* global global, Office */
 
@@ -15,8 +18,20 @@ Office.onReady(() => {
  * Shows a notification when the add-in command is executed.
  * @param event {Office.AddinCommands.Event}
  */
-async function action(event) {
-  await runCreateSaga();
+async function merge(event) {
+  await runMerge();
+  event.completed();
+}
+
+async function switchVersion(event) {
+  // Todo: render message saying which branch they are on
+  await runSwitchVersionFromRibbon()
+  event.completed();
+}
+
+async function resetPersonalVersion(event) {
+  // Todo: If on master, tell them they can't
+  await runResetPersonalVersion(); 
   event.completed();
 }
 
@@ -33,4 +48,6 @@ function getGlobal() {
 const g = getGlobal();
 
 // the add-in command functions need to be available in global scope
-g.action = action;
+g.merge = merge;
+g.switchVersion = switchVersion;
+g.resetPersonalVersion = resetPersonalVersion;

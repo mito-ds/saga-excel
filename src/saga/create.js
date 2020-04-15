@@ -75,12 +75,38 @@ async function createSaga(context) {
   return context.sync();
 }
 
-
-
-export async function runCreateSaga() {
-  await runOperation(createSaga);
+export async function setPersonalBranchName(personalBranchName) {
+  try {
+    await Excel.run(async context => {
+        // Set personal branch name
+        const project = await new Project(context);
+        await project.updatePersonalBranchName(personalBranchName)
+        return context.sync()
+    });
+  } catch (error) {
+    console.error(error);
+    if (error instanceof OfficeExtension.Error) {
+        console.error(error.debugInfo);
+    }
+  }
 }
 
+export async function getRemoteURLFromTaskpane() {
+  return new Promise(async function (resolve) {
+    try {
+      await Excel.run(async context => {
+        const project = await new Project(context)
+        const remoteURL = await project.getRemoteURL()
+        await resolve(remoteURL)
+      });
+     } catch (error) {
+        console.error(error);
+        if (error instanceof OfficeExtension.Error) {
+            console.error(error.debugInfo);
+        }
+    }
+  });
+}
 
 async function createFromURL(context, url) {
   const response = await axios.get(
@@ -130,7 +156,10 @@ async function createFromURL(context, url) {
 }
 
 
-
 export async function runCreateFromURL(url) {
   await runOperation(createFromURL, url);
-  }
+}
+
+export async function runCreateSaga() {
+  await runOperation(createSaga);
+}

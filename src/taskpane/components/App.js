@@ -1,19 +1,16 @@
 import * as React from "react";
-import Header from "./Header";
-import HeroList from "./HeroList";
 import Progress from "./Progress";
-import CreateButton from "./saga/CreateButton";
-import SeePreviousCommitForm from "./saga/SeePreviousCommitForm";
-import CommitForm from "./saga/CommitForm";
-import CleanupButton from "./saga/CleanupButton";
-import CreateBranchInput from "./saga/CreateBranchInput";
-import CheckoutBranchInput from "./saga/CheckoutInput";
-import MergeButton from "./saga/MergeButton";
-import VisibleButton from "./saga/VisibleButton";
 import EmptyButton from "./saga/EmptyButton";
 import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
 import ResetPersonalButton from './saga/ResetPersonalButton'
+import {runCreateSaga, setPersonalBranchName, getRemoteURLFromTaskpane}  from "../../saga/create";
+import {runSwitchVersionFromRibbon} from "../../saga/checkout"
+import SagaLinkScreen from "./SagaLinkScreen"
+import CreateSagaProjectScreen from "./CreateSagaProjectScreen"
 import axios from "axios";
+
+import './App.css';
+
 
 /* global Excel */
 
@@ -21,11 +18,17 @@ import axios from "axios";
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {events: []};
+    this.state = {
+      events: [],
+      listItems: [], 
+      firstTime: true,
+      remoteURL: ''
+    };
 
     this.clearEvents = this.clearEvents.bind(this);
     this.formattingHandler = this.formattingHandler.bind(this);
     this.registerFormattingHandler = this.registerFormattingHandler.bind(this);
+    this.doneCreate = this.doneCreate.bind(this);
   }
 
   clearEvents = (event) => {
@@ -46,35 +49,41 @@ export default class App extends React.Component {
       return context.sync();
     })
   }
+    
+  doneCreate = (remoteURL) => {
+    this.setState({firstTime: false, remoteURL: remoteURL})
+  }
 
   render() {
     const { title, isOfficeInitialized } = this.props;
 
     if (!isOfficeInitialized) {
       return (
-        <Progress title={title} logo="assets/logo-filled.png" message="Please sideload your addin to see app body." />
+        <Progress title={title} logo="assets/saga-logo/saga-logo-taskpane.png" message="Please sideload your addin to see app body." />
       );
     }
-    return (
-      <div className="ms-welcome">
-        <Header logo="assets/logo-filled.png" title={this.props.title} message="Saga VCS" />
-        <HeroList message="Welcome to saga." items={[]}> 
-          <p className="ms-font-l">
-            Use the buttons to interact with Saga.
-          </p>
-          <CreateButton/>
-          <CleanupButton/>
-          <MergeButton formattingEvents={this.state.events} clearFormattingEvents={this.clearEvents}/>
-          <VisibleButton/>
+    if (this.state.firstTime) {
+      return (
+        <div className="taskpane">
+          <CreateSagaProjectScreen doneCreate={this.doneCreate}></CreateSagaProjectScreen>
           <EmptyButton function={this.registerFormattingHandler} message={"register"}/>
-          <CommitForm/>
-          <CreateBranchInput/>
-          <CheckoutBranchInput/>
-          <SeePreviousCommitForm/>
-          <CreateFromRemoteForm/>
-          <ResetPersonalButton/>
-        </HeroList>
-      </div>
-    );
+          <div className="footer">
+            <p className="FAQ-text"> <b>Have questions about Saga? See our <a href="https://sagalab.org/">FAQ</a></b></p>
+            <p className="subtext disclaimer"> Saga is in pre-alpha stage. Use this tool knowing your data may be lost. </p>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="taskpane">
+          <SagaLinkScreen remoteURL={this.state.remoteURL}></SagaLinkScreen>
+          <EmptyButton function={registerFormattingHandler} message={"register"}/>
+          <div className="footer">
+            <p className="FAQ-text"> <b>Have questions about Saga? See our <a href="https://sagalab.org/">FAQ</a></b></p>
+            <p className="subtext disclaimer"> Saga is in pre-alpha stage. Use this tool knowing your data may be lost. </p>
+          </div>
+        </div>
+      );
+    }  
   }
 }

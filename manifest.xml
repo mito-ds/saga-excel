@@ -54,7 +54,7 @@
                     <bt:Image size="80" resid="MergeButtonIcon.80x80"/>
                   </Icon>
                   <Action xsi:type="ExecuteFunction">
-                    <FunctionName>action</FunctionName>
+                    <FunctionName>merge</FunctionName>
                   </Action>
                 </Control>
                 <!--Switch Version Button-->
@@ -70,7 +70,7 @@
                     <bt:Image size="80" resid="VersionButtonIcon.80x80"/>
                   </Icon>
                   <Action xsi:type="ExecuteFunction">
-                    <FunctionName>action</FunctionName>
+                    <FunctionName>switchVersion</FunctionName>
                   </Action>
                 </Control>
                 <!--Reset Personal Version Icon-->
@@ -86,7 +86,7 @@
                     <bt:Image size="80" resid="ResetPersonalButtonIcon.80x80"/>
                   </Icon>
                   <Action xsi:type="ExecuteFunction">
-                    <FunctionName>action</FunctionName>
+                    <FunctionName>resetPersonalVersion</FunctionName>
                   </Action>
                 </Control>
                 <!--Share Project-->
@@ -101,12 +101,13 @@
                     <bt:Image size="32" resid="ShareProjectButtonIcon.32x32"/>
                     <bt:Image size="80" resid="ShareProjectButtonIcon.80x80"/>
                   </Icon>
-                  <Action xsi:type="ExecuteFunction">
-                    <FunctionName>action</FunctionName>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>ButtonId1</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url"/>
                   </Action>
                 </Control>
                 <!--Create Saga Button-->
-                <Control xsi:type="Button" id="CreateSagaButton">
+                <Control xsi:type="Button" id="TaskpaneButton">
                   <Label resid="TaskpaneButton.Label"/>
                   <Supertip>
                     <Title resid="TaskpaneButton.Label"/>
@@ -162,7 +163,7 @@
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="GetStarted.Description" DefaultValue="Saga has loaded succesfully. Go to the HOME tab and click the 'Saga VCS' button to get started."/>
-        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to open Saga VCS"/>
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to create a Saga project"/>
         <bt:String id="MergeButton.Tooltip" DefaultValue="Click to Merge your personal version into master"/>
         <bt:String id="VersionButton.Tooltip" DefaultValue="Click to switch to a different version"/>
         <bt:String id="ResetPersonalButton.Tooltip" DefaultValue="Click to reset your personal branch to master"/>
