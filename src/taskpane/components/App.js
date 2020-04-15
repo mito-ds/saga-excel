@@ -77,7 +77,7 @@ export default class App extends React.Component {
       return (
         <div className="taskpane">
           <SagaLinkScreen remoteURL={this.state.remoteURL}></SagaLinkScreen>
-          <EmptyButton function={registerFormattingHandler} message={"register"}/>
+          <EmptyButton function={this.registerFormattingHandler} message={"register"}/>
           <div className="footer">
             <p className="FAQ-text"> <b>Have questions about Saga? See our <a href="https://sagalab.org/">FAQ</a></b></p>
             <p className="subtext disclaimer"> Saga is in pre-alpha stage. Use this tool knowing your data may be lost. </p>
