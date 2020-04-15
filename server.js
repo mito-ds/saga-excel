@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./src/models/ProjectSchema');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -8,7 +9,6 @@ const mongoose = require('mongoose');
 /* global process, require */
 
 // Load the project module
-require('./src/models/ProjectSchema');
 
 // Connect to mongo
 mongoose.connect(
