@@ -1,11 +1,10 @@
 import * as React from "react";
-import { PrimaryButton } from '@fluentui/react';
 import Progress from "./Progress";
 import EmptyButton from "./saga/EmptyButton";
 import {runCreateSaga, setPersonalBranchName, getRemoteURLFromTaskpane}  from "../../saga/create";
-import {runCreateBranch} from "../../saga/branch"
 import {runSwitchVersionFromRibbon} from "../../saga/checkout"
 import SagaLinkScreen from "./SagaLinkScreen"
+import CreateSagaProjectScreen from "./CreateSagaProjectScreen"
 
 //import { updateShared } from "./saga/sync";
 
@@ -27,34 +26,15 @@ function registerFormattingHandler() {
   })
 }
 
-// Create Saga Project
-async function createSagaProject (e) {
-  e.preventDefault();
-  //Create the Saga project
-  await runCreateSaga();
-  const remoteURL = await getRemoteURLFromTaskpane();
-
-  //Create and checkout personal branch
-  //Todo: Save email in database
-  const email = document.getElementById('email-input').value
-  await runCreateBranch(email)
-  await setPersonalBranchName(email)
-  await runSwitchVersionFromRibbon()
-  
-  // Switch Taskpane Cards
-  document.getElementById('email-card').style.display = "none"
-  document.getElementById("project-link-card").style.display = "block"
-  document.getElementById("project-link").value = remoteURL;
-  document.getElementById("title-text").innerText = "Send your Saga project link to your teamates to start collaborating"
-}
-
 export default class App extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
       listItems: [], 
-      firstTime: false
+      firstTime: true,
+      remoteURL: ''
     };
+    this.doneCreate = this.doneCreate.bind(this);
   }
 
   componentDidMount() {
@@ -76,6 +56,10 @@ export default class App extends React.Component {
     });
   }
 
+  doneCreate = (remoteURL) => {
+    this.setState({firstTime: false, remoteURL: remoteURL})
+  }
+
   render() {
     const { title, isOfficeInitialized } = this.props;
 
@@ -84,31 +68,28 @@ export default class App extends React.Component {
         <Progress title={title} logo="assets/saga-logo/saga-logo-taskpane.png" message="Please sideload your addin to see app body." />
       );
     }
-    return (
-      <div className="taskpane">
-        <div className="content">
-          <div className="header">
-            <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-            <p className="title-text" id="title-text" >You're almost ready to start collaborating - just tell your team who you are</p>
+    if (this.state.firstTime) {
+      return (
+        <div className="taskpane">
+          <CreateSagaProjectScreen doneCreate={this.doneCreate}></CreateSagaProjectScreen>
+          <EmptyButton function={registerFormattingHandler} message={"register"}/>
+          <div className="footer">
+            <p className="FAQ-text"> <b>Have questions about Saga? See our <a href="https://sagalab.org/">FAQ</a></b></p>
+            <p className="subtext disclaimer"> Saga is in pre-alpha stage. Use this tool knowing your data may be lost. </p>
           </div>
-          <div className="card-div">          
-            <div className="floating-card" id="email-card">
-              <p className="subtext">I’m using Saga knowing that it is in a pre-alpha stage. I understand that my data may be lost and <b>I will continue to backup my work.</b> </p>
-              <form className="form" onSubmit={createSagaProject}>
-                <input className="email-input" id="email-input" placeholder="example@gmail.com" type="email"></input>
-                <PrimaryButton className="submit-button" type="submit">Submit</PrimaryButton>
-              </form>
-            </div>
-            <EmptyButton function={registerFormattingHandler} message={"register"}/>
-            <SagaLinkScreen></SagaLinkScreen>
+        </div>
+      );
+    } else {
+      return (
+        <div className="taskpane">
+          <SagaLinkScreen remoteURL={this.state.remoteURL}></SagaLinkScreen>
+          <EmptyButton function={registerFormattingHandler} message={"register"}/>
+          <div className="footer">
+            <p className="FAQ-text"> <b>Have questions about Saga? See our <a href="https://sagalab.org/">FAQ</a></b></p>
+            <p className="subtext disclaimer"> Saga is in pre-alpha stage. Use this tool knowing your data may be lost. </p>
           </div>
-          
         </div>
-        <div className="footer">
-          <p className="FAQ-text"> <b>Have questions about Saga? See our <a href="https://sagalab.org/">FAQ</a></b></p>
-          <p className="subtext disclaimer"> Saga is in pre-alpha stage. Use this tool knowing your data may be lost. </p>
-        </div>
-      </div>
-    );
+      );
+    }  
   }
 }

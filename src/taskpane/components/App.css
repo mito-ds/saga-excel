@@ -89,6 +89,10 @@
     border-radius: 4px;
 }
 
+.clipboard {
+    margin-right: 10vw;
+}
+
 .footer {
     flex-shrink: 0;
     text-align: center;

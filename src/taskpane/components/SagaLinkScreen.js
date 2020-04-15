@@ -2,11 +2,11 @@ import * as React from "react";
 
 // Login Form Component
 class SagaLinkScreen extends React.Component {
-    constructor() {
-        super();
-        //this.state = {
-        //    username: ''
-        //};    
+    constructor(props) {
+        super();  
+        this.state = {
+            remoteURL: props.remoteURL
+        };
         this.copyToClipboard = this.copyToClipboard.bind(this)
     }
 
@@ -20,11 +20,17 @@ class SagaLinkScreen extends React.Component {
 
     render () {
         return (
-            <div className="floating-card" id="project-link-card" style={{display: "none"}}>
-              <form className="form" onSubmit={this.copyToClipboard}>
-                <input className="project-link-div" id="project-link" disabled></input>
-                <input type="image" src="assets/clipboard.png" width="30vw" border="0" alt="Submit" />
-              </form>
+            <div className="content">
+                <div className="header">
+                    <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
+                    <p className="title-text" id="title-text"> Invite people to collaborate with you by sending them the Saga project link</p>
+                </div>
+                <div className="floating-card" id="project-link-card">
+                    <form className="form" onSubmit={this.copyToClipboard}>
+                        <input className="project-link-div" id="project-link" value={this.state.remoteURL} disabled></input>
+                        <input className="clipboard" type="image" src="assets/clipboard.png" width="30vw" border="0" alt="Submit" />
+                    </form>
+                </div>
             </div>
         );
     }
