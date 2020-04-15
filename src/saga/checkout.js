@@ -54,11 +54,13 @@ export async function checkoutBranch(context, branch) {
         return;
     }
 
+    /* Turnning off committing before checking out. Warning: This will cause data loss
     // Make commit on current branch to stop data loss
     // TODO only make this commit if changes have occured since last commit
     const currentBranch = await project.getHeadBranch();
     await commit(context, "Automatic checkout commit", `Switching from ${currentBranch} to ${branch}`, currentBranch)
-
+    */
+   
     // Find the commit for a branch
     const commitID = await project.getCommitIDFromBranch(branch);
 

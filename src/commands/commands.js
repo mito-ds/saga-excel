@@ -35,14 +35,6 @@ async function resetPersonalVersion(event) {
   event.completed();
 }
 
-async function getSagaLink(event) {
-  var remoteURL = await getRemoteURLFromTaskpane();
-  console.log(remoteURL)
-  await remoteURL.select();
-  await document.execCommand(copy)
-  event.completed();
-}
-
 function getGlobal() {
   return typeof self !== "undefined"
     ? self
@@ -59,4 +51,3 @@ const g = getGlobal();
 g.merge = merge;
 g.switchVersion = switchVersion;
 g.resetPersonalVersion = resetPersonalVersion;
-g.getSagaLink = getSagaLink;
