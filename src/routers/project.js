@@ -31,6 +31,13 @@ async function createProject(id) {
 
     const project = new Projects();
     project.id = id;
+    project.headCommitID = "";
+    project.contents = {}
+    project.parent = {};
+    project.child = {};
+    project.contents = {};
+    project.commitSheets = {};
+
     await project.save();
     return true;
 }
