@@ -43,7 +43,7 @@ async function createRemote(context) {
     const fileContents = await getFileContents();
     // TODO: handle errors here, we don't know what the network is going to do
     const response = await axios.post(
-        "https://excel.sagalab.org/create",
+        "https://excel.sagalab.org/project/create",
         {"fileContents": fileContents}
     );
     
