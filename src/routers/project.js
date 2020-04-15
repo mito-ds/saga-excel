@@ -98,7 +98,7 @@ const updateProject = async (id, headCommitID, parentCommitID, fileContents, com
     project.parent.set(headCommitID, parentCommitID);
     project.child.set(parentCommitID, headCommitID);
     project.contents.set(headCommitID, fileContents);
-    project.contents.set(headCommitID, commitSheets);
+    project.commitSheets.set(headCommitID, commitSheets);
     project.headCommitID = headCommitID;
 
     await project.save();
