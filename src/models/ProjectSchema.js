@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+/* global require */
+
 // TODO: update project schema
 const ProjectsSchema = new mongoose.Schema({
     id: String,

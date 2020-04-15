@@ -1,6 +1,9 @@
 const project = require('express').Router();
-const base64js = require('base64-js');
 const { v4: uuidv4 } = require('uuid');
+const mongoose = require(`mongoose`);
+const Projects = mongoose.model('Projects');
+
+/* global require, module */
 
 const BRANCH_STATE_HEAD = 0;
 const BRANCH_STATE_AHEAD = 1;
@@ -9,31 +12,38 @@ const BRANCH_STATE_FORKED = 3;
 
 var projects = {}
 
-function createProject(id) {
-    if (id in projects) {
-        console.error(`Error: a project already exists with id: ${id}`)
+async function getProject(id) {
+    return await Projects.findOne({id: id}).exec();
+}
+
+async function projectExists(id) {
+    return (await getProject(id)) !== null;
+}
+
+async function createProject(id) {
+
+    const exists = await projectExists(id);
+
+    if (exists) {
+        console.error(`Error: a project already exists with id ${id}`);
         return false;
     }
 
-    projects[id] = {};
-    projects[id].contents = {};
-    projects[id].parent = {};
-    projects[id].child = {};
-    projects[id].commitSheets = {};
-    projects[id].headCommitID = "";
-
+    const project = new Projects();
+    project.id = id;
+    await project.save();
     return true;
 }
 
-const getBranchState = (id, headCommitID, parentCommitID) => {
+const getBranchState = async (id, headCommitID, parentCommitID) => {
 
-    const project = projects[id];
+    const project = await getProject(id);
 
     if (headCommitID === project.headCommitID) {
         return BRANCH_STATE_HEAD;
     } else if (parentCommitID === project.headCommitID) {
         return BRANCH_STATE_AHEAD;
-    } else if (headCommitID in project.child) {
+    } else if (project.child.get(headCommitID)) {
         return BRANCH_STATE_BEHIND;
     } else {
         return BRANCH_STATE_FORKED;
@@ -52,57 +62,59 @@ project.post('/create', async function (req, res) {
 });
 
 project.get('/:id/checkhead', async function (req, res) {
-    console.log(req.originalUrl)
 
     const id = req.params.id;
+    const exists = await projectExists(id);
 
-    console.log(`checking head at ${id}`);
-
-    if (!(id in projects)) {
+    if (!exists) {
         res.status(404).end(); // If the project does not exist, we say so
         return;
     }
 
     const headCommitID = req.query.headCommitID;
     const parentCommitID = req.query.parentCommitID;
-    const branchState = getBranchState(id, headCommitID, parentCommitID);
+    const branchState = await getBranchState(id, headCommitID, parentCommitID);
     res.json({branch_state: branchState});
 })
 
 
-const updateProject = (id, headCommitID, parentCommitID, fileContents, commitSheets) => {
+const updateProject = async (id, headCommitID, parentCommitID, fileContents, commitSheets) => {
 
-    const branchState = getBranchState(id, headCommitID, parentCommitID);
+    const branchState = await getBranchState(id, headCommitID, parentCommitID);
     if (branchState !== BRANCH_STATE_AHEAD) {
         return false;
     }
 
-    projects[id].parent[headCommitID] = parentCommitID;
-    projects[id].child[parentCommitID] = headCommitID;
+    const project = await getProject(id);
 
-    projects[id].contents[headCommitID] = fileContents;
-    projects[id].commitSheets[headCommitID] = commitSheets;
-    projects[id].headCommitID = headCommitID;
+    project.parent.set(headCommitID, parentCommitID);
+    project.child.set(parentCommitID, headCommitID);
+    project.contents.set(headCommitID, fileContents);
+    project.contents.set(headCommitID, commitSheets);
+    project.headCommitID = headCommitID;
+
+    await project.save();
 
     return true;
 }
 
 project.get('/:id/summary', async function (req, res) {
     const id = req.params.id;
-    console.log(`getting update for ${id}`);
+    const exists = await projectExists(id);
 
-    if (!(id in projects)) {
+    if (!exists) {
         res.status(404).end(); // If the project does not exist, we say so
         return;
     }
-    res.json(projects[id]).end();
+    const project = await getProject(id);
+    res.json(project).end();
 })
 
 project.get('/:id', async function (req, res) {
     const id = req.params.id;
-    console.log(`getting update for ${id}`);
+    const exists = await projectExists(id);
 
-    if (!(id in projects)) {
+    if (!exists) {
         res.status(404).end(); // If the project does not exist, we say so
         return;
     }
@@ -110,21 +122,21 @@ project.get('/:id', async function (req, res) {
     const headCommitID = req.query.headCommitID;
     const parentCommitID = req.query.parentCommitID;
 
-    const branchState = getBranchState(id, headCommitID, parentCommitID);
-    const project = projects[id];
-    const fileContents = project.contents[project.headCommitID];
+    const branchState = await getBranchState(id, headCommitID, parentCommitID);
+    const project = await getProject(id);
+    const fileContents = project.contents.get(project.headCommitID);
 
     // If the branch state is behind, we report everything you need to catch up
     if (branchState === BRANCH_STATE_BEHIND) {
-        var currCommitID = project.child[headCommitID];
+        var currCommitID = project.child.get(headCommitID);
         var commitIDs = [];
         var commitSheets = [];
         while (currCommitID !== undefined) {
             commitIDs.push(currCommitID);
-            project.commitSheets[currCommitID].forEach(commitSheet => {
+            project.commitSheets.get(currCommitID).forEach(commitSheet => {
                 commitSheets.push(commitSheet);
             })
-            currCommitID = project.child[currCommitID];
+            currCommitID = project.child.get(currCommitID);
         }
 
         res.json({
@@ -146,9 +158,9 @@ project.get('/:id', async function (req, res) {
 project.post('/:id', async function (req, res) {
 
     const id = req.params.id;
-    console.log(`updating a project at ${id}`);
+    const exists = await projectExists(id);
 
-    if (!(id in projects)) {
+    if (!exists) {
         res.status(404).end(); // If the project does not exist, we say so
         return;
     }
