@@ -59,8 +59,9 @@ const getBranchState = async (id, headCommitID, parentCommitID) => {
 
 project.post('/create', async function (req, res) {
     const id = uuidv4();
+    const created = await createProject(id);
 
-    if (createProject(id)) {
+    if (created) {
         console.log(projects);
         res.json({"id": id});
     } else {
@@ -177,7 +178,7 @@ project.post('/:id', async function (req, res) {
     const fileContents = req.body.fileContents;
     const commitSheets = req.body.commitSheets;
 
-    const updatedProject = updateProject(
+    const updatedProject = await updateProject(
         id, 
         headCommitID, 
         parentCommitID, 
