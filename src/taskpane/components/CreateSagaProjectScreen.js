@@ -41,7 +41,7 @@ class CreateSagaProjectScreen extends React.Component {
                     <div className="floating-card" id="email-card">
                         <p className="subtext">I’m using Saga knowing that it is in a pre-alpha stage. I understand that my data may be lost and <b>I will continue to backup my work.</b> </p>
                         <form className="form" onSubmit={this.createSagaProject}>
-                            <input className="email-input" id="email-input" placeholder="example@gmail.com" type="email"></input>
+                            <input className="email-input input" id="email-input" placeholder="example@gmail.com" type="email"></input>
                             <PrimaryButton className="submit-button" type="submit">Submit</PrimaryButton>
                         </form>
                     </div>

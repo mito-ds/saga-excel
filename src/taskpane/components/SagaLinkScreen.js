@@ -27,7 +27,7 @@ class SagaLinkScreen extends React.Component {
                 </div>
                 <div className="floating-card" id="project-link-card">
                     <form className="form" onSubmit={this.copyToClipboard}>
-                        <input className="project-link-div" id="project-link" value={this.state.remoteURL} disabled></input>
+                        <input className="project-link-div input" id="project-link" value={this.state.remoteURL} disabled></input>
                         <input className="clipboard" type="image" src="assets/clipboard.png" width="30vw" border="0" alt="Submit" />
                     </form>
                 </div>
