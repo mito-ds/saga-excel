@@ -31,7 +31,7 @@ async function createProject(id) {
 
     const project = new Projects();
     project.id = id;
-    project.headCommitID = "";
+    project.headCommitID = "firstcommit";
     project.contents = {}
     project.parent = {};
     project.child = {};

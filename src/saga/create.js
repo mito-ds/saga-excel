@@ -24,12 +24,12 @@ async function setupSagaSheet(context) {
     // Setup, name range for branch name => commit mapping
     const branchRange = worksheet.getRange("B1:C1");
     worksheet.names.add("branches", branchRange)
-    branchRange.values = [["master", ""]];
+    branchRange.values = [["master", "firstcommit"]];
 
     // Setup, name range for commit id => (parent commit id, name, message) mapping
     const commitRange = worksheet.getRange("D1:G1");
     worksheet.names.add("commits", commitRange)
-    commitRange.values = [["", "", "", ""]];
+    commitRange.values = [["firstcommit", "", "", ""]];
 
     //Setup, name range for personal branch identifier
     const personalBranchName = worksheet.getRange("A3");
