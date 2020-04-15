@@ -2,11 +2,10 @@ import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import Progress from "./Progress";
 import EmptyButton from "./saga/EmptyButton";
-import {runCreateSagaFromTaskpane, setPersonalBranchName}  from "../../saga/create";
+import {runCreateSaga, setPersonalBranchName, getRemoteURLFromTaskpane}  from "../../saga/create";
 import {runCreateBranch} from "../../saga/branch"
 import {runSwitchVersionFromRibbon} from "../../saga/checkout"
-import Project from "../../saga/Project";
-
+import SagaLinkScreen from "./SagaLinkScreen"
 
 //import { updateShared } from "./saga/sync";
 
@@ -25,14 +24,15 @@ function registerFormattingHandler() {
   Excel.run(function (context) {
     context.workbook.worksheets.onChanged.add(formattingHandler);
     return context.sync();
-})
+  })
 }
 
 // Create Saga Project
 async function createSagaProject (e) {
   e.preventDefault();
-  //
-  const remoteURL = await runCreateSagaFromTaskpane();
+  //Create the Saga project
+  await runCreateSaga();
+  const remoteURL = await getRemoteURLFromTaskpane();
 
   //Create and checkout personal branch
   //Todo: Save email in database
@@ -46,25 +46,14 @@ async function createSagaProject (e) {
   document.getElementById("project-link-card").style.display = "block"
   document.getElementById("project-link").value = remoteURL;
   document.getElementById("title-text").innerText = "Send your Saga project link to your teamates to start collaborating"
-
-
 }
-
-// Copy project link to clipboard
-function copyToClipboard(e) {
-  e.preventDefault();
-  var copyText = document.getElementById("project-link");
-  copyText.select();
-  document.execCommand("copy");
-}
-
-
 
 export default class App extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      listItems: []
+      listItems: [], 
+      firstTime: false
     };
   }
 
@@ -111,12 +100,7 @@ export default class App extends React.Component {
               </form>
             </div>
             <EmptyButton function={registerFormattingHandler} message={"register"}/>
-            <div className="floating-card" id="project-link-card" style={{display: "none"}}>
-              <form className="form" onSubmit={copyToClipboard}>
-                <input className="project-link-div" id="project-link" disabled></input>
-                <input type="image" src="assets/clipboard.png" width="30vw" border="0" alt="Submit" />
-              </form>
-            </div>
+            <SagaLinkScreen></SagaLinkScreen>
           </div>
           
         </div>

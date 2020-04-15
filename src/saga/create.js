@@ -91,30 +91,15 @@ export async function setPersonalBranchName(personalBranchName) {
   }
 }
 
-export async function runCreateSagaFromTaskpane() {
+export async function getRemoteURLFromTaskpane() {
   return new Promise(async function (resolve) {
     try {
-        await Excel.run(async context => {
-            // Create the metadata sheet
-            await setupSagaSheet(context);
-            
-            // Try and create a remote project
-            await createRemote(context);
-
-            // Create the first commit 
-            await commit(context, "Create Saga Project", "Deafult First Commit on creation of saga project");
-
-            // Get remote range
-            const project = await new Project(context)
-            const remoteURL = await project.getRemoteURL()
-
-            // Start syncing this with master
-            turnSyncOn();
-
-            await context.sync()
-            await resolve(remoteURL)
-        });
-      } catch (error) {
+      await Excel.run(async context => {
+        const project = await new Project(context)
+        const remoteURL = await project.getRemoteURL()
+        await resolve(remoteURL)
+      });
+     } catch (error) {
         console.error(error);
         if (error instanceof OfficeExtension.Error) {
             console.error(error.debugInfo);
@@ -122,11 +107,6 @@ export async function runCreateSagaFromTaskpane() {
     }
   });
 }
-
-export async function runCreateSaga() {
-  await runOperation(createSaga);
-}
-
 
 async function createFromURL(context, url) {
   const response = await axios.get(
@@ -176,7 +156,10 @@ async function createFromURL(context, url) {
 }
 
 
-
 export async function runCreateFromURL(url) {
   await runOperation(createFromURL, url);
-  }
+}
+
+export async function runCreateSaga() {
+  await runOperation(createSaga);
+}

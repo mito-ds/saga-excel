@@ -54,7 +54,7 @@
                     <bt:Image size="80" resid="MergeButtonIcon.80x80"/>
                   </Icon>
                   <Action xsi:type="ExecuteFunction">
-                    <FunctionName>action</FunctionName>
+                    <FunctionName>merge</FunctionName>
                   </Action>
                 </Control>
                 <!--Switch Version Button-->
@@ -102,7 +102,7 @@
                     <bt:Image size="80" resid="ShareProjectButtonIcon.80x80"/>
                   </Icon>
                   <Action xsi:type="ExecuteFunction">
-                    <FunctionName>action</FunctionName>
+                    <FunctionName>getSagaLink</FunctionName>
                   </Action>
                 </Control>
                 <!--Create Saga Button-->
