@@ -13,6 +13,7 @@ export default class LoginScreen extends React.Component {
 
     async createSagaProject(e) {
         e.preventDefault();
+        this.props.nextStep();
         //Create the Saga project
         await runCreateSaga();
         const remoteURL = await getRemoteURLFromTaskpane();
@@ -32,6 +33,7 @@ export default class LoginScreen extends React.Component {
     async downloadSagaProject(e) {
         e.preventDefault();
         // Download the project from the url
+        this.props.nextStep();
         const url = document.getElementById('url-input').value
         await runCreateFromURL(url, this.props.email);
         this.props.setURL(url)

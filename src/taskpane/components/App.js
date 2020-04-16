@@ -66,6 +66,12 @@ export default class App extends React.Component {
           <TaskpaneFooter/>
         </div>
       );
+    } else if (step === 2) {
+      return (
+        <div className="taskpane">
+          <Progress title={title} logo="assets/saga-logo/saga-logo-taskpane.png" message="Creating your saga project..." />
+        </div>
+      );
     } else {
       // If the user has finished the creation process
       return (
