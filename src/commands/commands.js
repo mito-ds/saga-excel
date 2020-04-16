@@ -8,22 +8,20 @@ import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
 import { runResetPersonalVersion } from "../saga/resetPersonal.js"
 import { runMerge } from "../saga/merge.js"
 
-/* global global, Office */
+/* global global, Office, Excel */
 
-function getGlobal() {
-  return typeof self !== "undefined"
-    ? self
-    : typeof window !== "undefined"
-    ? window
-    : typeof global !== "undefined"
-    ? global
-    : undefined;
+// Save the formatting events
+var events = [];
+
+function formattingHandler(event) {
+  events.push(event);
 }
 
-const g = getGlobal();
-
 Office.onReady(() => {
-  // If needed, Office.js is ready to be called
+  Excel.run(function (context) {
+    context.workbook.worksheets.onFormatChanged.add(formattingHandler);
+    return context.sync();
+  })
 });
 
 /**
@@ -31,10 +29,10 @@ Office.onReady(() => {
  * @param event {Office.AddinCommands.Event}
  */
 async function merge(event) {
-  console.log(g.events)
-  await runMerge(g.events);
+  console.log(events)
+  await runMerge(events);
   event.completed();
-  g.events = [];
+  events = [];
 }
 
 async function switchVersion(event) {
@@ -48,6 +46,18 @@ async function resetPersonalVersion(event) {
   await runResetPersonalVersion(); 
   event.completed();
 }
+
+function getGlobal() {
+  return typeof self !== "undefined"
+    ? self
+    : typeof window !== "undefined"
+    ? window
+    : typeof global !== "undefined"
+    ? global
+    : undefined;
+}
+
+const g = getGlobal();
 
 
 // the add-in command functions need to be available in global scope

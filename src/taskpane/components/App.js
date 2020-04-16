@@ -12,36 +12,7 @@ import axios from "axios";
 import './App.css';
 
 
-/* global Excel */
-
-function getGlobal() {
-  return typeof self !== "undefined"
-    ? self
-    : typeof window !== "undefined"
-    ? window
-    : typeof global !== "undefined"
-    ? global
-    : undefined;
-}
-
-var g = getGlobal();
-g.events = [];
-
-function formattingHandler(event) {
-  g.events.push(event);
-}
-
-Office.onReady(() => {
-  Excel.run(function (context) {
-    context.workbook.worksheets.onFormatChanged.add(formattingHandler);
-    return context.sync();
-  })
-});
-
-function registerFormattingHandler () {
-  
-}
-
+/* global */
 
 export default class App extends React.Component {
   constructor(props) {
