@@ -1,13 +1,9 @@
 import * as React from "react";
 import Progress from "./Progress";
-import EmptyButton from "./saga/EmptyButton";
-import CreateFromRemoteForm from './saga/CreateFromRemoteForm'
-import ResetPersonalButton from './saga/ResetPersonalButton'
-import {runCreateSaga, setPersonalBranchName, getRemoteURLFromTaskpane}  from "../../saga/create";
-import {runSwitchVersionFromRibbon} from "../../saga/checkout"
 import SagaLinkScreen from "./SagaLinkScreen"
-import CreateSagaProjectScreen from "./CreateSagaProjectScreen"
-import axios from "axios";
+import LoginScreen from "./LoginScreen"
+import ProjectSourceScreen from "./ProjectSourceScreen"
+import TaskpaneFooter from "./TaskpaneFooter"
 
 import './App.css';
 
@@ -20,16 +16,30 @@ export default class App extends React.Component {
     this.state = {
       events: [],
       listItems: [], 
-      firstTime: true,
+      step: 0,
+      email: '',
       remoteURL: ''
     };
 
-    this.doneCreate = this.doneCreate.bind(this);
+    this.setEmail = this.setEmail.bind(this);
+    this.setURL = this.setURL.bind(this);
+    this.nextStep = this.nextStep.bind(this);
+  }
+
+  setEmail = (email) => {
+    this.setState({email: email})
   }
 
     
-  doneCreate = (remoteURL) => {
-    this.setState({firstTime: false, remoteURL: remoteURL})
+  setURL = (remoteURL) => {
+    this.setState({remoteURL: remoteURL})
+  }
+  
+
+  nextStep = () => {
+    this.setState(state => {
+      return {step: state.step + 1}
+    })
   }
 
   render() {
@@ -40,26 +50,32 @@ export default class App extends React.Component {
         <Progress title={title} logo="assets/saga-logo/saga-logo-taskpane.png" message="Please sideload your addin to see app body." />
       );
     }
-    if (this.state.firstTime) {
+    const step = this.state.step;
+
+    // If a saga project exists, we shouldn't do any of this
+
+    if (step === 0) {
       return (
         <div className="taskpane">
-          <CreateSagaProjectScreen doneCreate={this.doneCreate}></CreateSagaProjectScreen>
-          <div className="footer">
-            <p className="FAQ-text"> <b>Have questions about Saga? See our <a href="https://sagalab.org/">FAQ</a></b></p>
-            <p className="subtext disclaimer"> Saga is in pre-alpha stage. Use this tool knowing your data may be lost. </p>
-          </div>
+          <LoginScreen setEmail={this.setEmail} nextStep={this.nextStep}/>
+          <TaskpaneFooter/>
+        </div>
+      );
+    } else if (step === 1) {
+      return (
+        <div className="taskpane">
+          <ProjectSourceScreen email={this.state.email} setURL={this.setURL} nextStep={this.nextStep}/>
+          <TaskpaneFooter/>
         </div>
       );
     } else {
+      // If the user has finished the creation process
       return (
         <div className="taskpane">
           <SagaLinkScreen remoteURL={this.state.remoteURL}></SagaLinkScreen>
-          <div className="footer">
-            <p className="FAQ-text"> <b>Have questions about Saga? See our <a href="https://sagalab.org/">FAQ</a></b></p>
-            <p className="subtext disclaimer"> Saga is in pre-alpha stage. Use this tool knowing your data may be lost. </p>
-          </div>
+          <TaskpaneFooter/>
         </div>
       );
-    }  
+    }
   }
 }

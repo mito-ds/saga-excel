@@ -108,7 +108,9 @@ export async function getRemoteURLFromTaskpane() {
   });
 }
 
-async function createFromURL(context, url) {
+async function createFromURL(context, url, email) {
+  // TODO: make a branch w/ email, and check it out.
+
   const response = await axios.get(
     url, 
     {
@@ -156,8 +158,8 @@ async function createFromURL(context, url) {
 }
 
 
-export async function runCreateFromURL(url) {
-  await runOperation(createFromURL, url);
+export async function runCreateFromURL(url, email) {
+  await runOperation(createFromURL, url, email);
 }
 
 export async function runCreateSaga() {
