@@ -14,8 +14,6 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      events: [],
-      listItems: [], 
       step: 0,
       email: '',
       remoteURL: ''
