@@ -1,0 +1,31 @@
+#!/bin/sh
+
+echo "Installing Saga Excel Add-in..."
+
+read -r -d '' MANIFEST_DATA << EOM
+$manifest
+EOM
+
+DIRECTORY="/Users/${USER}/Library/Containers/com.microsoft.Excel/Data/Documents/wef"
+
+# Check if the sideloading directory exists
+if [ -d "$DIRECTORY" ]; 
+then
+  echo "$MANIFEST_DATA" > "${DIRECTORY}/saga.manifest.xml"
+  chown ${USER}:staff "${DIRECTORY}/saga.manifest.xml"
+
+  echo "Saga was sucessfully installed."
+  echo "To begin using saga:"
+  echo "  1. Open Excel"
+  echo "  2. Go to the Insert tab"
+  echo "  3. Click the dropdown arrow next to \"My Add-ins\""
+  echo "  4. Select Saga VCS"
+
+else
+  echo "Unable to install saga. Please make sure Excel is installed on your computer."
+fi
+
+
+
+
+exit 0 # all good

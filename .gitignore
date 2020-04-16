@@ -1,4 +1,21 @@
 
+# Don't store auto-generated nonsense
 .vscode
+.DS_Store
+
+# Or the millions of node modules we (unfortunately) rely on
 /node_modules
+
+# No secret storage allowed too
 .env
+*secrets.txt
+
+# Store none of the build assets for the installer
+installer_scripts/saga-installer/
+installer_scripts/InstallScripts.pkg
+installer_scripts/distribution.plist
+installer_scripts/Saga.pkg
+installer_scripts/SagaInstaller.pkg
+
+# Or the build assets for the frontend
+dist
