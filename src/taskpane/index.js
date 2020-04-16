@@ -16,7 +16,7 @@ const title = "Saga Version Control";
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component title={title} isOfficeInitialized={isOfficeInitialized} />
+      <Component title={title} isOfficeInitialized={isOfficeInitialized} ref={(appComponent) => {window.appComponent = appComponent}} />
     </AppContainer>,
     document.getElementById("container")
   );

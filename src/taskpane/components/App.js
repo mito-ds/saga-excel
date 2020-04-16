@@ -14,6 +14,34 @@ import './App.css';
 
 /* global Excel */
 
+function getGlobal() {
+  return typeof self !== "undefined"
+    ? self
+    : typeof window !== "undefined"
+    ? window
+    : typeof global !== "undefined"
+    ? global
+    : undefined;
+}
+
+var g = getGlobal();
+g.events = [];
+
+function formattingHandler(event) {
+  g.events.push(event);
+}
+
+Office.onReady(() => {
+  Excel.run(function (context) {
+    context.workbook.worksheets.onFormatChanged.add(formattingHandler);
+    return context.sync();
+  })
+});
+
+function registerFormattingHandler () {
+  
+}
+
 
 export default class App extends React.Component {
   constructor(props) {
@@ -25,30 +53,9 @@ export default class App extends React.Component {
       remoteURL: ''
     };
 
-    this.clearEvents = this.clearEvents.bind(this);
-    this.formattingHandler = this.formattingHandler.bind(this);
-    this.registerFormattingHandler = this.registerFormattingHandler.bind(this);
     this.doneCreate = this.doneCreate.bind(this);
   }
 
-  clearEvents = (event) => {
-    this.setState({events: []});
-  }
-
-  formattingHandler = (event) => {
-    this.setState((state, props) => {
-      const newEvents = state.events.concat([event]);
-      return {events: newEvents};
-    });
-  }
-
-  registerFormattingHandler = async () => {
-    var handler = this.formattingHandler;
-    await Excel.run(function (context) {
-      context.workbook.worksheets.onFormatChanged.add(handler);
-      return context.sync();
-    })
-  }
     
   doneCreate = (remoteURL) => {
     this.setState({firstTime: false, remoteURL: remoteURL})
@@ -66,7 +73,6 @@ export default class App extends React.Component {
       return (
         <div className="taskpane">
           <CreateSagaProjectScreen doneCreate={this.doneCreate}></CreateSagaProjectScreen>
-          <EmptyButton function={this.registerFormattingHandler} message={"register"}/>
           <div className="footer">
             <p className="FAQ-text"> <b>Have questions about Saga? See our <a href="https://sagalab.org/">FAQ</a></b></p>
             <p className="subtext disclaimer"> Saga is in pre-alpha stage. Use this tool knowing your data may be lost. </p>
@@ -77,7 +83,6 @@ export default class App extends React.Component {
       return (
         <div className="taskpane">
           <SagaLinkScreen remoteURL={this.state.remoteURL}></SagaLinkScreen>
-          <EmptyButton function={this.registerFormattingHandler} message={"register"}/>
           <div className="footer">
             <p className="FAQ-text"> <b>Have questions about Saga? See our <a href="https://sagalab.org/">FAQ</a></b></p>
             <p className="subtext disclaimer"> Saga is in pre-alpha stage. Use this tool knowing your data may be lost. </p>

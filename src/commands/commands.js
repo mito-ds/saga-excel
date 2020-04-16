@@ -10,6 +10,18 @@ import { runMerge } from "../saga/merge.js"
 
 /* global global, Office */
 
+function getGlobal() {
+  return typeof self !== "undefined"
+    ? self
+    : typeof window !== "undefined"
+    ? window
+    : typeof global !== "undefined"
+    ? global
+    : undefined;
+}
+
+const g = getGlobal();
+
 Office.onReady(() => {
   // If needed, Office.js is ready to be called
 });
@@ -19,8 +31,10 @@ Office.onReady(() => {
  * @param event {Office.AddinCommands.Event}
  */
 async function merge(event) {
-  await runMerge();
+  console.log(g.events)
+  await runMerge(g.events);
   event.completed();
+  g.events = [];
 }
 
 async function switchVersion(event) {
@@ -35,17 +49,6 @@ async function resetPersonalVersion(event) {
   event.completed();
 }
 
-function getGlobal() {
-  return typeof self !== "undefined"
-    ? self
-    : typeof window !== "undefined"
-    ? window
-    : typeof global !== "undefined"
-    ? global
-    : undefined;
-}
-
-const g = getGlobal();
 
 // the add-in command functions need to be available in global scope
 g.merge = merge;
