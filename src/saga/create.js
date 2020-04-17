@@ -18,7 +18,7 @@ async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
     // Setup, name range for head branch
     const headRange = worksheet.getRange("A1");
     worksheet.names.add(`HEAD`, headRange)
-    headRange.values = [["master"]];
+    headRange.values = [[email]];
 
     // Setup, name range for branch name => commit mapping
     const branchRange = worksheet.getRange("B1:C2");

@@ -1,9 +1,8 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
-import {runCheckoutBranch} from "../../saga/checkout";
 import {runCreateSaga, runCreateFromURL, createRemoteURL}  from "../../saga/create";
-import {runSwitchVersionFromRibbon} from "../../saga/checkout"
 
+/* global Office */
 
 // Disable create saga button, turn others on 
 function toggleRibbonAvailability() {
@@ -63,9 +62,12 @@ export default class LoginScreen extends React.Component {
 
         // Create the project with this remote URL and email
         await runCreateSaga(remoteURL, email);
+        console.log("DONE CREATING, now trying to toggle");
 
         // toggle ribbon buttons availability
         toggleRibbonAvailability()
+        console.log("toggling");
+
 
         // update the state of react component
         this.props.setURL(remoteURL)
@@ -76,7 +78,7 @@ export default class LoginScreen extends React.Component {
         e.preventDefault();
         // Download the project from the url
         this.props.nextStep();
-        
+
         const url = document.getElementById('url-input').value
         await runCreateFromURL(url, this.props.email);
 

@@ -28,9 +28,6 @@ export async function commit(context, commitName, commitMessage, branch, commitI
         return !sheet.name.startsWith("saga");
     });
 
-    console.log("COMMITING ON SHEETS: ");
-    console.log(sheets);
-
     const sheetNames = sheets.map(sheet => sheet.name);
     const dstWorksheets = sheetNames.map(sheetName => `saga-%${commitID}-${sheetName}`);
     
@@ -42,7 +39,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
         Excel.WorksheetPositionType.end,
         Excel.SheetVisibility.visible
     )
-
+    console.log("FINISHED COPYING SHEETS")
     // save the commit id with it's parent
     const parentID = await project.getCommitIDFromBranch(branch);
     await project.updateBranchCommitID(branch, commitID);
