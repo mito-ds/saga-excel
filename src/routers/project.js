@@ -120,22 +120,6 @@ project.get('/:id/summary', async function (req, res) {
 })
 
 
-project.get('/:id/download', async function (req, res) {
-    const id = req.params.id;
-    const exists = await projectExists(id);
-
-    if (!exists) {
-        res.status(404).end(); // If the project does not exist, we say so
-        return;
-    }
-
-    res.writeHead(200, {'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="sagafile.xlsx"'});
-    const project = await getProject(id);
-    const fileContents = project.contents.get(project.headCommitID);
-    res.write(Buffer.from(base64.toByteArray(fileContents)));
-    res.end();
-})
-
 project.get('/:id', async function (req, res) {
     const id = req.params.id;
     const exists = await projectExists(id);
@@ -150,7 +134,11 @@ project.get('/:id', async function (req, res) {
 
     if (!headCommitID && !parentCommitID) {
         // Then, we redirect to the sagalab website, because. 
-        res.redirect(`https://localhost:3001/project/${id}`);
+        res.writeHead(200, {'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="sagafile.xlsx"'});
+        const project = await getProject(id);
+        const fileContents = project.contents.get(project.headCommitID);
+        res.write(Buffer.from(base64.toByteArray(fileContents)));
+        res.end();
         return;
     }
 
