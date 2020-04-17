@@ -45,6 +45,23 @@ async function showPermissionDeniedDialog() {
     }); 
 }
 
+export async function getCurrentBranchNameFromRibbon() {
+    return new Promise(async function (resolve) {
+      try {
+        await Excel.run(async context => {
+          const project = await new Project(context)
+          const headBranch = await project.getHeadBranch()
+          await resolve(headBranch)
+        });
+       } catch (error) {
+          console.error(error);
+          if (error instanceof OfficeExtension.Error) {
+              console.error(error.debugInfo);
+          }
+      }
+    });
+  }
+
 /*
 Validate Commit Attempt: checks if user has permission to commit to branch
 */
