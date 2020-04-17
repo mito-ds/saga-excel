@@ -4,7 +4,7 @@ const base64 = require('base64-js');
 const mongoose = require(`mongoose`);
 const Projects = mongoose.model('Projects');
 
-/* global require, module */
+/* global require, module, Buffer */
 
 const BRANCH_STATE_HEAD = 0;
 const BRANCH_STATE_AHEAD = 1;
@@ -150,7 +150,7 @@ project.get('/:id', async function (req, res) {
 
     if (!headCommitID && !parentCommitID) {
         // Then, we redirect to the sagalab website, because. 
-        res.redirect(`https://sagalab.org/project/${id}`);
+        res.redirect(`https://staging.sagalab.org/project/${id}`);
         return;
     }
 
