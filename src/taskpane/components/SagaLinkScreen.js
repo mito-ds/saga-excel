@@ -23,7 +23,7 @@ class SagaLinkScreen extends React.Component {
             <div className="content">
                 <div className="header">
                     <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-                    <p className="title-text" id="title-text"> Invite people to collaborate with you by sending them the Saga project link</p>
+                    <p className="title-text" id="title-text"> Invite people to collaborate by sending them the Saga project link</p>
                 </div>
                 <div className="floating-card" id="project-link-card">
                     <form className="form" onSubmit={this.copyToClipboard}>

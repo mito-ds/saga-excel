@@ -26,7 +26,7 @@ export default class LoginScreen extends React.Component {
                 <div className="card-div">          
                     <div className="floating-card" id="email-card">
                         <div className="subtext-div-full">
-                            <p className="subtext">I’m understand that Saga is pre-alpha software. I understand that my data may be lost if I use Saga. <b>I will continue to backup my work.</b> </p>
+                            <p className="subtext">I understand that Saga is pre-alpha software and that my data may be lost. I will continue to backup my work. </p>
                         </div>
                         <form className="form" onSubmit={this.createSagaProject}>
                             <input className="input" id="email-input" placeholder="example@gmail.com" type="email"></input>

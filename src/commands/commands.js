@@ -6,6 +6,7 @@
 import { runCreateSaga} from "../saga/create"
 import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
 import { runResetPersonalVersion } from "../saga/resetPersonal.js"
+import { getCurrentBranchNameFromRibbon } from "../saga/branch.js"
 import { runMerge } from "../saga/merge.js"
 
 /* global global, Office, Excel */
@@ -37,7 +38,16 @@ async function merge(event) {
 
 async function switchVersion(event) {
   // Todo: render message saying which branch they are on
-  await runSwitchVersionFromRibbon()
+  await runSwitchVersionFromRibbon();
+  const headBranch = await getCurrentBranchNameFromRibbon();
+  console.log("headBranch")
+  console.log(headBranch)
+
+  if (headBranch === 'master') {
+    toggleButtons(disableMergeAndResetObj)
+  } else {
+    toggleButtons(enableMergeAndResetObj)
+  }
   event.completed();
 }
 
@@ -46,6 +56,45 @@ async function resetPersonalVersion(event) {
   await runResetPersonalVersion(); 
   event.completed();
 }
+
+
+function toggleButtons(buttonUpdateObj) {
+  Office.ribbon.requestUpdate(buttonUpdateObj);
+}
+
+const enableMergeAndResetObj = {
+    tabs: [
+        {
+            id: "TabHome", 
+            controls: [
+            {
+                id: "MergeButton", 
+                enabled: true
+            }, 
+            {   
+                id: "ResetPersonalButton", 
+                enabled: true
+            }
+        ]}
+    ]
+  };
+
+const disableMergeAndResetObj = {
+    tabs: [
+        {
+            id: "TabHome", 
+            controls: [
+            {
+                id: "MergeButton", 
+                enabled: false
+            }, 
+            {   
+                id: "ResetPersonalButton", 
+                enabled: false
+            }
+        ]}
+    ]
+  };
 
 function getGlobal() {
   return typeof self !== "undefined"

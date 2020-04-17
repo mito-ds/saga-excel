@@ -4,6 +4,40 @@ import {runCheckoutBranch} from "../../saga/checkout";
 import {runCreateSaga, runCreateFromURL, createRemoteURL}  from "../../saga/create";
 import {runSwitchVersionFromRibbon} from "../../saga/checkout"
 
+
+// Disable create saga button, turn others on 
+function toggleRibbonAvailability() {
+    Office.ribbon.requestUpdate({
+        tabs: [
+            {
+                id: "TabHome", 
+                controls: [
+                {
+                    id: "MergeButton", 
+                    enabled: true
+                }, 
+                {   
+                    id: "VersionButton", 
+                    enabled: true
+                },
+                {   
+                    id: "ResetPersonalButton", 
+                    enabled: true
+                },
+                {   
+                    id: "ShareProjectButton", 
+                    enabled: true
+                },
+                {   
+                    id: "TaskpaneButton", 
+                    enabled: false
+                }  
+            ]}
+        ]
+    });
+}
+  
+
 // Login Form Component
 export default class LoginScreen extends React.Component {
     constructor(props) {
@@ -30,6 +64,9 @@ export default class LoginScreen extends React.Component {
         // Create the project with this remote URL and email
         await runCreateSaga(remoteURL, email);
 
+        // toggle ribbon buttons availability
+        toggleRibbonAvailability()
+
         // update the state of react component
         this.props.setURL(remoteURL)
         this.props.nextStep();
@@ -39,8 +76,13 @@ export default class LoginScreen extends React.Component {
         e.preventDefault();
         // Download the project from the url
         this.props.nextStep();
-        const remoteURL = document.getElementById('url-input').value
-        await runCreateFromURL(remoteURL, this.props.email);
+        
+        const url = document.getElementById('url-input').value
+        await runCreateFromURL(url, this.props.email);
+
+        // toggle ribbon buttons availability
+        toggleRibbonAvailability()
+
         this.props.setURL(url)
         this.props.nextStep();
     }
@@ -50,7 +92,7 @@ export default class LoginScreen extends React.Component {
             <div className="content">
                 <div className="header">
                     <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-                    <p className="title-text" id="title-text" >Pick your project creation method </p>
+                    <p className="title-text" id="title-text" >Choose your project creation method </p>
                 </div>
                 <div className="card-div">     
                     <p className="creation-option">Start a new project </p>     
@@ -67,7 +109,7 @@ export default class LoginScreen extends React.Component {
                     <p className="creation-option">Or, download an existing Saga project </p>     
                     <div className="floating-card">
                         <div className="new-project-text-div"> 
-                            <p className="new-project-text center">Enter the url of an existing saga project </p>
+                            <p className="new-project-text subtext center">Enter the url of an existing Saga project </p>
                         </div>
                         <div className="create-project-card">
                             <form className="form" onSubmit={this.createSagaProject}>

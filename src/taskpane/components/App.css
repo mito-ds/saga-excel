@@ -79,14 +79,13 @@
 }
 
 .new-project-text {
-    font-size: 14px;
-    color: var(--dark-grey-color);
     padding-left: 3vw;
 }
 
 .subtext {
     color: var(--dark-grey-color);
-    font-size: 12px;
+    font-weight: bold;
+    font-size: 14px;
 }
 
 .form {
@@ -158,6 +157,8 @@
     margin-bottom: 0px;
 }
 
-.disclaimer {
+.subtext-disclaimer {
+    color: var(--dark-grey-color);
+    font-size: 14px;
     margin-top: 0px;;
 }
