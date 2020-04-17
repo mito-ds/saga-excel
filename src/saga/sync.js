@@ -14,7 +14,7 @@ export async function saveUserEmail(newEmail) {
   console.log(newEmail)
 
   const response = await axios.post(
-    "https://excel.sagalab.org/project/postemail",
+    "https://excel.sagalab.org/postemail",
     {"newEmail": newEmail}
   );
   console.log(response)

@@ -3,7 +3,6 @@ const { v4: uuidv4 } = require('uuid');
 const base64 = require('base64-js');
 const mongoose = require(`mongoose`);
 const Projects = mongoose.model('Projects');
-const Emails = mongoose.model('Emails');
 
 
 /* global require, module, Buffer */
@@ -205,14 +204,5 @@ project.post('/:id', async function (req, res) {
 
     console.log(`updated project ${updatedProject} : ${id} : ${fileContents}`);
 })
-
-// Route to save emails to mongo
-project.post('/postemail', async function (req, res) {
-    const newEmail = req.body.newEmail;
-    console.log(`adding email: ${newEmail} to mongo databse` )
-    const writeResult = await Emails.insertOne({email: newEmail}).exec();
-    console.log(writeResult)
-    res.status(200).end()
-});
 
 module.exports = project;
