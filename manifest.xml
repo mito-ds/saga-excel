@@ -73,7 +73,7 @@
                   <Action xsi:type="ExecuteFunction">
                     <FunctionName>switchVersion</FunctionName>
                   </Action>
-                  <Enabled>true</Enabled>
+                  <Enabled>false</Enabled>
                 </Control>
                 <!--Reset Personal Version Icon-->
                 <Control xsi:type="Button" id="ResetPersonalButton">
@@ -108,7 +108,7 @@
                     <TaskpaneId>ButtonId1</TaskpaneId>
                     <SourceLocation resid="Taskpane.Url"/>
                   </Action>
-                  <Enabled>true</Enabled>
+                  <Enabled>false</Enabled>
                 </Control>
                 <!--Create Saga Button-->
                 <Control xsi:type="Button" id="TaskpaneButton">

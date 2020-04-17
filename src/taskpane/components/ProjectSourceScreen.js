@@ -4,6 +4,40 @@ import {runCreateBranch} from "../../saga/branch"
 import {runCreateSaga, setPersonalBranchName, getRemoteURLFromTaskpane, runCreateFromURL}  from "../../saga/create";
 import {runSwitchVersionFromRibbon} from "../../saga/checkout"
 
+
+// Disable create saga button, turn others on 
+function toggleRibbonAvailability() {
+    Office.ribbon.requestUpdate({
+        tabs: [
+            {
+                id: "TabHome", 
+                controls: [
+                {
+                    id: "MergeButton", 
+                    enabled: true
+                }, 
+                {   
+                    id: "VersionButton", 
+                    enabled: true
+                },
+                {   
+                    id: "ResetPersonalButton", 
+                    enabled: true
+                },
+                {   
+                    id: "ShareProjectButton", 
+                    enabled: true
+                },
+                {   
+                    id: "TaskpaneButton", 
+                    enabled: false
+                }  
+            ]}
+        ]
+    });
+}
+  
+
 // Login Form Component
 export default class LoginScreen extends React.Component {
     constructor(props) {
@@ -24,6 +58,9 @@ export default class LoginScreen extends React.Component {
         await runCreateBranch(email)
         await setPersonalBranchName(email)
         await runSwitchVersionFromRibbon()
+
+        // toggle ribbon buttons availability
+        toggleRibbonAvailability()
     
         // update the state of react component
         this.props.setURL(remoteURL)
@@ -36,6 +73,10 @@ export default class LoginScreen extends React.Component {
         this.props.nextStep();
         const url = document.getElementById('url-input').value
         await runCreateFromURL(url, this.props.email);
+
+        // toggle ribbon buttons availability
+        toggleRibbonAvailability()
+        
         this.props.setURL(url)
         this.props.nextStep();
     }
