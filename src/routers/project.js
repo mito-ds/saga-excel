@@ -132,7 +132,7 @@ project.get('/:id/download', async function (req, res) {
     res.writeHead(200, {'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="picture.png"'});
     const project = await getProject(id);
     const fileContents = project.contents.get(project.headCommitID);
-    res.write(base64.toByteArray(fileContents).buffer);
+    res.write(Buffer.from(base64.toByteArray(fileContents)));
     res.end();
 })
 
