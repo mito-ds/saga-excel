@@ -129,7 +129,7 @@ project.get('/:id/download', async function (req, res) {
         return;
     }
 
-    res.writeHead(200, {'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="picture.png"'});
+    res.writeHead(200, {'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="sagafile.xlsx"'});
     const project = await getProject(id);
     const fileContents = project.contents.get(project.headCommitID);
     res.write(Buffer.from(base64.toByteArray(fileContents)));
