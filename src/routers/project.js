@@ -150,7 +150,7 @@ project.get('/:id', async function (req, res) {
 
     if (!headCommitID && !parentCommitID) {
         // Then, we redirect to the sagalab website, because. 
-        res.redirect(`https://staging.sagalab.org/project/${id}`);
+        res.redirect(`https://localhost:3001/project/${id}`);
         return;
     }
 
