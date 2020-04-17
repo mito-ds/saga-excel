@@ -63,7 +63,6 @@ project.post('/create', async function (req, res) {
     const created = await createProject(id);
 
     if (created) {
-        console.log(projects);
         res.json({"id": id});
     } else {
         res.json({"id": ""});
@@ -200,8 +199,6 @@ project.post('/:id', async function (req, res) {
 
     // 409 is a conflict, which we have if the project can't be updated!
     res.status(updatedProject ? 200 : 409).end();
-
-    console.log(`updated project ${updatedProject} : ${id} : ${fileContents}`);
 })
 
 module.exports = project;
