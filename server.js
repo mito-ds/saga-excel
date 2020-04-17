@@ -35,7 +35,7 @@ app.use(bodyParser.json());
 
 //Route to save emails to mongo
 app.use('/postemail', async function (req, res) {
-    const newEmail = req.body.newEmail;
+    const newEmail = req.body.email;
     console.log(`adding email: ${newEmail} to mongo databse` )
     const email = new Emails();
     email.email = newEmail;
