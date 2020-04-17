@@ -7,5 +7,4 @@ const EmailSchema = new mongoose.Schema({
     email: String
 });
 
-
 mongoose.model('Emails', EmailSchema);
