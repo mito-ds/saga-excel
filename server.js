@@ -1,11 +1,12 @@
 require('dotenv').config();
 require('./src/models/ProjectSchema');
+require('./src/models/EmailSchema');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const projectRouter = require('./src/routers/project');
 const mongoose = require('mongoose');
-const Emails = require("Emails")
+const Emails = mongoose.model('Emails');
 
 /* global process, require */
 
