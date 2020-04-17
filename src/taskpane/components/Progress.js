@@ -8,9 +8,12 @@ export default class Progress extends React.Component {
 
     return (
       <section className="ms-welcome__progress ms-u-fadeIn500">
-        <img width="90" height="90" src={logo} alt={title} title={title} />
-        <h1 className="ms-fontSize-su ms-fontWeight-light ms-fontColor-neutralPrimary">{title}</h1>
-        <Spinner type={SpinnerType.large} label={message} />
+
+        <div className="header">
+          <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
+          <p className="title-text" id="title-text">Saga</p>
+        </div>
+        <Spinner className type={SpinnerType.large} label={message} />
       </section>
     );
   }

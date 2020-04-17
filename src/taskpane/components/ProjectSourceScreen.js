@@ -45,21 +45,31 @@ export default class LoginScreen extends React.Component {
             <div className="content">
                 <div className="header">
                     <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-                    <p className="title-text" id="title-text" >Either create a new project, or download one your team is already working on </p>
+                    <p className="title-text" id="title-text" >Pick your project creation method </p>
                 </div>
-                <div className="card-div">          
-                    <div className="floating-card" >
-                        <p className="subtext">Create a new project </p>
-                        <PrimaryButton className="submit-button" onClick={this.createSagaProject}>Create</PrimaryButton>
+                <div className="card-div">     
+                    <p className="creation-option">1. Start a new project </p>     
+                    <div className="floating-card create-project-card" >
+                        <div className="subtext-div-half"> 
+                            <p className="subtext">Turn your current workbook into a Saga project </p>
+                        </div>
+                        <div className="subtext-div-half"> 
+                            <PrimaryButton className="submit-button center" onClick={this.createSagaProject}>Create</PrimaryButton>
+                        </div>
                     </div>
                 </div>
-                <div className="card-div">          
-                    <div className="floating-card" >
-                        <p className="subtext">Enter the url of an existing saga project </p>
-                        <form className="form" onSubmit={this.createSagaProject}>
-                            <input className="input" id="url-input" placeholder="https://excel.sagalab.org/project/1234-12313-123123" ></input>
-                            <PrimaryButton className="submit-button" type="submit">Download</PrimaryButton>
-                        </form>
+                <div className="card-div">   
+                    <p className="creation-option">2. Download a Saga project </p>     
+                    <div className="floating-card">
+                        <div className="new-project-text-div"> 
+                            <p className="new-project-text center">Enter the url of an existing saga project </p>
+                        </div>
+                        <div className="create-project-card">
+                            <form className="form" onSubmit={this.createSagaProject}>
+                                <input className="input" id="url-input" placeholder="https://excel.sagalab.org/project/1234-12313-123123" ></input>
+                                <PrimaryButton className="download-button" type="submit">Download</PrimaryButton>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
