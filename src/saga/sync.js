@@ -10,6 +10,16 @@ const BRANCH_STATE_AHEAD = 1;
 const BRANCH_STATE_BEHIND = 2;
 //const BRANCH_STATE_FORKED = 3;
 
+export async function saveUserEmail(context, newEmail) {
+  console.log(newEmail)
+
+  const response = await axios.post(
+    "https://excel.sagalab.org/project/postemail",
+    {"email": newEmail}
+  );
+  console.log(response)
+}
+
 
 async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
   const fileContents = await getFileContents();
@@ -129,6 +139,11 @@ export async function updateShared(context) {
 async function sync() {
   console.log("syncing...")
   await runOperation(updateShared);
+}
+
+async function runSaveUserEmail(newEmail) {
+  console.log(`saving user email: ${newEmail}`)
+  await runOperation(saveUserEmail, newEmail)
 }
 
 var syncInt;

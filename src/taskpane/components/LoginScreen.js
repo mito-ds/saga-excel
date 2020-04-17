@@ -1,5 +1,7 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
+import { saveUserEmail } from "../../saga/sync"
+
 
 // Login Form Component
 export default class LoginScreen extends React.Component {
@@ -12,6 +14,10 @@ export default class LoginScreen extends React.Component {
         e.preventDefault();
         const email = document.getElementById('email-input').value
         // TODO: send the email to the server, and log it
+
+        // Save User Email
+        saveUserEmail(email);
+
         this.props.setEmail(email);
         this.props.nextStep();
     }

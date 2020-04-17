@@ -204,4 +204,13 @@ project.post('/:id', async function (req, res) {
     console.log(`updated project ${updatedProject} : ${id} : ${fileContents}`);
 })
 
+// Route to save emails to mongo
+project.post('/postemail', async function (req, res) {
+    const newEmail = req.body.newEmail;
+    console.log(`adding email: ${newEmail} to mongo databse` )
+    const writeResult = await Emails.insertOne({email: newEmail}).exec();
+    console.log(writeResult)
+    res.status(200).end()
+});
+
 module.exports = project;
