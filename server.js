@@ -37,9 +37,12 @@ app.use(bodyParser.json());
 app.use('/postemail', async function (req, res) {
     const newEmail = req.body.email;
     console.log(`adding email: ${newEmail} to mongo databse` )
-    const email = new Emails();
-    email.email = newEmail;
-    await email.save();
+    if (newEmail) {
+        // TODO: don't save duplicates
+        const email = new Emails();
+        email.email = newEmail;
+        await email.save();
+    }
     res.status(200).end()
 });
 
