@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const projectRouter = require('./src/routers/project');
 const mongoose = require('mongoose');
+const Emails = require("Emails")
 
 /* global process, require */
 
@@ -28,6 +29,17 @@ app.use(function(req, res, next) {
 });
 
 app.use(bodyParser.json());
+
+
+//Route to save emails to mongo
+app.use('/postemail', async function (req, res) {
+    const newEmail = req.body.newEmail;
+    console.log(`adding email: ${newEmail} to mongo databse` )
+    const writeResult = await Emails.insertOne({email: newEmail}).exec();
+    console.log(writeResult)
+    res.status(200).end()
+});
+
 
 
 // Add the projects API
