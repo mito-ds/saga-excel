@@ -56,6 +56,62 @@ export async function createSheet(context, worksheetName, worksheetVisibility) {
 /*
 Copies srcWorksheetName to dstWorksheetName, with the given visibility parameters
 */
+export async function copySheets(
+    context, 
+    srcWorksheets, 
+    dstWorksheets,
+    worksheetPositionType,
+    worksheetVisibility
+) {
+    if (srcWorksheets.length !== dstWorksheets.length) {
+        console.error(`Cannot copy ${srcWorksheets} to ${dstWorksheets}, don't match up`);
+        return false;
+    }
+
+    if (worksheetPositionType !== Excel.WorksheetPositionType.end && worksheetPositionType !== Excel.WorksheetPositionType.beginning) {
+        console.error(`Bulk copy only supports beggining or end, not ${worksheetPositionType}`);
+        return false;
+    }
+
+    console.log(srcWorksheets)
+    console.log(dstWorksheets);
+
+    if (worksheetPositionType === Excel.WorksheetPositionType.end) {
+        for (let i = 0; i < srcWorksheets.length; i++) {
+            const srcName = srcWorksheets[i];
+            const dstName = dstWorksheets[i];
+            const src = context.workbook.worksheets.getItemOrNullObject(srcName);
+            const dst = src.copy(worksheetPositionType);
+            dst.name = dstName;
+            dst.visibility = worksheetVisibility;
+    
+            // We can queue at most 40 txs
+            if (i % 40 === 0) {
+                await context.sync();
+            }
+        }
+    } else if (worksheetPositionType === Excel.WorksheetPositionType.beginning) {
+        for (let i = srcWorksheets.length - 1; i >= 0; i--) {
+            const srcName = srcWorksheets[i];
+            const dstName = dstWorksheets[i];
+            const src = context.workbook.worksheets.getItemOrNullObject(srcName);
+            const dst = src.copy(worksheetPositionType);
+            dst.name = dstName;
+            dst.visibility = worksheetVisibility;
+    
+            // We can queue at most 40 txs
+            if (i % 40 === 0) {
+                await context.sync();
+            }
+        }
+    }
+
+    return context.sync();
+}
+
+/*
+Copies srcWorksheetName to dstWorksheetName, with the given visibility parameters
+*/
 export async function copySheet(
         context, 
         srcWorksheetName, 
@@ -67,7 +123,6 @@ export async function copySheet(
     const activeSheet = context.workbook.worksheets.getItemOrNullObject(srcWorksheetName);
     const copiedSheet = activeSheet.copy(worksheetPositionType);
     // Set the name and visibiliy
-    await context.sync();
     copiedSheet.name = dstWorksheetName;
     copiedSheet.visibility = worksheetVisibility;
 

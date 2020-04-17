@@ -1,9 +1,9 @@
-import { getSheetsWithNames, copySheet } from "./sagaUtils";
+import { getSheetsWithNames, copySheet, copySheets } from "./sagaUtils";
 import Project from './Project';
 import { runOperation } from "./runOperation";
-import {commit} from './commit';
 
 /* global Excel */
+
 
 export async function switchVersionFromRibbon(context) {
     console.log("1")
@@ -29,6 +29,7 @@ export async function switchVersionFromRibbon(context) {
     console.log("5")
 
 }
+
 
 async function getNonSagaSheets(context) {
     let sheets = await getSheetsWithNames(context);
@@ -76,7 +77,7 @@ export async function checkoutBranch(context, branch) {
         return;
     }
 
-    /* Turnning off committing before checking out. Warning: This will cause data loss
+    /* Turning off committing before checking out. Warning: This will cause data loss
     // Make commit on current branch to stop data loss
     // TODO only make this commit if changes have occured since last commit
     const currentBranch = await project.getHeadBranch();
@@ -92,21 +93,19 @@ export async function checkoutBranch(context, branch) {
         return sheet.name.startsWith(`saga-${commitID}-`)
     })
 
+    const srcWorksheets = sheets.map(sheet => sheet.name);
+    const dstWorksheets = srcWorksheets.map(sheetName=> sheetName.split(`saga-${commitID}-`)[1]);
+
     // Delete the non-saga sheets
     await deleteNonsagaSheets(context);
 
-    // Copy back the sheets
-    for (let i = 0; i < sheets.length; i++) {
-        const sheet = sheets[i];
-        const newName = sheet.name.split(`saga-${commitID}-`)[1];
-        await copySheet(
-            context, 
-            sheet.name, 
-            newName, 
-            Excel.WorksheetPositionType.beginning, //TODO: we have to store og location
-            Excel.SheetVisibility.visible,
-        );
-    }
+    await copySheets(
+        context,
+        srcWorksheets,
+        dstWorksheets,
+        Excel.WorksheetPositionType.beginning,
+        Excel.SheetVisibility.visible
+    )
 
     // If master, lock sheets
     if (branch === 'master') {

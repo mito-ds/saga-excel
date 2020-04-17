@@ -1,5 +1,4 @@
-import { createSheet } from "./sagaUtils";
-import { getFileContents } from "./fileUtils";
+import { createSheet, getRandomID } from "./sagaUtils";
 import { commit } from "./commit";
 import { turnSyncOn } from "./sync";
 import Project from "./Project"
@@ -7,12 +6,12 @@ import axios from "axios"
 import { runOperation } from "./runOperation";
 
 
-/* global Excel */
+/* global Excel, OfficeExtension */
 
 /*
 Sets up the headers for the commit worksheet, if they don't already exist
 */
-async function setupSagaSheet(context) {
+async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
     // First, we create the sheet
     const worksheet = await createSheet(context, "saga", Excel.SheetVisibility.visible);
 
@@ -22,9 +21,9 @@ async function setupSagaSheet(context) {
     headRange.values = [["master"]];
 
     // Setup, name range for branch name => commit mapping
-    const branchRange = worksheet.getRange("B1:C1");
+    const branchRange = worksheet.getRange("B1:C2");
     worksheet.names.add("branches", branchRange)
-    branchRange.values = [["master", "firstcommit"]];
+    branchRange.values = [["master", "firstcommit"], [email, firstCommitID]];
 
     // Setup, name range for commit id => (parent commit id, name, message) mapping
     const commitRange = worksheet.getRange("D1:G1");
@@ -34,22 +33,7 @@ async function setupSagaSheet(context) {
     //Setup, name range for personal branch identifier
     const personalBranchName = worksheet.getRange("A3");
     worksheet.names.add('personalBranchName', personalBranchName);
-    personalBranchName.values=[[""]];
-
-    return context.sync();
-}
-
-async function createRemote(context) {
-    const fileContents = await getFileContents();
-    // TODO: handle errors here, we don't know what the network is going to do
-    const response = await axios.post(
-        "https://excel.sagalab.org/project/create",
-        {"fileContents": fileContents}
-    );
-    
-    const worksheet = context.workbook.worksheets.getItem("saga");
-
-    const remoteURL = `https://excel.sagalab.org/project/${response.data.id}`;
+    personalBranchName.values=[[email]];
 
     // Setup, name range for remote url
     const remoteRange = worksheet.getRange("A2");
@@ -59,15 +43,35 @@ async function createRemote(context) {
     return context.sync();
 }
 
-async function createSaga(context) {
+export async function createRemoteURL() {
+  var response;
+  try {
+    // Try and create a project
+    response = await axios.post(
+        "https://excel.sagalab.org/project/create",
+    );
+  } catch (e) {
+    // If we are offline or can't connect, return null
+    return null;
+  }
+
+  if (response.status !== 200) {
+    return null;
+  }
+
+  return `https://excel.sagalab.org/project/${response.data.id}`;
+
+}
+
+
+async function createSaga(context, remoteURL, email) {
+  const firstCommitID = getRandomID();
+
   // Create the metadata sheet
-  await setupSagaSheet(context);
-            
-  // Try and create a remote project
-  await createRemote(context);
+  await setupSagaSheet(context, remoteURL, email, firstCommitID);
 
   // Create the first commit 
-  await commit(context, "Create Saga Project", "Saga project creation");
+  await commit(context, "Create Saga Project", "Saga project creation", "master", firstCommitID);
 
   // Start syncing this with master
   turnSyncOn();
@@ -89,23 +93,6 @@ export async function setPersonalBranchName(personalBranchName) {
         console.error(error.debugInfo);
     }
   }
-}
-
-export async function getRemoteURLFromTaskpane() {
-  return new Promise(async function (resolve) {
-    try {
-      await Excel.run(async context => {
-        const project = await new Project(context)
-        const remoteURL = await project.getRemoteURL()
-        await resolve(remoteURL)
-      });
-     } catch (error) {
-        console.error(error);
-        if (error instanceof OfficeExtension.Error) {
-            console.error(error.debugInfo);
-        }
-    }
-  });
 }
 
 async function createFromURL(context, url, email) {
@@ -158,10 +145,10 @@ async function createFromURL(context, url, email) {
 }
 
 
-export async function runCreateFromURL(url, email) {
-  await runOperation(createFromURL, url, email);
+export async function runCreateFromURL(remoteURL, email) {
+  await runOperation(createFromURL, remoteURL, email);
 }
 
-export async function runCreateSaga() {
-  await runOperation(createSaga);
+export async function runCreateSaga(remoteURL, email) {
+  await runOperation(createSaga, remoteURL, email);
 }

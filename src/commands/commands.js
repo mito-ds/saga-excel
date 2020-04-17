@@ -3,7 +3,7 @@
  * See LICENSE in the project root for license information.
  */
 
-import { runCreateSaga, getRemoteURLFromTaskpane} from "../saga/create"
+import { runCreateSaga} from "../saga/create"
 import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
 import { runResetPersonalVersion } from "../saga/resetPersonal.js"
 import { runMerge } from "../saga/merge.js"
