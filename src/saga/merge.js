@@ -1,10 +1,9 @@
 import { commit } from './commit';
-import { copySheet, getRandomID, getFormulas } from "./sagaUtils";
+import { copySheet, copySheets, getRandomID, getFormulas } from "./sagaUtils";
 import { diff3Merge2d } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
 import { runOperation } from './runOperation';
-import { format } from 'office-ui-fabric-react';
 
 /* global Excel */
 
@@ -61,15 +60,20 @@ const doMerge = async (context, formattingEvents) => {
     // the parent of the personal commit ID
     const originCommitID = await project.getParentCommitID(personalCommitID);
 
+    console.log("masterCommitID", masterCommitID);
+    console.log("personalCommitID", personalCommitID);
+    console.log("originCommitID", originCommitID);
+    
+
     const sheets = await project.getSheetsWithNames();
 
     const masterSheets = getCommitSheets(sheets, masterCommitID);
     const personalSheets = getNonsagaSheets(sheets);
     const originSheets = getCommitSheets(sheets, originCommitID);
 
-    console.log("master sheets", masterSheets);
-    console.log("personalSheets", personalSheets);
-    console.log("originSheets", originSheets);
+    console.log("MASTER SHEETS", masterSheets);
+    console.log("PERSONAL SHEETS", personalSheets);
+    console.log("ORIGIN SHEETS", originSheets);
 
     const masterPrefix = `saga-${masterCommitID}-`;
     const originPrefix = `saga-${originCommitID}-`;
@@ -126,19 +130,16 @@ const doMerge = async (context, formattingEvents) => {
     }
 
     // Copy over the inserted sheets
-    for (let i = 0; i < insertedSheets.length; i++) {
-        // TODO: we might wanna do this at the end!
-        // TODO: we can probably track sheet renames with sheet ID!
-        const sheet = insertedSheets[i];
-        const dst = newCommitPrefix + sheet.name;
-        await copySheet(
-            context, 
-            sheet.name,
-            dst,
-            Excel.WorksheetPositionType.end,
-            Excel.SheetVisibility.visible
-        );
-    }
+    const srcInserted = insertedSheets.map(sheet => sheet.name);
+    const dstInserted = srcInserted.map(sheetName => newCommitPrefix + sheetName);
+
+    await copySheets(
+        context, 
+        srcInserted,
+        dstInserted,
+        Excel.WorksheetPositionType.end,
+        Excel.SheetVisibility.visible
+    );
 
     // We sort the formatting events by ID
     var formattingEventsMap = {};
@@ -173,27 +174,20 @@ const doMerge = async (context, formattingEvents) => {
             Excel.WorksheetPositionType.beginning,
             Excel.SheetVisibility.visible
         );
+
         const mergeSheet = project.context.workbook.worksheets.getItem(tempDst);
 
         // If there are formatting events for this sheet, we apply them
-        
-        if (sheet._I in formattingEventsMap) {
-            const events = formattingEventsMap[sheet._I];
-            console.log(`Sheet id ${sheet._I} was in formatting events`, events);
-
-
-            // Then, we apply the formatting changes
-            for (let i = 0; i < events.length; i++) {
-                // First, we need to get the right workbook (let's just say sheet1 for now)
-                const address = events[i].address;
-                mergeSheet.getRange(address).copyFrom(sheet.getRange(address), Excel.RangeCopyType.formats);
-                
-                if (i % 40 === 0) {
-                    await context.sync();
-                }
+        const events = formattingEventsMap[sheet._I] || [];
+        // Then, we apply the formatting changes
+        for (let i = 0; i < events.length; i++) {
+            // First, we need to get the right workbook (let's just say sheet1 for now)
+            const address = events[i].address;
+            mergeSheet.getRange(address).copyFrom(sheet.getRange(address), Excel.RangeCopyType.formats);
+            
+            if (i % 40 === 0) {
+                await context.sync();
             }
-        } else {
-            console.log(`Sheet id ${sheet._I} was not in formatting events`, formattingEventsMap);
         }
 
         // Then, we update the values
@@ -229,6 +223,7 @@ const doMerge = async (context, formattingEvents) => {
 
     // Finially, after we have merged everything, we can log the commit to lock it in
     await project.updateBranchCommitID(`master`, newCommitID);
+    await project.updateBranchCommitID(personalBranch, newCommitID); // we commit on both of these branches
     await project.addCommitID(newCommitID, masterCommitID, `Merged in ${personalBranch}`, "");
 }
 
@@ -264,6 +259,11 @@ export async function merge(context, formattingEvents) {
     await commit(context, `check in of ${personalBranch}`, "", personalBranch);
     // Merge this commit into the shared branch
     await doMerge(context, formattingEvents);
+    console.log("FINISHED DOING MERGE")
+
+    console.log("WAITING")
+    await new Promise(resolve => setTimeout(resolve, 60000))
+    console.log("DONE WAITING")
 
     // Try and update the server with this newly merged sheets
     const updatedWithMerge = await updateShared(context);

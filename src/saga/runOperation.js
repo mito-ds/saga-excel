@@ -8,6 +8,24 @@ export async function runOperation(operation, ...rest) {
     try {
         await Excel.run(async context => {
             // Save the active sheet
+            await operation(context, ...rest);
+        });
+    } catch (error) {
+        console.error(error);
+        if (error instanceof OfficeExtension.Error) {
+            console.error(error.debugInfo);
+        }
+    }
+    turnSyncOn();
+}
+
+
+// TODO: I'm not sure we need this
+export async function runOperationSaveActivation(operation, ...rest) {
+    turnSyncOff();
+    try {
+        await Excel.run(async context => {
+            // Save the active sheet
             var activeSheet = context.workbook.worksheets.getActiveWorksheet();
             await operation(context, ...rest);
 

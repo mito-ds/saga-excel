@@ -62,11 +62,6 @@ export default class LoginScreen extends React.Component {
 
         // Create the project with this remote URL and email
         await runCreateSaga(remoteURL, email);
-        console.log("DONE CREATING, now trying to toggle");
-
-        // toggle ribbon buttons availability
-        toggleRibbonAvailability()
-        console.log("toggling");
 
 
         // update the state of react component
@@ -81,9 +76,6 @@ export default class LoginScreen extends React.Component {
 
         const url = document.getElementById('url-input').value
         await runCreateFromURL(url, this.props.email);
-
-        // toggle ribbon buttons availability
-        toggleRibbonAvailability()
 
         this.props.setURL(url)
         this.props.nextStep();

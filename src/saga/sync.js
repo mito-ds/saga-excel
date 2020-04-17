@@ -127,22 +127,36 @@ export async function updateShared(context) {
 // TODO: move the sync function here
 
 async function sync() {
-  console.log("syncing...")
-  await runOperation(updateShared);
+  console.log("syncing...", syncInt)
+  try {
+    await Excel.run(async context => {
+        // We do not use runOperation here, as sync shouldn't reload itself
+        await updateShared(context);
+    });
+  } catch (error) {
+    console.error(error);
+    if (error instanceof OfficeExtension.Error) {
+        console.error(error.debugInfo);
+    }
+  }
 }
 
 var syncInt;
 
 export function turnSyncOn() {
   // If sync is not on, turn it on.
+  console.log("TURNING ON SYNC")
   if (!syncInt) {
     syncInt = setInterval(sync, 3000);
+    console.log("SETTING INTERVAL", syncInt)
   }
 }
 
 export function turnSyncOff() {
   // If syncing is on, turn it off.
+  console.log("TURNING OFF SYNC")
   if (syncInt) {
+    console.log("CLEARING INTERVAL", syncInt)
     clearInterval(syncInt);
     syncInt = null;
   }
