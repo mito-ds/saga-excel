@@ -6,13 +6,24 @@ read -r -d '' MANIFEST_DATA << EOM
 $manifest
 EOM
 
-DIRECTORY="/Users/${USER}/Library/Containers/com.microsoft.Excel/Data/Documents/wef"
+DIRECTORY="/Users/${USER}/Library/Containers/com.microsoft.Excel/Data/Documents"
 
-# Check if the sideloading directory exists
 if [ -d "$DIRECTORY" ]; 
 then
-  echo "$MANIFEST_DATA" > "${DIRECTORY}/saga.manifest.xml"
-  chown ${USER}:staff "${DIRECTORY}/saga.manifest.xml"
+  ### Take action if $DIR exists ###
+  echo "Installing config files in ${DIR}..."
+  # Check if the sideloading directory exists
+  if [ -d "${DIRECTORY}/wef" ]; 
+  then 
+    echo "${DIRECTORY}/wef exists"
+  else
+    mkdir "${DIRECTORY}/wef"
+    chown ${USER}:staff "${DIRECTORY}/wef"
+    echo "Created ${DIRECTORY}/wef directory."
+  fi
+
+  echo "$MANIFEST_DATA" > "${DIRECTORY}/wef/saga.manifest.xml"
+  chown ${USER}:staff "${DIRECTORY}/wef/saga.manifest.xml"
 
   echo "Saga was sucessfully installed."
   echo "To begin using saga:"
@@ -21,9 +32,15 @@ then
   echo "  3. Click the dropdown arrow next to \"My Add-ins\""
   echo "  4. Select Saga VCS"
 
+
+  
 else
-  echo "Unable to install saga. Please make sure Excel is installed on your computer."
+  ###  Control will jump here if $DIR does NOT exists ###
+  echo "Error: ${DIRECTORY} does not exist. Please make sure Excel is installed on your computer."
+  exit 1
 fi
+
+
 
 
 
