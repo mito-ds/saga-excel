@@ -1,30 +1,35 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
-import {runCreateBranch} from "../../saga/branch"
-import {runCreateSaga, setPersonalBranchName, getRemoteURLFromTaskpane, runCreateFromURL}  from "../../saga/create";
+import {runCheckoutBranch} from "../../saga/checkout";
+import {runCreateSaga, runCreateFromURL, createRemoteURL}  from "../../saga/create";
 import {runSwitchVersionFromRibbon} from "../../saga/checkout"
 
 // Login Form Component
 export default class LoginScreen extends React.Component {
     constructor(props) {
         super(props); 
-        this.createSagaProject = this.createSagaProject.bind(this)
+        this.createSagaProject = this.createSagaProject.bind(this);
+        this.downloadSagaProject = this.downloadSagaProject.bind(this);
     }
 
     async createSagaProject(e) {
         e.preventDefault();
         this.props.nextStep();
         //Create the Saga project
-        await runCreateSaga();
-        const remoteURL = await getRemoteURLFromTaskpane();
-    
-        //Create and checkout personal branch
-        //Todo: Save email in database
+        const remoteURL = await createRemoteURL();
+        console.log(remoteURL)
+
+        if (!remoteURL) {
+            this.props.offline();
+            return;
+        }
+
+        // TODO: save email in database
         const email = this.props.email;
-        await runCreateBranch(email)
-        await setPersonalBranchName(email)
-        await runSwitchVersionFromRibbon()
-    
+
+        // Create the project with this remote URL and email
+        await runCreateSaga(remoteURL, email);
+
         // update the state of react component
         this.props.setURL(remoteURL)
         this.props.nextStep();
@@ -34,8 +39,8 @@ export default class LoginScreen extends React.Component {
         e.preventDefault();
         // Download the project from the url
         this.props.nextStep();
-        const url = document.getElementById('url-input').value
-        await runCreateFromURL(url, this.props.email);
+        const remoteURL = document.getElementById('url-input').value
+        await runCreateFromURL(remoteURL, this.props.email);
         this.props.setURL(url)
         this.props.nextStep();
     }
@@ -48,7 +53,7 @@ export default class LoginScreen extends React.Component {
                     <p className="title-text" id="title-text" >Pick your project creation method </p>
                 </div>
                 <div className="card-div">     
-                    <p className="creation-option">1. Start a new project </p>     
+                    <p className="creation-option">Start a new project </p>     
                     <div className="floating-card create-project-card" >
                         <div className="subtext-div-half"> 
                             <p className="subtext">Turn your current workbook into a Saga project </p>
@@ -59,7 +64,7 @@ export default class LoginScreen extends React.Component {
                     </div>
                 </div>
                 <div className="card-div">   
-                    <p className="creation-option">2. Download a Saga project </p>     
+                    <p className="creation-option">Or, download an existing Saga project </p>     
                     <div className="floating-card">
                         <div className="new-project-text-div"> 
                             <p className="new-project-text center">Enter the url of an existing saga project </p>

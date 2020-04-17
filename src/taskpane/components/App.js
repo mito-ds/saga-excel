@@ -4,6 +4,7 @@ import SagaLinkScreen from "./SagaLinkScreen"
 import LoginScreen from "./LoginScreen"
 import ProjectSourceScreen from "./ProjectSourceScreen"
 import TaskpaneFooter from "./TaskpaneFooter"
+import OfflineErrorScreen from "./OfflineErrorScreen"
 
 import './App.css';
 
@@ -16,12 +17,14 @@ export default class App extends React.Component {
     this.state = {
       step: 0,
       email: '',
-      remoteURL: ''
+      remoteURL: '',
+      offline: false
     };
 
     this.setEmail = this.setEmail.bind(this);
     this.setURL = this.setURL.bind(this);
     this.nextStep = this.nextStep.bind(this);
+    this.offile = this.offline.bind(this);
   }
 
   setEmail = (email) => {
@@ -31,6 +34,11 @@ export default class App extends React.Component {
     
   setURL = (remoteURL) => {
     this.setState({remoteURL: remoteURL})
+  }
+
+  offline = () => {
+    console.log("SETTING OFFLINE")
+    this.setState({offline: true})
   }
   
 
@@ -48,6 +56,13 @@ export default class App extends React.Component {
         <Progress title={title} logo="assets/saga-logo/saga-logo-taskpane.png" message="Please sideload your addin to see app body." />
       );
     }
+
+    if (this.state.offline) {
+      return (
+        <OfflineErrorScreen/>
+      );
+    }
+
     const step = this.state.step;
 
     // If a saga project exists, we shouldn't do any of this
@@ -62,7 +77,7 @@ export default class App extends React.Component {
     } else if (step === 1) {
       return (
         <div className="taskpane">
-          <ProjectSourceScreen email={this.state.email} setURL={this.setURL} nextStep={this.nextStep}/>
+          <ProjectSourceScreen offline={this.offline} email={this.state.email} setURL={this.setURL} nextStep={this.nextStep}/>
           <TaskpaneFooter/>
         </div>
       );
