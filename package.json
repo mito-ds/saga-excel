@@ -38,6 +38,7 @@
     "es6-promise": "^4.2.8",
     "express": "^4.17.1",
     "mongoose": "^5.9.9",
+    "morgan": "^1.10.0",
     "office-ui-fabric-react": "^7.105.2",
     "qs": "^6.9.3",
     "react": "^16.13.1",

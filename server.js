@@ -2,13 +2,15 @@ require('dotenv').config();
 require('./src/models/ProjectSchema');
 const express = require('express');
 const bodyParser = require('body-parser');
+const logger = require('morgan');
 const app = express();
 const projectRouter = require('./src/routers/project');
 const mongoose = require('mongoose');
 
 /* global process, require */
 
-// Load the project module
+// Log all our routes
+app.use(logger("short"));
 
 // Connect to mongo
 mongoose.connect(
