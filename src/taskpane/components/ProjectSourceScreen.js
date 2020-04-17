@@ -76,7 +76,7 @@ export default class LoginScreen extends React.Component {
 
         // toggle ribbon buttons availability
         toggleRibbonAvailability()
-        
+
         this.props.setURL(url)
         this.props.nextStep();
     }
@@ -86,7 +86,7 @@ export default class LoginScreen extends React.Component {
             <div className="content">
                 <div className="header">
                     <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-                    <p className="title-text" id="title-text" >Pick your project creation method </p>
+                    <p className="title-text" id="title-text" >Choose your project creation method </p>
                 </div>
                 <div className="card-div">     
                     <p className="creation-option">1. Start a new project </p>     
@@ -103,7 +103,7 @@ export default class LoginScreen extends React.Component {
                     <p className="creation-option">2. Download a Saga project </p>     
                     <div className="floating-card">
                         <div className="new-project-text-div"> 
-                            <p className="new-project-text center">Enter the url of an existing saga project </p>
+                            <p className="new-project-text subtext center">Enter the url of an existing Saga project </p>
                         </div>
                         <div className="create-project-card">
                             <form className="form" onSubmit={this.createSagaProject}>
