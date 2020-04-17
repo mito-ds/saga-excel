@@ -10,12 +10,12 @@ const BRANCH_STATE_AHEAD = 1;
 const BRANCH_STATE_BEHIND = 2;
 //const BRANCH_STATE_FORKED = 3;
 
-export async function saveUserEmail(context, newEmail) {
+export async function saveUserEmail(newEmail) {
   console.log(newEmail)
 
   const response = await axios.post(
     "https://excel.sagalab.org/project/postemail",
-    {"email": newEmail}
+    {"newEmail": newEmail}
   );
   console.log(response)
 }

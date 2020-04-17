@@ -3,6 +3,8 @@ const { v4: uuidv4 } = require('uuid');
 const base64 = require('base64-js');
 const mongoose = require(`mongoose`);
 const Projects = mongoose.model('Projects');
+const Emails = mongoose.model('Emails');
+
 
 /* global require, module, Buffer */
 
