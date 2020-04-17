@@ -1,5 +1,6 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
+import axios from "axios";
 
 // Login Form Component
 export default class LoginScreen extends React.Component {
@@ -11,7 +12,18 @@ export default class LoginScreen extends React.Component {
     async createSagaProject (e) {
         e.preventDefault();
         const email = document.getElementById('email-input').value
-        // TODO: send the email to the server, and log it
+        try {
+            // Send the signup to the server
+            axios.post(
+                "https://excel.sagalab.org/postemail",
+                {
+                    email: email
+                }
+            )
+        } catch {
+            console.error("Failed to post email.")
+        }
+
         this.props.setEmail(email);
         this.props.nextStep();
     }
