@@ -29,10 +29,6 @@ app.use(function(req, res, next) {
 
 app.use(bodyParser.json());
 
-app.use('/', (req, res) => {
-    res.redirect("https://sagalab.org");
-});
-
 
 // Add the projects API
 app.use('/project', projectRouter);
