@@ -19,10 +19,9 @@ if (process.env.NODE_ENV === 'production') {
     mongoose.set('debug', false);
 }
 
-
-
 // Add headers to make excel happy
 app.use(function(req, res, next) {
+    // TODO: figure out if we need this
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();

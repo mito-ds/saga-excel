@@ -1,5 +1,6 @@
 const project = require('express').Router();
 const { v4: uuidv4 } = require('uuid');
+const base64 = require('base64-js');
 const mongoose = require(`mongoose`);
 const Projects = mongoose.model('Projects');
 
@@ -118,6 +119,23 @@ project.get('/:id/summary', async function (req, res) {
     res.json(project).end();
 })
 
+
+project.get('/:id/download', async function (req, res) {
+    const id = req.params.id;
+    const exists = await projectExists(id);
+
+    if (!exists) {
+        res.status(404).end(); // If the project does not exist, we say so
+        return;
+    }
+
+    res.writeHead(200, {'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="sagafile.xlsx"'});
+    const project = await getProject(id);
+    const fileContents = project.contents.get(project.headCommitID);
+    res.write(Buffer.from(base64.toByteArray(fileContents)));
+    res.end();
+})
+
 project.get('/:id', async function (req, res) {
     const id = req.params.id;
     const exists = await projectExists(id);
@@ -129,6 +147,12 @@ project.get('/:id', async function (req, res) {
 
     const headCommitID = req.query.headCommitID;
     const parentCommitID = req.query.parentCommitID;
+
+    if (!headCommitID && !parentCommitID) {
+        // Then, we redirect to the sagalab website, because. 
+        res.redirect(`https://sagalab.org/project/${id}`);
+        return;
+    }
 
     const branchState = await getBranchState(id, headCommitID, parentCommitID);
     const project = await getProject(id);
