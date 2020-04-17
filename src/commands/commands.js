@@ -96,7 +96,7 @@ const disableMergeAndResetObj = {
     ]
   };
 
-function getGlobal() {
+export function getGlobal() {
   return typeof self !== "undefined"
     ? self
     : typeof window !== "undefined"

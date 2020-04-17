@@ -1,7 +1,6 @@
 import Project from "./Project";
 import axios from "axios";
 import { getFileContents } from "./fileUtils";
-import { runOperation } from "./runOperation";
 
 /* global Excel, OfficeExtension */
 
@@ -127,7 +126,7 @@ export async function updateShared(context) {
 // TODO: move the sync function here
 
 async function sync() {
-  console.log("syncing...", syncInt)
+  console.log("syncing...", g.syncInt)
   try {
     await Excel.run(async context => {
         // We do not use runOperation here, as sync shouldn't reload itself
@@ -141,23 +140,30 @@ async function sync() {
   }
 }
 
-var syncInt;
+function getGlobal() {
+  return typeof self !== "undefined"
+    ? self
+    : typeof window !== "undefined"
+    ? window
+    : typeof global !== "undefined"
+    ? global
+    : undefined;
+}
+
+
+var g = getGlobal();
 
 export function turnSyncOn() {
   // If sync is not on, turn it on.
-  console.log("TURNING ON SYNC")
-  if (!syncInt) {
-    syncInt = setInterval(sync, 3000);
-    console.log("SETTING INTERVAL", syncInt)
+  if (!g.syncInt) {
+    g.syncInt = setInterval(sync, 5000);
   }
 }
 
 export function turnSyncOff() {
   // If syncing is on, turn it off.
-  console.log("TURNING OFF SYNC")
-  if (syncInt) {
-    console.log("CLEARING INTERVAL", syncInt)
-    clearInterval(syncInt);
-    syncInt = null;
+  if (g.syncInt) {
+    clearInterval(g.syncInt);
+    g.syncInt = null;
   }
 }

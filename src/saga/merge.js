@@ -261,10 +261,6 @@ export async function merge(context, formattingEvents) {
     await doMerge(context, formattingEvents);
     console.log("FINISHED DOING MERGE")
 
-    console.log("WAITING")
-    await new Promise(resolve => setTimeout(resolve, 60000))
-    console.log("DONE WAITING")
-
     // Try and update the server with this newly merged sheets
     const updatedWithMerge = await updateShared(context);
 
