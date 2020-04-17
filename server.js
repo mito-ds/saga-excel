@@ -1,11 +1,13 @@
 require('dotenv').config();
 require('./src/models/ProjectSchema');
+require('./src/models/EmailSchema');
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const app = express();
 const projectRouter = require('./src/routers/project');
 const mongoose = require('mongoose');
+const Emails = mongoose.model("Emails");
 
 /* global process, require */
 
@@ -30,6 +32,16 @@ app.use(function(req, res, next) {
 });
 
 app.use(bodyParser.json());
+
+//Route to save emails to mongo
+app.use('/postemail', async function (req, res) {
+    const newEmail = req.body.newEmail;
+    console.log(`adding email: ${newEmail} to mongo databse` )
+    const email = new Emails();
+    email.email = newEmail;
+    await email.save();
+    res.status(200).end()
+});
 
 
 // Add the projects API
