@@ -7,3 +7,5 @@ python3 create_installer.py
 ```
 
 It will generate a signed, notarized installer under the `SagaInstaller.pkg`. Notably, this can only be run by Nate currently, as it requires his credentials; he's not willing to share them, sorry.
+
+Make sure that you update the product version if you are rolling out a new version... you probably are!

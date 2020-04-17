@@ -103,6 +103,7 @@ def main():
             "productbuild", 
             "--synthesize",
             "--package", intermediate_install_package,
+            "--version", "1.0",
             distribution_plist
         ]
     )
