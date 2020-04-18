@@ -100,6 +100,8 @@ export async function setPersonalBranchName(personalBranchName) {
 async function createFromURL(context, url, email) {
   // TODO: make a branch w/ email, and check it out.
 
+  url = url.trim();
+
   const response = await axios.get(
     url, 
     {
@@ -114,8 +116,6 @@ async function createFromURL(context, url, email) {
     console.error(`No project exists as ${url}`);
     return;
   }
-
-  console.log("GOT RESPONSE", response);
 
   const fileContents = response.data.fileContents;
   if (fileContents === `` || fileContents === undefined) {
@@ -142,10 +142,15 @@ async function createFromURL(context, url, email) {
 
   sheets[0].delete();
   
-  // Create and checkout Personal Branch
-  await createBranch(context, email)
-  await project.updatePersonalBranchName(email)
-  await checkoutBranch(context, email)
+
+  const sagaworksheet = worksheets.getItem("saga");
+  // Switch the existing personal version for your own
+  await createBranch(context, email);
+  const personalBranchRange = sagaworksheet.getRange("A3");
+  personalBranchRange.values = [[email]];
+  const headRange = sagaworksheet.getRange("A1");
+  headRange.values = [[email]];
+  await context.sync();
 
   turnSyncOn();
 
