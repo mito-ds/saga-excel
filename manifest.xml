@@ -56,7 +56,7 @@
                   <Action xsi:type="ExecuteFunction">
                     <FunctionName>merge</FunctionName>
                   </Action>
-                  <Enabled>false</Enabled>
+                  <Enabled>true</Enabled>
                 </Control>
                 <!--Switch Version Button-->
                 <Control xsi:type="Button" id="VersionButton">
@@ -73,7 +73,7 @@
                   <Action xsi:type="ExecuteFunction">
                     <FunctionName>switchVersion</FunctionName>
                   </Action>
-                  <Enabled>false</Enabled>
+                  <Enabled>true</Enabled>
                 </Control>
                 <!--Reset Personal Version Icon-->
                 <Control xsi:type="Button" id="ResetPersonalButton">
@@ -90,7 +90,7 @@
                   <Action xsi:type="ExecuteFunction">
                     <FunctionName>resetPersonalVersion</FunctionName>
                   </Action>
-                  <Enabled>false</Enabled>
+                  <Enabled>true</Enabled>
                 </Control>
                 <!--Share Project-->
                 <Control xsi:type="Button" id="ShareProjectButton">
@@ -108,7 +108,7 @@
                     <TaskpaneId>ButtonId1</TaskpaneId>
                     <SourceLocation resid="Taskpane.Url"/>
                   </Action>
-                  <Enabled>false</Enabled>
+                  <Enabled>true</Enabled>
                 </Control>
                 <!--Create Saga Button-->
                 <Control xsi:type="Button" id="TaskpaneButton">
