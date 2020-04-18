@@ -15,10 +15,12 @@ import { runMerge } from "../saga/merge.js"
 var events = [];
 
 function formattingHandler(event) {
+  console.log("ADDING EVENT", event);
   events.push(event);
 }
 
 Office.onReady(() => {
+  console.log("REGISTERING HANDLER")
   Excel.run(function (context) {
     context.workbook.worksheets.onFormatChanged.add(formattingHandler);
     return context.sync();
