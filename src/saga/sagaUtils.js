@@ -7,11 +7,7 @@ Efficiently gets all the worksheet objects with all their names loaded
 */
 export async function getSheetsWithNames(context) {
     var sheets = context.workbook.worksheets;
-
-    sheets.load("$none");
-    await context.sync();
-
-    sheets.items.forEach(sheet => sheet.load("name"));
+    sheets.load("items/name");
     await context.sync();
     return sheets.items;
 }

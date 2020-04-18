@@ -1,9 +1,43 @@
 import { getSheetsWithNames, copySheets, getRandomID } from "./sagaUtils";
+import { getFileContents } from "./fileUtils";
 import { checkBranchPermission } from "./branch";
 import Project from "./Project";
 import { runOperation } from "./runOperation";
 
 /* global Excel */
+
+async function makeClique(context, sheetNames, getNewName, worksheetPositionType, worksheetVisibility) {
+    const fileContents = await getFileContents();
+    const worksheets = context.workbook.worksheets;
+  
+    var sheets = await getSheetsWithNames(context);
+    sheets = sheets.filter(sheet => {return sheetNames.includes(sheet.name)});
+  
+    // Rename all the sheets
+    for (let i = 0; i < sheets.length; i++) {
+      const newName = getNewName(sheets[i].name);
+      sheets[i].name = newName;
+  
+      if (i % 40 === 0) {
+        await context.sync();
+      }
+    }
+  
+    // Then, reinsert all the sheets
+    worksheets.addFromBase64(
+      fileContents,
+      sheetNames,
+      worksheetPositionType
+    );
+  
+    // Now, for each of these sheets, we set their visibility
+    // TODO
+}
+  
+  
+export function runMakeClique() {
+    runOperation(makeClique, ["Sheet1", "Sheet2"], (name) => {return name + "-COMMIT"}, Excel.WorksheetPositionType.end);
+}
 
 /*
 Create Commit
@@ -29,17 +63,16 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     });
 
     const sheetNames = sheets.map(sheet => sheet.name);
-    const dstWorksheets = sheetNames.map(sheetName => `saga-${commitID}-${sheetName}`);
     
     // backup the sheet data
-    await copySheets(
-        context,
-        sheetNames,
-        dstWorksheets,
-        Excel.WorksheetPositionType.end,
-        Excel.SheetVisibility.visible
-    )
-    console.log("FINISHED COPYING SHEETS")
+    makeClique(
+        context, 
+        sheetNames, 
+        (name) => {return `saga-${commitID}-${name}`}, 
+        Excel.WorksheetPositionType.beginning, 
+        null // TODO: add worksheet visibility
+    );
+
     // save the commit id with it's parent
     const parentID = await project.getCommitIDFromBranch(branch);
     await project.updateBranchCommitID(branch, commitID);

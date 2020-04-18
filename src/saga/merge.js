@@ -138,7 +138,7 @@ const doMerge = async (context, formattingEvents) => {
         srcInserted,
         dstInserted,
         Excel.WorksheetPositionType.end,
-        Excel.SheetVisibility.visible
+        Excel.SheetVisibility.veryHidden
     );
 
     // We sort the formatting events by ID

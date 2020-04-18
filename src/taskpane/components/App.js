@@ -5,8 +5,24 @@ import LoginScreen from "./LoginScreen"
 import ProjectSourceScreen from "./ProjectSourceScreen"
 import TaskpaneFooter from "./TaskpaneFooter"
 import OfflineErrorScreen from "./OfflineErrorScreen"
+import EmptyButton from "./saga/EmptyButton"
+import { createSheet, getSheetsWithNames } from "../../saga/sagaUtils";
+import { getFileContents } from "../../saga/fileUtils";
 
 import './App.css';
+
+
+/* 
+  TODO:
+  1. Write a function called makeClique that creates "seperate" copies of a set of sheets
+    - it should be efficient, no unnecessary context.syncs()
+  2. Figure out all the places we make copies of sets of sheets, and move to using this function
+*/
+
+/*
+
+*/
+
 
 
 /* global */
@@ -37,7 +53,6 @@ export default class App extends React.Component {
   }
 
   offline = () => {
-    console.log("SETTING OFFLINE")
     this.setState({offline: true})
   }
   
@@ -62,9 +77,8 @@ export default class App extends React.Component {
         <OfflineErrorScreen/>
       );
     }
-
+    
     const step = this.state.step;
-
     // If a saga project exists, we shouldn't do any of this
 
     if (step === 0) {
