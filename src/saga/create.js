@@ -1,5 +1,7 @@
 import { createSheet, getRandomID } from "./sagaUtils";
 import { commit } from "./commit";
+import { createBranch } from "./branch";
+import { checkoutBranch } from "./checkout"
 import { turnSyncOn } from "./sync";
 import Project from "./Project"
 import axios from "axios"
@@ -139,7 +141,11 @@ async function createFromURL(context, url, email) {
   await context.sync();
 
   sheets[0].delete();
-  // TODO: we also have to clear the personal branch!
+  
+  // Create and checkout Personal Branch
+  await createBranch(context, email)
+  await project.updatePersonalBranchName(email)
+  await checkoutBranch(context, email)
 
   turnSyncOn();
 
