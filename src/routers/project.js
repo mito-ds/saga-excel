@@ -133,13 +133,17 @@ project.get('/:id', async function (req, res) {
 
     if (headCommitID === undefined && parentCommitID === undefined) {
         // Then, we redirect to the sagalab website, because. 
+        res.redirect("https://staging.sagalab.org/howto");
+        return;
+
+        /*
         console.log("Writing for download.");
         res.writeHead(200, {'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="sagafile.xlsx"'});
         const project = await getProject(id);
         const fileContents = project.contents.get(project.headCommitID);
         res.write(Buffer.from(base64.toByteArray(fileContents)));
         res.end();
-        return;
+        return; */
     }
 
     const branchState = await getBranchState(id, headCommitID, parentCommitID);
