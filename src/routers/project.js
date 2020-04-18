@@ -131,7 +131,7 @@ project.get('/:id', async function (req, res) {
     const headCommitID = req.query.headCommitID;
     const parentCommitID = req.query.parentCommitID;
 
-    if (!headCommitID && !parentCommitID) {
+    if (headCommitID === undefined && parentCommitID === undefined) {
         // Then, we redirect to the sagalab website, because. 
         res.writeHead(200, {'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="sagafile.xlsx"'});
         const project = await getProject(id);
