@@ -6,7 +6,7 @@ import { runOperation } from "./runOperation";
 
 /* global Excel */
 
-async function makeClique(context, sheetNames, getNewName, worksheetPositionType, worksheetVisibility) {
+export async function makeClique(context, sheetNames, getNewName, worksheetPositionType, worksheetVisibility) {
     const fileContents = await getFileContents();
     const worksheets = context.workbook.worksheets;
   
