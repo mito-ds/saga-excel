@@ -61,6 +61,9 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
   const commitIDs = response.data.commitIDs;
   const commitSheets = response.data.commitSheets;
 
+  // TODO: we should change the head commit here...
+
+
   // We only merge in the commit sheets
   const worksheets = project.context.workbook.worksheets;
   worksheets.addFromBase64(
@@ -127,6 +130,8 @@ export async function updateShared(context) {
 
 async function sync() {
   console.log("syncing...", g.syncInt)
+  turnSyncOff();
+  console.log("turned sync off", g.syncInt)
   try {
     await Excel.run(async context => {
         // We do not use runOperation here, as sync shouldn't reload itself
@@ -138,6 +143,8 @@ async function sync() {
         console.error(error.debugInfo);
     }
   }
+  turnSyncOn();
+  console.log("turned sync back on", g.syncInt)
 }
 
 function getGlobal() {

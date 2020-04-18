@@ -297,7 +297,7 @@ export function diff3Merge2d(origin, aValues, bValues) {
 
     for (let i = 0; i < out.length; i++) {
         // just get origin for now
-        merge.push(...out[i][0]);
+        merge.push(...out[i][1]);
     }
 
     return merge;
