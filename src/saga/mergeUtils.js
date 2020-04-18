@@ -292,14 +292,13 @@ export function diff3Merge(origin, aValues, bValues) {
 }
 
 export function diff3Merge2d(origin, aValues, bValues) {
-    console.log("MERGING")
     console.log(origin, aValues, bValues);
     const out = diff3(origin, aValues, bValues, 2);
     var merge = [];
 
     for (let i = 0; i < out.length; i++) {
         // just get origin for now
-        merge.push(...out[i][1]);
+        merge.push(...out[i][0]);
     }
 
     return merge;
