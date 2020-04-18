@@ -106,7 +106,7 @@ export default class LoginScreen extends React.Component {
                             <p className="new-project-text subtext center">Enter the url of an existing Saga project </p>
                         </div>
                         <div className="create-project-card">
-                            <form className="form" onSubmit={this.createSagaProject}>
+                            <form className="form" onSubmit={this.downloadSagaProject}>
                                 <input className="input" id="url-input" placeholder="https://excel.sagalab.org/project/1234-12313-123123" ></input>
                                 <PrimaryButton className="download-button" type="submit">Download</PrimaryButton>
                             </form>
