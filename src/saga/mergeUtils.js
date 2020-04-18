@@ -269,6 +269,8 @@ function getOut(origin, aValues, bValues, chunks, dimension) {
 }
 
 function diff3(origin, aValues, bValues, dimension) {
+
+    // TODO: fix this, it's wildly broken
     if (!aValues || !bValues ) {
         return !origin ? [] : origin;
     }

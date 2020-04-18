@@ -79,5 +79,5 @@ test('all equal', () => {
 });
 
 test('simple merge', () => {  
-    expect(diff3Merge2d([[""]], [[""]], [[1]])).toEqual([[1]]);
+    expect(diff3Merge2d([], [[2]], [[1]])).toEqual([[1]]);
 });
