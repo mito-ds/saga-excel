@@ -1,4 +1,4 @@
-import { getSheetsWithNames, copySheet, copySheets } from "./sagaUtils";
+import { getSheetsWithNames } from "./sagaUtils";
 import Project from './Project';
 import { runOperation } from "./runOperation";
 import { makeClique } from "./commit"
@@ -7,17 +7,10 @@ import { makeClique } from "./commit"
 
 
 export async function switchVersionFromRibbon(context) {
-    console.log("1")
-
-    const project = await new Project(context);
-
-    console.log("2")
+    const project = new Project(context);
 
     // Get current branch
     const currentBranch = await project.getHeadBranch();
-
-    console.log("3")
-    console.log(currentBranch)
 
     // Switch Branches
     if (currentBranch === 'master') {
@@ -25,10 +18,9 @@ export async function switchVersionFromRibbon(context) {
         await checkoutBranch(context, personalBranchName);
     } else {
         await checkoutBranch(context, "master");
+        // If master, lock sheets
+        await lockWorksheets(context)
     }
-
-    console.log("5")
-
 }
 
 
@@ -54,14 +46,48 @@ export async function deleteNonsagaSheets(context) {
 Lock worksheets
 */
 async function lockWorksheets(context) {
-    const sheets = await getNonSagaSheets(context)
+    const sheets = await getNonSagaSheets(context);
+
     await Promise.all(sheets.map(async (sheet) => {
-        await sheet.load("protection/protected")
+        sheet.load("protection/protected")
         await context.sync()
         //Todo: Add password to protect
-        await sheet.protection.protect()
+        sheet.protection.protect()
         await context.sync()
+        console.log(sheet.name);
     }));
+}
+
+/*
+    TODO: If this is called with a non-existant commit id, who knows what it will do!
+*/
+export async function checkoutCommitID(context, commitID) {
+    // Find those sheets that we should copy back
+    let sheets = await getSheetsWithNames(context);
+    sheets = sheets.filter(sheet => {
+        return sheet.name.startsWith(`saga-${commitID}-`)
+    })
+
+    console.log(`got sheets ${sheets}`)
+
+    const srcWorksheets = sheets.map(sheet => sheet.name);
+
+    console.log(`got srcWorksheets ${srcWorksheets}`)
+
+
+    // Delete the non-saga sheets
+    await deleteNonsagaSheets(context);
+
+    console.log("detelted non saga sheets")
+
+    // backup the sheet data
+    await makeClique(
+        context, 
+        srcWorksheets, 
+        (sheetName) => sheetName.split(`saga-${commitID}-`)[1], 
+        Excel.WorksheetPositionType.beginning, 
+        null // TODO: add worksheet visibility
+    );
 }
 
 
@@ -89,43 +115,7 @@ export async function checkoutBranch(context, branch) {
     // Find the commit for a branch
     const commitID = await project.getCommitIDFromBranch(branch);
 
-    console.log(`got commit id ${commitID}`)
-
-    // Find those sheets that we should copy back
-    let sheets = await getSheetsWithNames(context);
-    sheets = sheets.filter(sheet => {
-        return sheet.name.startsWith(`saga-${commitID}-`)
-    })
-
-    console.log(`got sheets ${sheets}`)
-
-
-    const srcWorksheets = sheets.map(sheet => sheet.name);
-
-    console.log(`got srcWorksheets ${srcWorksheets}`)
-
-
-    // Delete the non-saga sheets
-    await deleteNonsagaSheets(context);
-
-    console.log("detelted non saga sheets")
-
-    // backup the sheet data
-    makeClique(
-        context, 
-        srcWorksheets, 
-        (sheetName) => sheetName.split(`saga-${commitID}-`)[1], 
-        Excel.WorksheetPositionType.beginning, 
-        null // TODO: add worksheet visibility
-    );
-
-    console.log("made clique")
-
-
-    // If master, lock sheets
-    if (branch === 'master') {
-        lockWorksheets(context)
-    }
+    await checkoutCommitID(context, commitID);
 
     // Finially, update the head branch
     const headRange = await project.getHeadRange();

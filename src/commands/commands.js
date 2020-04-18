@@ -3,10 +3,8 @@
  * See LICENSE in the project root for license information.
  */
 
-import { runCreateSaga} from "../saga/create"
 import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
 import { runResetPersonalVersion } from "../saga/resetPersonal.js"
-import { getCurrentBranchNameFromRibbon } from "../saga/branch.js"
 import { runMerge } from "../saga/merge.js"
 
 /* global global, Office, Excel */
@@ -15,12 +13,10 @@ import { runMerge } from "../saga/merge.js"
 var events = [];
 
 function formattingHandler(event) {
-  console.log("ADDING EVENT", event);
   events.push(event);
 }
 
 Office.onReady(() => {
-  console.log("REGISTERING HANDLER")
   Excel.run(function (context) {
     context.workbook.worksheets.onFormatChanged.add(formattingHandler);
     return context.sync();
@@ -41,15 +37,6 @@ async function merge(event) {
 async function switchVersion(event) {
   // Todo: render message saying which branch they are on
   await runSwitchVersionFromRibbon();
-  const headBranch = await getCurrentBranchNameFromRibbon();
-  console.log("headBranch")
-  console.log(headBranch)
-
-  if (headBranch === 'master') {
-    toggleButtons(disableMergeAndResetObj)
-  } else {
-    toggleButtons(enableMergeAndResetObj)
-  }
   event.completed();
 }
 
@@ -58,45 +45,6 @@ async function resetPersonalVersion(event) {
   await runResetPersonalVersion(); 
   event.completed();
 }
-
-
-function toggleButtons(buttonUpdateObj) {
-  Office.ribbon.requestUpdate(buttonUpdateObj);
-}
-
-const enableMergeAndResetObj = {
-    tabs: [
-        {
-            id: "TabHome", 
-            controls: [
-            {
-                id: "MergeButton", 
-                enabled: true
-            }, 
-            {   
-                id: "ResetPersonalButton", 
-                enabled: true
-            }
-        ]}
-    ]
-  };
-
-const disableMergeAndResetObj = {
-    tabs: [
-        {
-            id: "TabHome", 
-            controls: [
-            {
-                id: "MergeButton", 
-                enabled: false
-            }, 
-            {   
-                id: "ResetPersonalButton", 
-                enabled: false
-            }
-        ]}
-    ]
-  };
 
 export function getGlobal() {
   return typeof self !== "undefined"

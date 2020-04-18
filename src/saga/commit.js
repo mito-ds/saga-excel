@@ -1,4 +1,4 @@
-import { getSheetsWithNames, copySheets, getRandomID } from "./sagaUtils";
+import { getSheetsWithNames, getRandomID } from "./sagaUtils";
 import { getFileContents } from "./fileUtils";
 import { checkBranchPermission } from "./branch";
 import Project from "./Project";
@@ -65,7 +65,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     const sheetNames = sheets.map(sheet => sheet.name);
     
     // backup the sheet data
-    makeClique(
+    await makeClique(
         context, 
         sheetNames, 
         (name) => {return `saga-${commitID}-${name}`}, 
