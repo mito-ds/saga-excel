@@ -69,6 +69,8 @@ def main():
     # write it 
     with open("./templates/preinstall", "r") as f:
         preinstall_data = str(Template(f.read()).safe_substitute(manifest=manifest_data))
+        if "localhost" in preinstall_data:
+            print("Localhost is in the manifest file. Is this intended? ")
         os.mkdir(install_scripts_folder)
         with open(os.path.join(install_scripts_folder, "preinstall"), "w+") as preinstall_f:
             preinstall_f.write(preinstall_data)
