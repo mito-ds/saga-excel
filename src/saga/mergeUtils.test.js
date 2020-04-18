@@ -77,3 +77,7 @@ test('2d should extend in both places', () => {
 test('all equal', () => {  
     expect(diff3Merge2d([["data"], [1], [2], [3]], [["data"], [1], [2], [3]], [["data"], [1], [2], [3]])).toEqual([["data"], [1], [2], [3]]);
 });
+
+test('simple merge', () => {  
+    expect(diff3Merge2d([[""]], [[""]], [[1]])).toEqual([[1]]);
+});

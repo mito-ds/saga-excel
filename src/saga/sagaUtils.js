@@ -143,13 +143,19 @@ export function getRandomID() {
 
 
 export async function getFormulas(context, sheetName) {
-  // Get's the defined range and prints it
-  var sheet = context.workbook.worksheets.getItem(sheetName);
-  var usedRange = sheet.getUsedRange(true);
-  // Have to load and then sync to run the command
-  usedRange.load("formulas")
-  await context.sync();
-  return usedRange.formulas;
+    // Get's the defined range and prints it
+    var sheet = context.workbook.worksheets.getItem(sheetName);
+    var usedRange = sheet.getUsedRangeOrNullObject(true);
+    // Have to load and then sync to run the command
+    usedRange.load("formulas")
+    usedRange.load("isNullObject")
+    await context.sync();
+    
+    if (usedRange.isNullObject) {
+        return [];
+    }
+
+    return usedRange.formulas;
 }
 
 /*
