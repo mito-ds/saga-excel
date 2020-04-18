@@ -8,6 +8,7 @@ export async function runOperation(operation, ...rest) {
     try {
         await Excel.run(async context => {
             // Save the active sheet
+            // TODO: write this in a promise to make run operation return things
             await operation(context, ...rest);
         });
     } catch (error) {

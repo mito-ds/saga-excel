@@ -12,17 +12,6 @@ import { getFileContents } from "../../saga/fileUtils";
 import './App.css';
 
 
-/* 
-  TODO:
-  1. Write a function called makeClique that creates "seperate" copies of a set of sheets
-    - it should be efficient, no unnecessary context.syncs()
-  2. Figure out all the places we make copies of sets of sheets, and move to using this function
-*/
-
-/*
-
-*/
-
 
 
 /* global */
@@ -76,6 +65,14 @@ export default class App extends React.Component {
       return (
         <OfflineErrorScreen/>
       );
+    }
+
+    const t = true;
+
+    if (t) {
+      return (
+        <EmptyButton function={findReferences} label="FIND REFERENCES"/>
+      )
     }
     
     const step = this.state.step;

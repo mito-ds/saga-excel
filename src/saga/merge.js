@@ -1,9 +1,10 @@
 import { commit } from './commit';
-import { copySheet, copySheets, getRandomID, getFormulas } from "./sagaUtils";
+import { copySheet, getSheetsWithNames, getRandomID, getFormulas } from "./sagaUtils";
 import { diff3Merge2d } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
 import { runOperation } from './runOperation';
+import { makeClique } from "./commit";
 
 /* global Excel */
 
@@ -33,9 +34,69 @@ const getNonsagaSheets = (sheets) => {
     })
 }
 
-const getSheetWithID = (sheets, id) => {
-    return sheets.find(sheet => sheet._I === id);
-}
+async function findOtherSheetReferencesAddr(context, sheetName, nonSagaSheets) {
+    // In a given non-saga sheet, will return an array of all the addresses of the
+    // cells that contain a reference to another non-saga sheet
+  
+    const worksheet = context.workbook.worksheets.getItem(sheetName);
+  
+    /*
+    1. Get all sheet names
+    */
+    var found = []
+    for (let i = 0; i < nonSagaSheets.length; i++) {
+      console.log(`Looking for =${nonSagaSheets[i].name}`)
+      var foundRanges = worksheet.findAllOrNullObject(`=${nonSagaSheets[i].name}`, {
+        completeMatch: false, // findAll will match the whole cell value
+        matchCase: false // findAll will not match case
+      });
+      await context.sync();
+  
+      if (foundRanges.isNullObject) {
+        console.log("No ranges contain this");
+      } else {
+        foundRanges.load("address");
+        await context.sync()
+        console.log(foundRanges.address)
+        found.push(...foundRanges.address.split(","));
+      }
+    }
+  
+    return found;
+  }
+  
+  async function findAndReplaceReferences(context, sheetName, newCommitPrefix) {
+  
+    const worksheet = context.workbook.worksheets.getItem(sheetName);
+  
+    const nonSagaSheets = (await getSheetsWithNames(context)).filter(sheet => {return !sheet.name.startsWith("saga")});
+    const nonSagaSheetNames = nonSagaSheets.map(sheet => sheet.name);
+    const otherSheetReferences = await findOtherSheetReferencesAddr(context, nonSagaSheets);
+  
+    // Loop over all of them, get the values, and 
+    var mapping = {};
+    for (let i = 0; i < otherSheetReferences.length; i++) {
+      const refRange = worksheet.getRange(otherSheetReferences[i]);
+      refRange.load("formulas");
+      await context.sync();
+      mapping[otherSheetReferences[i]] = refRange.formulas[0][0];
+    }
+    // TODO: fix this w/ a complicated algorithm so it works for when sheet names are substrings of eachother
+  
+    var newMapping = {}
+    for (const addr in mapping) {
+      const formula = mapping[addr];
+      var newFormula = formula;
+      for (let i = 0; i < nonSagaSheetNames.length; i++) {
+        const sheetName = nonSagaSheetNames[i];
+        const newSheetName = newCommitPrefix + nonSagaSheetNames[i];
+        newFormula = newFormula.replace(sheetName, newSheetName);
+      }
+      newMapping[addr] = newFormula;
+    }
+    
+    return newMapping;
+  }
 
 
 const doMerge = async (context, formattingEvents) => {
@@ -108,6 +169,8 @@ const doMerge = async (context, formattingEvents) => {
         return ex.inMaster && !ex.inOrigin;
     })
 
+    // TODO: we should be merging conflict sheets together
+
     // Sheets that have been removed from the head branch, but where in the origin branch
     /*
     const deletedSheets = personalSheets.filter(sheet => {
@@ -129,17 +192,49 @@ const doMerge = async (context, formattingEvents) => {
         return;
     }
 
+    // First, we copy over all the sheets on master that have not been deleted :)
+    await makeClique(
+        context,
+        [],
+        (sheetName) => {return newCommitPrefix + sheetName.split(masterPrefix)[1]},
+        Excel.WorksheetPositionType.end,
+        null
+    )
+
+    //TODO
+
+
+
+
+
     // Copy over the inserted sheets
     const srcInserted = insertedSheets.map(sheet => sheet.name);
     const dstInserted = srcInserted.map(sheetName => newCommitPrefix + sheetName);
 
-    await copySheets(
-        context, 
+    
+
+
+    /*
+        Complexities of Merge:
+        1. The sheets that we make a copy of must be the _master_ commit of the sheets (for formatting reasons)
+        2. There are three "types" of sheets:
+            - Sheets that were inserted on the personal branch
+            - Sheets that were deleted on the personal branch
+            - Sheets that continued to exist on the personal branch
+        
+        TODO: we should fix the ordering. Aaron's proposed fix:
+        1. Copy over the sheets to merge on from master first, do the merge
+        2. Then, find the location of the inserted personal sheets relative on the personal branch
+
+    */
+
+    await makeClique(
+        context,
         srcInserted,
-        dstInserted,
+        (sheetName) => {return newCommitPrefix + sheetName},
         Excel.WorksheetPositionType.end,
-        Excel.SheetVisibility.veryHidden
-    );
+        null
+    )
 
     // We sort the formatting events by ID
     var formattingEventsMap = {};

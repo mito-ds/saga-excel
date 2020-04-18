@@ -13,7 +13,7 @@ export default class EmptyButton extends React.Component {
             iconProps={{ iconName: "ChevronRight" }}
             onClick={this.props.function}
           >
-            {this.props.message}
+            {this.props.label}
         </Button>
     );
   }
