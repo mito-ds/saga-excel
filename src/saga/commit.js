@@ -29,7 +29,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     });
 
     const sheetNames = sheets.map(sheet => sheet.name);
-    const dstWorksheets = sheetNames.map(sheetName => `saga-%${commitID}-${sheetName}`);
+    const dstWorksheets = sheetNames.map(sheetName => `saga-${commitID}-${sheetName}`);
     
     // backup the sheet data
     await copySheets(

@@ -21,9 +21,9 @@ export async function switchVersionFromRibbon(context) {
     // Switch Branches
     if (currentBranch === 'master') {
         const personalBranchName = await project.getPersonalBranchName();
-        await checkoutBranch(context, personalBranchName)
+        await checkoutBranch(context, personalBranchName);
     } else {
-        await runCheckoutBranch('master');
+        await checkoutBranch(context, "master");
     }
 
     console.log("5")
