@@ -113,6 +113,8 @@ async function createFromURL(context, url, email) {
     return;
   }
 
+  console.log("GOT RESPONSE", response);
+
   const fileContents = response.data.fileContents;
   if (fileContents === `` || fileContents === undefined) {
     console.error(`Project at ${url} is empty, nothing to pull.`);
