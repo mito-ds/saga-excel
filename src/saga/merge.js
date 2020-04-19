@@ -111,6 +111,11 @@ async function updateReferences(context, sheetName, newCommitPrefix) {
 }
 
 async function writeDataToSheet(context, sheetName, data) {
+    if (data.length === 0) {
+        console.log(`No data to write to sheet ${sheetName}, returning`);
+        return;
+    }
+
     const sheet = context.workbook.worksheets.getItem(sheetName);
 
     // First, we make sure the data is a rectangle
@@ -145,6 +150,17 @@ async function copyFormatting(context, srcSheetName, dstSheetName, formattingEve
     }
 
     await context.sync();
+}
+
+function replaceReferencesInData(data, srcString, dstString) {
+    data.forEach(row => {
+        for (let i = 0; i < row.length; i++) {
+            const cell = row[i];
+            if (typeof(cell) === `string` && cell.startsWith("=")) {
+                row[i] = row[i].replaceAll(srcString, dstString);
+            }
+        }
+    })
 }
 
 
@@ -252,6 +268,8 @@ const doMerge = async (context, formattingEvents) => {
     */
 
     const personalSheetsNames = personalSheets.map(sheet => sheet.name);
+    const insertedSheetsNames = insertedSheets.map(sheet => sheet.name);
+
     console.log("Personal:", personalSheetsNames);
     console.log("Personal renamed:", personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName}));
 
@@ -274,6 +292,15 @@ const doMerge = async (context, formattingEvents) => {
         const masterSheetName = masterPrefix + personalSheetName;
         const originSheetName = originPrefix + personalSheetName;
 
+        // If the sheet is inserted, it's an easy merge
+        if (insertedSheetsNames.includes(personalSheetName)) {
+            const personalFormulas = await getFormulas(context, renamedPersonalSheetName);
+            mergedData[personalSheetName] = personalFormulas;
+            continue;
+        }
+
+        // TODO: do the same as above but for deleted
+
         /*
             We get the formulas from the renamed personal sheet, because they have the correct names
             and so the correct references
@@ -281,7 +308,10 @@ const doMerge = async (context, formattingEvents) => {
         console.log(`For sheet ${personalSheetName}, getting formulas`);
         // TODO: handle the case where a sheet has been inserted (maybe deleted too)!
         const personalFormulas = await getFormulas(context, renamedPersonalSheetName);
-        const masterFormulas = await getFormulas(context, masterSheetName);
+        var masterFormulas = await getFormulas(context, masterSheetName);
+        // We then replace all references to the master commit w/ the origin commit, so we don't have
+        // merge conflicts that aren't really conflicts
+        replaceReferencesInData(masterFormulas, masterCommitID, originCommitID);
         const originFormulas = await getFormulas(context, originSheetName);
 
         // Merge the formulas
@@ -321,7 +351,6 @@ const doMerge = async (context, formattingEvents) => {
     console.log(`Copied over the master non-deleted sheets:`, masterNonDeletedNames);
 
     // As well as all the inserted sheets
-    const insertedSheetsNames = insertedSheets.map(sheet => sheet.name);
     await makeClique(
         context,
         insertedSheetsNames,
