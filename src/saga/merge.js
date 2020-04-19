@@ -114,7 +114,7 @@ async function writeDataToSheet(context, sheetName, data) {
     const sheet = context.workbook.worksheets.getItem(sheetName);
 
     // First, we make sure the data is a rectangle
-    const maxLength = Math.max(data.map(row => row.length));
+    const maxLength = Math.max(...data.map(row => {return row.length}));    
     const rectData = data.map(row => {row.length = maxLength; return row});
 
     // Find the address of the rectangle range we're going to write
@@ -249,9 +249,8 @@ const doMerge = async (context, formattingEvents) => {
 
     // 1. Copy over all master sheets that haven't been deleted
     const masterNonDeletedNames = masterSheets.filter(sheet => {
-        return deletedSheets.some(deleted => deleted.name === sheet.name)
+        return !deletedSheets.some(deleted => deleted.name === sheet.name)
     }).map(sheet => sheet.name);
-
 
     await makeClique(
         context,
@@ -294,6 +293,7 @@ const doMerge = async (context, formattingEvents) => {
 
     for (let i = 0; i < mergeSheets.length; i++) {
         const sheet = mergeSheets[i];
+        console.log("Merging", sheet.name);
 
         const personalSheetName = sheet.name;
         const masterSheetName = masterPrefix + personalSheetName;
@@ -307,8 +307,12 @@ const doMerge = async (context, formattingEvents) => {
         // Merge the formulas
         const mergeFormulas = diff3Merge2d(originFormulas, masterFormulas, personalFormulas);
 
+        console.log("Trying to write data to sheet");
+
         // Then, we write these formulas to the merge sheet
         await writeDataToSheet(context, mergeSheetName, mergeFormulas);
+
+        console.log("Done writing data to sheet");
 
         // Then, we copy over the saved formatting to the merge sheet
         await copyFormatting(context, personalSheetName, mergeSheetName, formattingEventsMap);
@@ -318,6 +322,8 @@ const doMerge = async (context, formattingEvents) => {
 
         await context.sync();
     }
+    console.log("Done merging all sheets");
+
 
     // Finially, we have to copy all the merged sheets back over to the personal branch
     const sheetsMergedOntoNames = mergeSheets.map(sheet => newCommitPrefix + sheet.name);
