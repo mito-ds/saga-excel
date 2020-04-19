@@ -66,14 +66,6 @@ export default class App extends React.Component {
         <OfflineErrorScreen/>
       );
     }
-
-    const t = true;
-
-    if (t) {
-      return (
-        <EmptyButton function={findReferences} label="FIND REFERENCES"/>
-      )
-    }
     
     const step = this.state.step;
     // If a saga project exists, we shouldn't do any of this

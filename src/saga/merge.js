@@ -110,6 +110,40 @@ async function updateReferences(context, sheetName, newCommitPrefix) {
     return newMapping;
 }
 
+async function writeDataToSheet(context, sheetName, data) {
+    const sheet = context.workbook.worksheets.getItem(sheetName);
+
+    // First, we make sure the data is a rectangle
+    const maxLength = Math.max(data.map(row => row.length));
+    const rectData = data.map(row => {row.length = maxLength; return row});
+
+    // Find the address of the rectangle range we're going to write
+    const endColumn = toColumnName(maxLength);
+    const rangeAddress = `A${1}:${endColumn}${rectData.length}`;
+
+    // Finially, write the values
+    sheet.getRange(rangeAddress).values = rectData;
+
+    await context.sync();
+}
+
+async function copyFormatting(context, srcSheetName, dstSheetName, formattingEventsMap) {
+    const srcFormatting = context.workbook.worksheets.getItem(srcSheetName);
+    const dstFormatting = context.workbook.worksheets.getItem(dstSheetName);
+
+    const events = formattingEventsMap[srcFormatting._I] || []; 
+    for (let i = 0; i < events.length; i++) {
+        const address = events[i].address;
+        dstFormatting.getRange(address).copyFrom(srcFormatting.getRange(address), Excel.RangeCopyType.formats);
+        
+        if (i % 40 === 0) {
+            await context.sync();
+        }
+    }
+
+    await context.sync();
+}
+
 
 const doMerge = async (context, formattingEvents) => {
     const project = new Project(context);
@@ -264,7 +298,7 @@ const doMerge = async (context, formattingEvents) => {
         const personalSheetName = sheet.name;
         const masterSheetName = masterPrefix + personalSheetName;
         const originSheetName = originPrefix + personalSheetName;
-        const mergeSheetname = newCommitPrefix + personalSheetName;
+        const mergeSheetName = newCommitPrefix + personalSheetName;
 
         const personalFormulas = await getFormulas(context, personalSheetName);
         const masterFormulas = await getFormulas(context, masterSheetName);
@@ -274,30 +308,10 @@ const doMerge = async (context, formattingEvents) => {
         const mergeFormulas = diff3Merge2d(originFormulas, masterFormulas, personalFormulas);
 
         // Then, we write these formulas to the merge sheet
-        // NOTE: merge sheet is a bad name, this is the sheet being merged onto (the copy of master)
-        const mergeSheet = context.workbook.worksheets.getItem(mergeSheetname);
-        for (let i = 0; i < mergeFormulas.length; i++) {
-            const len = mergeFormulas[i].length;
-            const endColumn = toColumnName(len);
-            const rangeAddress = `A${i + 1}:${endColumn}${i+1}`;
-            const rowRange = mergeSheet.getRange(rangeAddress);
-            rowRange.values = [mergeFormulas[i]];
-            if (i % 40 === 0) {
-                // So we don't have too many waiting (there is a cap at 50?) TODO.
-                await context.sync();
-            }
-        }
+        await writeDataToSheet(context, mergeSheetName, mergeFormulas);
 
         // Then, we copy over the saved formatting to the merge sheet
-        const events = formattingEventsMap[sheet._I] || []; 
-        for (let i = 0; i < events.length; i++) {
-            const address = events[i].address;
-            mergeSheet.getRange(address).copyFrom(sheet.getRange(address), Excel.RangeCopyType.formats);
-            
-            if (i % 40 === 0) {
-                await context.sync();
-            }
-        }
+        await copyFormatting(context, personalSheetName, mergeSheetName, formattingEventsMap);
 
         // Then, we delete the sheet on the personal branch
         sheet.delete();
