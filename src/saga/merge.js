@@ -1,5 +1,5 @@
 import { commit } from './commit';
-import { copySheets, getSheetsWithNames, getRandomID, getFormulas } from "./sagaUtils";
+import { copySheets, getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets } from "./sagaUtils";
 import { diff3Merge2d } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
@@ -243,14 +243,69 @@ const doMerge = async (context, formattingEvents) => {
     /*
         We have to make sure sheets all exist at the right time, so we do the following:
 
-        1. We copy over all the master sheets (that haven't been deleted) to the new merge commit.
-        2. Then, we make versions of all the inserted sheet on the new merge commit.
-        3. We copy over the inserted sheets, making sure to replace references where they exist.
-        4. We do the actual merging of sheets, making sure to take the right references when we do
+        1. Create clique with the personal sheets we need to merge over to their new commit names.
+        2. Merge the this newly renamed personal sheet with the current master and origin commits, and save them in memory
+            - Because we renamed the personal sheets, they will have references to the correct sheets (e.g. new commit name - sheet)
+        4. Then, we delete all the personal sheet with these commit names.
+        5. Then, we copy over the master sheets with the new commit name, and write the data to these sheets.
+        6. Finially, we update these sheets with the correct formatting values.
     */
 
+    const personalSheetsNames = personalSheets.map(sheet => sheet.name);
+    console.log("Personal:", personalSheetsNames);
+    console.log("Personal renamed:", personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName}));
 
-    // 1. Copy over all master sheets that haven't been deleted
+    await makeClique(
+        context,
+        personalSheetsNames,
+        (sheetName) => {return newCommitPrefix + sheetName},
+        Excel.WorksheetPositionType.end,
+        null
+    )
+
+    console.log("Copied over personal sheets to ", newCommitPrefix);
+
+    const renamedPersonalSheets = personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName});
+    var mergedData = {};
+    console.log("Renamed personal sheets", renamedPersonalSheets);
+    for (let i = 0; i < renamedPersonalSheets.length; i++) {
+        const personalSheetName = personalSheetsNames[i];
+        const renamedPersonalSheetName = renamedPersonalSheets[i];
+        const masterSheetName = masterPrefix + personalSheetName;
+        const originSheetName = originPrefix + personalSheetName;
+
+        /*
+            We get the formulas from the renamed personal sheet, because they have the correct names
+            and so the correct references
+        */
+        console.log(`For sheet ${personalSheetName}, getting formulas`);
+        // TODO: handle the case where a sheet has been inserted (maybe deleted too)!
+        const personalFormulas = await getFormulas(context, renamedPersonalSheetName);
+        const masterFormulas = await getFormulas(context, masterSheetName);
+        const originFormulas = await getFormulas(context, originSheetName);
+
+        // Merge the formulas
+        const mergeFormulas = diff3Merge2d(originFormulas, masterFormulas, personalFormulas);
+        // And save them
+        mergedData[personalSheetName] = mergeFormulas;
+    }
+
+    console.log("Saved merged data", mergedData);
+    console.log("Renamed personal sheets", renamedPersonalSheets);
+
+    // Then, we delete all the renamed personal sheets, b/c we want to copy the master so we get their formatting
+    for (let i = 0; i < renamedPersonalSheets.length; i++) {
+        const sheet = context.workbook.worksheets.getItem(renamedPersonalSheets[i]);
+        sheet.delete();
+
+        if (i % 40 === 0 || i === renamedPersonalSheets.length - 1) {
+            await context.sync()
+        }
+    }
+
+    console.log("Deleted renamed personal sheets");
+
+    // Now, we copy over master sheets, to get their formatting
     const masterNonDeletedNames = masterSheets.filter(sheet => {
         return !deletedSheets.some(deleted => deleted.name === sheet.name)
     }).map(sheet => sheet.name);
@@ -263,29 +318,29 @@ const doMerge = async (context, formattingEvents) => {
         null
     )
 
-    // 2. Copy over all the inserted sheets
+    console.log(`Copied over the master non-deleted sheets:`, masterNonDeletedNames);
+
+    // As well as all the inserted sheets
     const insertedSheetsNames = insertedSheets.map(sheet => sheet.name);
-    /*
-        NOTE: we copy sheets here, rather than make clique, because we want to preserve the
-        current values of the references, because we then go and switch them.
-    */
-    await copySheets(
+    await makeClique(
         context,
         insertedSheetsNames,
-        (sheetName) => {return newCommitPrefix + sheetName}, // they are the personal sheets
+        (sheetName) => {return newCommitPrefix + sheetName},
         Excel.WorksheetPositionType.end,
         null
     )
 
-    // And make sure to fix the references
-    for (let i = 0; i < insertedSheetsNames.length; i++) {
-        const newSheetName = newCommitPrefix + insertedSheetsNames[i].name;
-        await updateReferences(context, newSheetName, newCommitPrefix);
+    console.log("Copied over inserted", insertedSheetsNames);
+
+    for (const sheetName in mergedData) {
+        // TODO: we have to not copy over the sheets that were deleted on master
+        console.log("Trying to write to ", sheetName, "with", mergedData[sheetName]);
+        await writeDataToSheet(context, newCommitPrefix + sheetName, mergedData[sheetName]);
     }
 
-    // Then, we do the actual merging of sheets
+    console.log("Wrote data to all sheets");
 
-    // We sort the formatting events by ID
+    // Then, we propagate over the formatting events
     var formattingEventsMap = {};
     formattingEvents.forEach(event => {
         if (!(event.worksheetId in formattingEventsMap)) {
@@ -295,53 +350,30 @@ const doMerge = async (context, formattingEvents) => {
     })
 
     for (let i = 0; i < mergeSheets.length; i++) {
-        const sheet = mergeSheets[i];
-        console.log("Merging", sheet.name);
-
-        const personalSheetName = sheet.name;
-        const masterSheetName = masterPrefix + personalSheetName;
-        const originSheetName = originPrefix + personalSheetName;
+        const personalSheetName = mergeSheets[i].name;
         const mergeSheetName = newCommitPrefix + personalSheetName;
-
-        const personalFormulas = await getFormulas(context, personalSheetName);
-        const masterFormulas = await getFormulas(context, masterSheetName);
-        const originFormulas = await getFormulas(context, originSheetName);
-
-        // Merge the formulas
-        const mergeFormulas = diff3Merge2d(originFormulas, masterFormulas, personalFormulas);
-
-        console.log("Trying to write data to sheet");
-
-        // Then, we write these formulas to the merge sheet
-        await writeDataToSheet(context, mergeSheetName, mergeFormulas);
-
-        console.log("Done writing data to sheet");
-
-        // Then, we copy over the saved formatting to the merge sheet
-        /*
-            We then copy over the formatting events to the merge sheet.
-            Note that the src sheet is the current commit sheet on the personal branch,
-            as this is the original personal sheet, which was moved during the call to make clique
-        */
         await copyFormatting(context, personalPrefix + personalSheetName, mergeSheetName, formattingEventsMap);
-
-        // Then, we delete the sheet on the personal branch
-        sheet.delete();
-
-        await context.sync();
     }
-    console.log("Done merging all sheets");
 
+    console.log("Done with formatting")
 
-    // Finially, we have to copy all the merged sheets back over to the personal branch
-    const sheetsMergedOntoNames = mergeSheets.map(sheet => newCommitPrefix + sheet.name);
+    // Finially, we have to delete the old personal sheets
+    await deleteNonsagaSheets(context);
+
+    console.log("Deleted non-saga sheets")
+    
+
+    // And then copy all the sheets on that merge back to the personal branch
+    const newCommitSheets = (await getSheetsWithNames(context)).map(sheet => sheet.name).filter(sheetName => sheetName.startsWith(newCommitPrefix));
     await makeClique(
         context,
-        sheetsMergedOntoNames,
+        newCommitSheets,
         (sheetName) => {return sheetName.split(newCommitPrefix)[1]},
         Excel.WorksheetPositionType.end,
         null
     )
+    console.log("Copied new commit sheets to personal branch", newCommitSheets);
+
 
     // And then we update the commits and stuff in the proper places
     await project.updateBranchCommitID(`master`, newCommitID);

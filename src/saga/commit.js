@@ -7,6 +7,10 @@ import { runOperation } from "./runOperation";
 /* global Excel */
 
 export async function makeClique(context, sheetNames, getNewName, worksheetPositionType, worksheetVisibility) {
+    if (sheetNames.length === 0) {
+        return;
+    }
+
     const fileContents = await getFileContents();
     const worksheets = context.workbook.worksheets;
   
@@ -32,6 +36,8 @@ export async function makeClique(context, sheetNames, getNewName, worksheetPosit
   
     // Now, for each of these sheets, we set their visibility
     // TODO
+
+    return context.sync();
 }
   
   

@@ -1,8 +1,7 @@
 import { createSheet, getRandomID } from "./sagaUtils";
 import { commit } from "./commit";
 import { createBranch } from "./branch";
-import { checkoutBranch } from "./checkout"
-import { turnSyncOn } from "./sync";
+import { turnSyncOn, updateShared } from "./sync";
 import Project from "./Project"
 import axios from "axios"
 import { runOperation } from "./runOperation";
@@ -74,6 +73,9 @@ async function createSaga(context, remoteURL, email) {
 
   // Create the first commit 
   await commit(context, "Create Saga Project", "Saga project creation", "master", firstCommitID);
+
+  // Update the shared repository
+  await updateShared(context);
 
   // Start syncing this with master
   turnSyncOn();
