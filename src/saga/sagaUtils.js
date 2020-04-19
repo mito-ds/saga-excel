@@ -55,14 +55,10 @@ Copies srcWorksheetName to dstWorksheetName, with the given visibility parameter
 export async function copySheets(
     context, 
     srcWorksheets, 
-    dstWorksheets,
+    getNewName,
     worksheetPositionType,
     worksheetVisibility
 ) {
-    if (srcWorksheets.length !== dstWorksheets.length) {
-        console.error(`Cannot copy ${srcWorksheets} to ${dstWorksheets}, don't match up`);
-        return false;
-    }
 
     if (worksheetPositionType !== Excel.WorksheetPositionType.end && worksheetPositionType !== Excel.WorksheetPositionType.beginning) {
         console.error(`Bulk copy only supports beggining or end, not ${worksheetPositionType}`);
@@ -70,12 +66,11 @@ export async function copySheets(
     }
 
     console.log(srcWorksheets)
-    console.log(dstWorksheets);
 
     if (worksheetPositionType === Excel.WorksheetPositionType.end) {
         for (let i = 0; i < srcWorksheets.length; i++) {
             const srcName = srcWorksheets[i];
-            const dstName = dstWorksheets[i];
+            const dstName = getNewName(srcName);
             const src = context.workbook.worksheets.getItemOrNullObject(srcName);
             const dst = src.copy(worksheetPositionType);
             dst.name = dstName;
@@ -89,7 +84,7 @@ export async function copySheets(
     } else if (worksheetPositionType === Excel.WorksheetPositionType.beginning) {
         for (let i = srcWorksheets.length - 1; i >= 0; i--) {
             const srcName = srcWorksheets[i];
-            const dstName = dstWorksheets[i];
+            const dstName = getNewName(srcName);
             const src = context.workbook.worksheets.getItemOrNullObject(srcName);
             const dst = src.copy(worksheetPositionType);
             dst.name = dstName;
