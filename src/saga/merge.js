@@ -130,8 +130,11 @@ async function writeDataToSheet(context, sheetName, data) {
 async function copyFormatting(context, srcSheetName, dstSheetName, formattingEventsMap) {
     const srcFormatting = context.workbook.worksheets.getItem(srcSheetName);
     const dstFormatting = context.workbook.worksheets.getItem(dstSheetName);
+    // We sync here to get the sheet IDs
+    await context.sync();
 
-    const events = formattingEventsMap[srcFormatting._I] || []; 
+    const sheetID = srcFormatting._I;
+    const events = formattingEventsMap[sheetID] || []; 
     for (let i = 0; i < events.length; i++) {
         const address = events[i].address;
         dstFormatting.getRange(address).copyFrom(srcFormatting.getRange(address), Excel.RangeCopyType.formats);
@@ -171,7 +174,6 @@ const doMerge = async (context, formattingEvents) => {
     console.log("personalCommitID", personalCommitID);
     console.log("originCommitID", originCommitID);
     
-
     const sheets = await project.getSheetsWithNames();
 
     const masterSheets = getCommitSheets(sheets, masterCommitID);
@@ -183,6 +185,7 @@ const doMerge = async (context, formattingEvents) => {
     console.log("ORIGIN SHEETS", originSheets);
 
     const masterPrefix = `saga-${masterCommitID}-`;
+    const personalPrefix = `saga-${personalCommitID}-`;
     const originPrefix = `saga-${originCommitID}-`;
     const newCommitID = getRandomID();
     const newCommitPrefix = `saga-${newCommitID}-`;
@@ -315,7 +318,12 @@ const doMerge = async (context, formattingEvents) => {
         console.log("Done writing data to sheet");
 
         // Then, we copy over the saved formatting to the merge sheet
-        await copyFormatting(context, personalSheetName, mergeSheetName, formattingEventsMap);
+        /*
+            We then copy over the formatting events to the merge sheet.
+            Note that the src sheet is the current commit sheet on the personal branch,
+            as this is the original personal sheet, which was moved during the call to make clique
+        */
+        await copyFormatting(context, personalPrefix + personalSheetName, mergeSheetName, formattingEventsMap);
 
         // Then, we delete the sheet on the personal branch
         sheet.delete();
