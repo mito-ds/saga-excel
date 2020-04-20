@@ -78,6 +78,10 @@ test('all equal', () => {
     expect(diff3Merge2d([["data"], [1], [2], [3]], [["data"], [1], [2], [3]], [["data"], [1], [2], [3]])).toEqual([["data"], [1], [2], [3]]);
 });
 
+test('insert in rows below', () => {  
+    expect(diff3Merge2d([[]], [[1, 2, 3, 4, 5]], [[""], [""], [""], [6]])).toEqual([[1, 2, 3, 4, 5], [""], [""], [6]]);
+});
+
 test('simple merge', () => {  
-    expect(diff3Merge2d([], [[2]], [[1]])).toEqual([[1]]);
+    //expect(diff3Merge2d([], [[2]], [[1]])).toEqual([[1]]);
 });

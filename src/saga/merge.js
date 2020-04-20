@@ -1,5 +1,5 @@
 import { commit } from './commit';
-import { copySheets, getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets } from "./sagaUtils";
+import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets } from "./sagaUtils";
 import { diff3Merge2d } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
@@ -21,6 +21,9 @@ function toColumnName(num) {
 }
 // Taken from https://cwestblog.com/2013/09/05/javascript-snippet-convert-number-to-column-name/
 
+function fromColumnName(col){
+    return col.split('').reduce((r, a) => r * 26 + parseInt(a, 36) - 9, 0);
+}
 
 const getCommitSheets = (sheets, commitID) => {
     return sheets.filter(sheet => {
@@ -111,10 +114,11 @@ async function updateReferences(context, sheetName, newCommitPrefix) {
 }
 
 async function writeDataToSheet(context, sheetName, data) {
-    if (data.length === 0) {
+    if (data.length === 0 || (data.length === 1 && data[0].length === 0)) {
         console.log(`No data to write to sheet ${sheetName}, returning`);
         return;
     }
+
 
     const sheet = context.workbook.worksheets.getItem(sheetName);
 
