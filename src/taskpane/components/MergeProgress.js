@@ -3,13 +3,12 @@ import { Spinner, SpinnerType } from "office-ui-fabric-react";
 
 /* global Spinner */
 
-export default class MergeProgressScreen extends React.Component {
+export default class MergeProgress extends React.Component {
     constructor(props) {
       super(props);
       this.props = props
 
     }
-
     render() {
         const message = this.props.message;
 

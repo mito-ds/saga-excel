@@ -1,10 +1,10 @@
 import * as React from "react";
-import MergeProgressScreen from "./MergeProgressScreen";
+import MergeProgressScreen from "./MergeProgress";
 
 
 /* global  */
 
-export default class MergeScreen extends React.Component {
+export default class MergeProgressHandler extends React.Component {
 
   constructor(props) {
     super(props); 
@@ -14,7 +14,8 @@ export default class MergeScreen extends React.Component {
     };
 
     this.updateValue = ''
-    this.intermediateMessages = ["wow! This seems like a cool project", "merge early, merge often - Anonymous"]
+    this.intermediateMessagesOne = ["wow! This seems like a cool project", "Oh boy! I can't wait to see the results!"]
+    this.intermediateMessagesTwo = ["Saga Tip: merge early, merge often", "Saga Tip: split work with your teamates so that you aren't edditting the same cells"]  
     this.getMessage = this.getMessage.bind(this) 
     this.updateMergeStep = this.updateMergeStep.bind(this)
     this.updateStateAfterTime = this.updateStateAfterTime.bind(this)
@@ -23,22 +24,32 @@ export default class MergeScreen extends React.Component {
   // Create a reset state function
 
 
-  getMessage = () => {
-    const message = this.intermediateMessages[Math.floor(Math.random() * this.intermediateMessages.length)]
+  getMessage = (step) => {
+    const messageArray = step === 1 ? this.intermediateMessagesOne : this.intermediateMessagesTwo;
+    const message = messageArray[Math.floor(Math.random() * messageArray.length)]
     return message
   }
-  
+
   updateMergeStep = () => {
     console.log("update merge step")
   }
 
   updateStateAfterTime = () => {
     this.setState({firstRender: false});
-    console.log(this.state.processingStep)
     setTimeout(() => {
       this.setState({processingStep: 1});
       console.log(this.state.processingStep)
-    }, 2000);
+    }, 4000);
+
+    setTimeout(() => {
+      this.setState({processingStep: 2});
+      console.log(this.state.processingStep)
+    }, 8000);
+
+    setTimeout(() => {
+      this.setState({processingStep: 3});
+      console.log(this.state.processingStep)
+    }, 12000);
   }
 
   render() {
@@ -58,21 +69,22 @@ export default class MergeScreen extends React.Component {
     }
     
     if (this.state.processingStep == 1) {
+      var progressMessage = this.getMessage(1)
       return (
-        <MergeProgressScreen message="Screen 2"></MergeProgressScreen>
+        <MergeProgressScreen message={progressMessage}></MergeProgressScreen>
       );
     } 
 
     if (this.state.processingStep == 2) {
-      const progressMessage = this.getMessage()
+      const progressMessage = this.getMessage(2)
       return (
-        <MergeProgressScreen message="Screen 3"></MergeProgressScreen>
+        <MergeProgressScreen message={progressMessage}></MergeProgressScreen>
       );
     } 
 
     if (this.state.processingStep == 3) {
       return (
-        <MergeProgressScreen message="Screen 2"></MergeProgressScreen>
+        <MergeProgressScreen message="Almost done"></MergeProgressScreen>
       );
     } 
   }

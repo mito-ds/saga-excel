@@ -5,7 +5,8 @@ import LoginScreen from "./LoginScreen"
 import ProjectSourceScreen from "./ProjectSourceScreen"
 import TaskpaneFooter from "./TaskpaneFooter"
 import OfflineErrorScreen from "./OfflineErrorScreen"
-import MergeScreen from "./MergeScreen";
+import MergeScreen from "./MergeProgressHandler";
+import MergeSuccess from "./MergeSuccess"
 import MergeError from "./MergeError"
 import EmptyButton from "./saga/EmptyButton"
 import { createSheet, getSheetsWithNames } from "../../saga/sagaUtils";
@@ -13,6 +14,7 @@ import { getFileContents } from "../../saga/fileUtils";
 
 import './App.css';
 import { getGlobal } from "../../commands/commands.js";
+import MergeProgressHandler from "./MergeProgressHandler";
 
 
 /* global */
@@ -81,7 +83,7 @@ export default class App extends React.Component {
     if (this.state.context == "merge progress") {
       console.log("found merge context")
       return (
-        <MergeScreen/>
+        <MergeProgressHandler/>
       );
     } 
 

@@ -41,9 +41,8 @@ Office.onReady(() => {
 async function merge(event) {
   console.log(events)
   openMergeTaskpane()
-  //const mergeResponse = await runMerge(events);
-  //window.appComponent.setContext(mergeResponse)
-  window.appComponent.setContext("merge error")
+  const mergeResponse = await runMerge(events);
+  window.appComponent.setContext(mergeResponse)
 
   event.completed();
   events = [];
