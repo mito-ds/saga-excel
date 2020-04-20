@@ -5,11 +5,12 @@ import { turnSyncOff, turnSyncOn } from "./sync";
 
 export async function runOperation(operation, ...rest) {
     turnSyncOff();
+    var result;
     try {
         await Excel.run(async context => {
             // Save the active sheet
             // TODO: write this in a promise to make run operation return things
-            await operation(context, ...rest);
+            result = await operation(context, ...rest);
         });
     } catch (error) {
         console.error(error);
@@ -18,6 +19,8 @@ export async function runOperation(operation, ...rest) {
         }
     }
     turnSyncOn();
+    console.log(`Returning ${result}`)
+    return result;
 }
 
 

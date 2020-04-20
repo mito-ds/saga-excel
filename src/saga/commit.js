@@ -84,13 +84,16 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     await project.updateBranchCommitID(branch, commitID);
     await project.addCommitID(commitID, parentID, commitName, commitMessage);
 
-    return context.sync();
+    await context.sync();
+
+    // Return the new commit ID!
+    return commitID;
 }
 
 async function commitIfPermission(context, name, message) {
     const userPermission = await checkBranchPermission(context);
     if (userPermission) {
-        await commit(context, name, message);
+        return await commit(context, name, message);
     } else {
         console.error("Cannot commit as user does not have permission on this branch");
     }
@@ -99,5 +102,5 @@ async function commitIfPermission(context, name, message) {
 
 
 export async function runCommit(name, message) {
-    await runOperation(commitIfPermission, name, message);
+    return await runOperation(commitIfPermission, name, message);
 }
