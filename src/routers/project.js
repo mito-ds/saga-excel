@@ -1,17 +1,14 @@
 const project = require('express').Router();
 const { v4: uuidv4 } = require('uuid');
-const base64 = require('base64-js');
 const mongoose = require(`mongoose`);
 const Projects = mongoose.model('Projects');
 
-/* global require, module, Buffer */
+/* global require, module */
 
 const BRANCH_STATE_HEAD = 0;
 const BRANCH_STATE_AHEAD = 1;
 const BRANCH_STATE_BEHIND = 2;
 const BRANCH_STATE_FORKED = 3;
-
-var projects = {}
 
 async function getProject(id) {
     return await Projects.findOne({id: id}).exec();

@@ -34,10 +34,18 @@ app.use(function(req, res, next) {
 app.use(bodyParser.json());
 
 //Route to save emails to mongo
+async function getEmail(email) {
+    return await Emails.findOne({email: email}).exec();
+}
+
+async function emailExists(email) {
+    return (await getEmail(email)) !== null;
+}
+
 app.use('/postemail', async function (req, res) {
     const newEmail = req.body.email;
-    console.log(`adding email: ${newEmail} to mongo databse` )
-    if (newEmail) {
+    const exists = await emailExists(newEmail);
+    if (newEmail && !exists) {
         // TODO: don't save duplicates
         const email = new Emails();
         email.email = newEmail;
