@@ -21,9 +21,6 @@ function toColumnName(num) {
 }
 // Taken from https://cwestblog.com/2013/09/05/javascript-snippet-convert-number-to-column-name/
 
-function fromColumnName(col){
-    return col.split('').reduce((r, a) => r * 26 + parseInt(a, 36) - 9, 0);
-}
 
 const getCommitSheets = (sheets, commitID) => {
     return sheets.filter(sheet => {

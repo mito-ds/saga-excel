@@ -133,7 +133,7 @@ project.get('/:id', async function (req, res) {
 
     if (headCommitID === undefined && parentCommitID === undefined) {
         // Then, we redirect to the sagalab website, because. 
-        res.redirect("https://staging.sagalab.org/howto");
+        res.redirect("https://sagacollab.org/howtodownload");
         return;
 
         /*
