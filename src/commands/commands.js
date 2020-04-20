@@ -16,6 +16,11 @@ function formattingHandler(event) {
   events.push(event);
 }
 
+function openMergeTaskpane() {
+  console.log("showing takspane in merge")
+  Office.addin.showAsTaskpane();
+}
+
 Office.onReady(() => {
   Excel.run(function (context) {
     context.workbook.worksheets.onFormatChanged.add(formattingHandler);
@@ -29,6 +34,7 @@ Office.onReady(() => {
  */
 async function merge(event) {
   console.log(events)
+  openMergeTaskpane()
   await runMerge(events);
   event.completed();
   events = [];
