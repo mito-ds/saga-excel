@@ -6,6 +6,7 @@ import ProjectSourceScreen from "./ProjectSourceScreen"
 import TaskpaneFooter from "./TaskpaneFooter"
 import OfflineErrorScreen from "./OfflineErrorScreen"
 import MergeScreen from "./MergeScreen";
+import MergeError from "./MergeError"
 import EmptyButton from "./saga/EmptyButton"
 import { createSheet, getSheetsWithNames } from "../../saga/sagaUtils";
 import { getFileContents } from "../../saga/fileUtils";
@@ -77,17 +78,24 @@ export default class App extends React.Component {
       );
     }
 
-    if (this.state.context == "merge") {
+    if (this.state.context == "merge progress") {
       console.log("found merge context")
       return (
-        <MergeScreen initialState={0}/>
+        <MergeScreen/>
       );
-    } else {
+    } 
 
+    if (this.state.context == "merge successful") {
+      return (
+        <MergeSuccess />
+      )
     }
 
-    console.log("REACHED AFTER MERGE")
-
+    if (this.state.context == "merge error") {
+      return (
+        <MergeError />
+      )
+    }
     
     const step = this.state.step;
     // If a saga project exists, we shouldn't do any of this

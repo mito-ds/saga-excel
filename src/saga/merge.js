@@ -426,7 +426,7 @@ export async function merge(context, formattingEvents) {
 
     if (!updated) {
         console.error("Cannot checkin personal branch as shared branch may not be up to date.");
-        return;
+        return "merge error";
     }
 
     const project = new Project(context);
@@ -436,7 +436,7 @@ export async function merge(context, formattingEvents) {
 
     if (headBranch !== personalBranch) {
         console.error("Please check out your personal branch before checking in.");
-        return;
+        return "merge error";
     }
 
     // Make a commit on the personal branch    
@@ -450,10 +450,13 @@ export async function merge(context, formattingEvents) {
 
     if (!updatedWithMerge) {
         console.error("Checked in data may have not been been shared...");
+        return "merge error"
         // TODO: handle this case with some better UI...
     }
+
+    return "merge successful"
 }
 
 export async function runMerge(formattingEvents) {
-    await runOperation(merge, formattingEvents);
+    return runOperation(merge, formattingEvents);
 }

@@ -23,7 +23,7 @@ async function openShareTaskpane(event) {
 }
 
 function openMergeTaskpane() {
-  window.appComponent.setContext("merge")
+  window.appComponent.setContext("merge progress")
   Office.addin.showAsTaskpane();
 }
 
@@ -41,7 +41,10 @@ Office.onReady(() => {
 async function merge(event) {
   console.log(events)
   openMergeTaskpane()
-  //await runMerge(events);
+  //const mergeResponse = await runMerge(events);
+  //window.appComponent.setContext(mergeResponse)
+  window.appComponent.setContext("merge error")
+
   event.completed();
   events = [];
 }

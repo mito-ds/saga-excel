@@ -8,6 +8,8 @@ const app = express();
 const projectRouter = require('./src/routers/project');
 const mongoose = require('mongoose');
 const Emails = mongoose.model("Emails");
+const Feedback = mongoose.model("Feedback");
+
 
 /* global process, require */
 
@@ -32,6 +34,28 @@ app.use(function(req, res, next) {
 });
 
 app.use(bodyParser.json());
+
+app.use('/submit-feedback', (req, res) => {
+    const email = req.body.email;
+    const relevance = req.body.relevance; 
+    const response = req.body.response;
+
+    // create date string
+    const d = new Date();
+    var dateString = '';
+    dateString += d.getMonth() + '/' + d.getDate() + '/' + d.getFullYear()
+    dateString += ' ' + d.getHours() + ':' + d.getMinutes()
+
+    const feedback = new Feedback();
+    feedback.email = email
+    feedback.relevance = relevance;
+    feedback.response = response;
+    feedback.date = dateString();
+    feedback.save();
+
+    // Send Success Message
+    res.end();
+})
 
 //Route to save emails to mongo
 app.use('/postemail', async function (req, res) {
