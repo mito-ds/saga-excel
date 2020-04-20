@@ -19,7 +19,7 @@ export default class MergeProgress extends React.Component {
                     <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
                     <p className="title-text" id="title-text">{message}</p>
                 </div>
-                <Spinner className type={SpinnerType.large} label={message} />
+                <Spinner className type={SpinnerType.large} label="Processing your merge" />
             
             </section>
         );
