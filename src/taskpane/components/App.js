@@ -10,11 +10,15 @@ import { createSheet, getSheetsWithNames } from "../../saga/sagaUtils";
 import { getFileContents } from "../../saga/fileUtils";
 
 import './App.css';
-
-
+import { getGlobal } from "../../commands/commands.js";
 
 
 /* global */
+
+function getTaskpaneContext() {
+  const taskPaneContext = getGlobal().getTaskpaneContext()
+  return taskPaneContext
+}
 
 export default class App extends React.Component {
   constructor(props) {
@@ -23,19 +27,25 @@ export default class App extends React.Component {
       step: 0,
       email: '',
       remoteURL: '',
-      offline: false
+      offline: false,
+      context: "share"
     };
 
+    this.setContext = this.setContext.bind(this)
     this.setEmail = this.setEmail.bind(this);
     this.setURL = this.setURL.bind(this);
     this.nextStep = this.nextStep.bind(this);
     this.offile = this.offline.bind(this);
   }
 
+  setContext = (context) => {
+    console.log(`setting the value of context to ${context}`)
+    this.setState({context: context})
+  }
+
   setEmail = (email) => {
     this.setState({email: email})
   }
-
     
   setURL = (remoteURL) => {
     this.setState({remoteURL: remoteURL})
@@ -66,6 +76,15 @@ export default class App extends React.Component {
         <OfflineErrorScreen/>
       );
     }
+
+    if (this.state.context == "merge") {
+      return (
+        <OfflineErrorScreen/>
+      );
+    }
+
+    console.log("REACHED AFTER MERGE")
+
     
     const step = this.state.step;
     // If a saga project exists, we shouldn't do any of this
@@ -100,4 +119,8 @@ export default class App extends React.Component {
       );
     }
   }
+    
+    
+    
+    
 }

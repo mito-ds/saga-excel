@@ -16,6 +16,17 @@ function formattingHandler(event) {
   events.push(event);
 }
 
+async function openShareTaskpane(event) {
+  window.appComponent.setContext("share")
+  Office.addin.showAsTaskpane();
+  event.completed();
+}
+
+function openMergeTaskpane() {
+  window.appComponent.setContext("merge")
+  Office.addin.showAsTaskpane();
+}
+
 Office.onReady(() => {
   Excel.run(function (context) {
     context.workbook.worksheets.onFormatChanged.add(formattingHandler);
@@ -29,7 +40,8 @@ Office.onReady(() => {
  */
 async function merge(event) {
   console.log(events)
-  await runMerge(events);
+  openMergeTaskpane()
+  //await runMerge(events);
   event.completed();
   events = [];
 }
@@ -63,3 +75,4 @@ const g = getGlobal();
 g.merge = merge;
 g.switchVersion = switchVersion;
 g.resetPersonalVersion = resetPersonalVersion;
+g.openShareTaskpane = openShareTaskpane;
