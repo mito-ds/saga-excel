@@ -424,7 +424,9 @@ export async function merge(context, formattingEvents) {
 
     const updated = await updateShared(context);
 
-    if (!updated) {
+    if (updated === "forked") {
+        return "forked"
+    } else if (!updated) {
         console.error("Cannot checkin personal branch as shared branch may not be up to date.");
         return "merge error";
     }

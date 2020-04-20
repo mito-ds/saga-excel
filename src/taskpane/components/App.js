@@ -8,6 +8,7 @@ import OfflineErrorScreen from "./OfflineErrorScreen"
 import MergeScreen from "./MergeProgressHandler";
 import MergeSuccess from "./MergeSuccess"
 import MergeError from "./MergeError"
+import MergeForked from "./MergeForked"
 import EmptyButton from "./saga/EmptyButton"
 import { createSheet, getSheetsWithNames } from "../../saga/sagaUtils";
 import { getFileContents } from "../../saga/fileUtils";
@@ -96,6 +97,12 @@ export default class App extends React.Component {
     if (this.state.context == "merge error") {
       return (
         <MergeError />
+      )
+    }
+
+    if (this.state.context == "forked") {
+      return (
+        <MergeForked />
       )
     }
     
