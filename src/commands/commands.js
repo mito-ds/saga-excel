@@ -16,8 +16,14 @@ function formattingHandler(event) {
   events.push(event);
 }
 
+async function openShareTaskpane(event) {
+  window.appComponent.setContext("share")
+  Office.addin.showAsTaskpane();
+  event.completed();
+}
+
 function openMergeTaskpane() {
-  console.log("showing takspane in merge")
+  window.appComponent.setContext("merge")
   Office.addin.showAsTaskpane();
 }
 
@@ -35,7 +41,7 @@ Office.onReady(() => {
 async function merge(event) {
   console.log(events)
   openMergeTaskpane()
-  await runMerge(events);
+  //await runMerge(events);
   event.completed();
   events = [];
 }
@@ -69,3 +75,4 @@ const g = getGlobal();
 g.merge = merge;
 g.switchVersion = switchVersion;
 g.resetPersonalVersion = resetPersonalVersion;
+g.openShareTaskpane = openShareTaskpane;
