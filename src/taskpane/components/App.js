@@ -5,6 +5,7 @@ import LoginScreen from "./LoginScreen"
 import ProjectSourceScreen from "./ProjectSourceScreen"
 import TaskpaneFooter from "./TaskpaneFooter"
 import OfflineErrorScreen from "./OfflineErrorScreen"
+import MergeScreen from "./MergeScreen";
 import EmptyButton from "./saga/EmptyButton"
 import { createSheet, getSheetsWithNames } from "../../saga/sagaUtils";
 import { getFileContents } from "../../saga/fileUtils";
@@ -55,7 +56,6 @@ export default class App extends React.Component {
     this.setState({offline: true})
   }
   
-
   nextStep = () => {
     this.setState(state => {
       return {step: state.step + 1}
@@ -78,9 +78,12 @@ export default class App extends React.Component {
     }
 
     if (this.state.context == "merge") {
+      console.log("found merge context")
       return (
-        <OfflineErrorScreen/>
+        <MergeScreen initialState={0}/>
       );
+    } else {
+
     }
 
     console.log("REACHED AFTER MERGE")
