@@ -5,6 +5,7 @@ import { updateShared } from "./sync";
 import Project from "./Project";
 import { runOperation } from './runOperation';
 import { makeClique } from "./commit";
+import { taskpaneStatus } from '../taskpane/components/App';
 
 /* global Excel */
 
@@ -425,10 +426,10 @@ export async function merge(context, formattingEvents) {
     const updated = await updateShared(context);
 
     if (updated === "forked") {
-        return "forked"
+        return taskpaneStatus.MERGE_FORKED
     } else if (!updated) {
         console.error("Cannot checkin personal branch as shared branch may not be up to date.");
-        return "merge error";
+        return taskpaneStatus.MERGE_ERROR
     }
 
     const project = new Project(context);
@@ -438,7 +439,7 @@ export async function merge(context, formattingEvents) {
 
     if (headBranch !== personalBranch) {
         console.error("Please check out your personal branch before checking in.");
-        return "merge error";
+        return taskpaneStatus.MERGE_ERROR
     }
 
     // Make a commit on the personal branch    
@@ -456,7 +457,7 @@ export async function merge(context, formattingEvents) {
         // TODO: handle this case with some better UI...
     }
 
-    return "merge successful"
+    return taskpaneStatus.MERGE_SUCCESS
 }
 
 export async function runMerge(formattingEvents) {

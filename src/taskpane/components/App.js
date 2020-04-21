@@ -20,9 +20,13 @@ import MergeProgressHandler from "./MergeProgressHandler";
 
 /* global */
 
-function getTaskpaneContext() {
-  const taskPaneContext = getGlobal().getTaskpaneContext()
-  return taskPaneContext
+export const taskpaneStatus = {
+  CREATE: 'create',
+  SHARE: 'share',
+  MERGE_PROGRESS: 'merge_progress',
+  MERGE_SUCCESS: 'merge_success',
+  MERGE_ERROR: 'merge_error',
+  MERGE_FORKED: 'merge_forked'
 }
 
 export default class App extends React.Component {
@@ -33,19 +37,19 @@ export default class App extends React.Component {
       email: '',
       remoteURL: '',
       offline: false,
-      context: "share"
+      taskpaneStatus: taskpaneStatus.CREATE
     };
 
-    this.setContext = this.setContext.bind(this)
+    this.setTaskpaneStatus = this.setTaskpaneStatus.bind(this)
     this.setEmail = this.setEmail.bind(this);
     this.setURL = this.setURL.bind(this);
     this.nextStep = this.nextStep.bind(this);
     this.offile = this.offline.bind(this);
   }
 
-  setContext = (context) => {
-    console.log(`setting the value of context to ${context}`)
-    this.setState({context: context})
+  setTaskpaneStatus = (taskpaneStatus) => {
+    console.log(`setting the value of context to ${taskpaneStatus}`)
+    this.setState({taskpaneStatus: taskpaneStatus})
   }
 
   setEmail = (email) => {
@@ -81,66 +85,68 @@ export default class App extends React.Component {
       );
     }
 
-    if (this.state.context == "merge progress") {
-      console.log("found merge context")
-      return (
-        <MergeProgressHandler/>
-      );
-    } 
+    switch(this.state.taskpaneStatus) {
+      case taskpaneStatus.MERGE_PROGRESS:
+        return (
+          <MergeProgressHandler/>
+        );
+      
+      case taskpaneStatus.MERGE_SUCCESS:
+        return (
+          <MergeSuccess />
+        )
+      
+      case taskpaneStatus.MERGE_ERROR:
+        return (
+          <MergeError />
+        )
 
-    if (this.state.context == "merge successful") {
-      return (
-        <MergeSuccess />
-      )
-    }
+      case taskpaneStatus.MERGE_FORKED:
+        return (
+          <MergeForked />
+        )
 
-    if (this.state.context == "merge error") {
-      return (
-        <MergeError />
-      )
-    }
+      case taskpaneStatus.SHARE:
+        return (
+          <div className="taskpane">
+            <SagaLinkScreen remoteURL={this.state.remoteURL}></SagaLinkScreen>
+            <TaskpaneFooter/>
+          </div>
+        );
 
-    if (this.state.context == "forked") {
-      return (
-        <MergeForked />
-      )
-    }
+      case taskpaneStatus.CREATE:
+        const step = this.state.step;
+        // If a saga project exists, we shouldn't do any of this
     
-    const step = this.state.step;
-    // If a saga project exists, we shouldn't do any of this
-
-    if (step === 0) {
-      return (
-        <div className="taskpane">
-          <LoginScreen setEmail={this.setEmail} nextStep={this.nextStep}/>
-          <TaskpaneFooter/>
-        </div>
-      );
-    } else if (step === 1) {
-      return (
-        <div className="taskpane">
-          <ProjectSourceScreen offline={this.offline} email={this.state.email} setURL={this.setURL} nextStep={this.nextStep}/>
-          <TaskpaneFooter/>
-        </div>
-      );
-    } else if (step === 2) {
-      return (
-        <div className="taskpane">
-          <Progress title={title} logo="assets/saga-logo/saga-logo-taskpane.png" message="Creating your saga project..." />
-        </div>
-      );
-    } else {
-      // If the user has finished the creation process
-      return (
-        <div className="taskpane">
-          <SagaLinkScreen remoteURL={this.state.remoteURL}></SagaLinkScreen>
-          <TaskpaneFooter/>
-        </div>
-      );
-    }
-  }
-    
-    
-    
-    
+        if (step === 0) {
+          return (
+            <div className="taskpane">
+              <LoginScreen setEmail={this.setEmail} nextStep={this.nextStep}/>
+              <TaskpaneFooter/>
+            </div>
+          );
+        } else if (step === 1) {
+          return (
+            <div className="taskpane">
+              <ProjectSourceScreen offline={this.offline} email={this.state.email} setURL={this.setURL} nextStep={this.nextStep}/>
+              <TaskpaneFooter/>
+            </div>
+          );
+        } else if (step === 2) {
+          return (
+            <div className="taskpane">
+              <Progress title={title} logo="assets/saga-logo/saga-logo-taskpane.png" message="Creating your saga project..." />
+            </div>
+          );
+        } else {
+          // If the user has finished the creation process
+          return (
+            <div className="taskpane">
+              <SagaLinkScreen remoteURL={this.state.remoteURL}></SagaLinkScreen>
+              <TaskpaneFooter/>
+            </div>
+          );
+        }
+    }    
+  }  
 }
