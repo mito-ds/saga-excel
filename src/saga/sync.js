@@ -122,7 +122,7 @@ export async function updateShared(context) {
       return updated;
     } else {
       console.error("Cannot update shared as is forked from shared :(");
-      return false;
+      return "forked";
     }
 }
 
