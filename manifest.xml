@@ -8,9 +8,9 @@
   <Description DefaultValue="A robust version control system for excel."/>
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-80.png"/>
-  <SupportUrl DefaultValue="https://www.sagacollab.org"/>
+  <SupportUrl DefaultValue="https://www.sagacollab.com"/>
   <AppDomains>
-    <AppDomain>sagacollab.org</AppDomain>
+    <AppDomain>sagacollab.com</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Workbook"/>
