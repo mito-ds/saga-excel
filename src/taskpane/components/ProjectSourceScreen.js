@@ -3,38 +3,6 @@ import { PrimaryButton } from '@fluentui/react';
 import {runCreateSaga, runCreateFromURL, createRemoteURL}  from "../../saga/create";
 
 /* global Office */
-
-// Disable create saga button, turn others on 
-function toggleRibbonAvailability() {
-    Office.ribbon.requestUpdate({
-        tabs: [
-            {
-                id: "TabHome", 
-                controls: [
-                {
-                    id: "MergeButton", 
-                    enabled: true
-                }, 
-                {   
-                    id: "VersionButton", 
-                    enabled: true
-                },
-                {   
-                    id: "ResetPersonalButton", 
-                    enabled: true
-                },
-                {   
-                    id: "ShareProjectButton", 
-                    enabled: true
-                },
-                {   
-                    id: "TaskpaneButton", 
-                    enabled: false
-                }  
-            ]}
-        ]
-    });
-}
   
 
 // Login Form Component

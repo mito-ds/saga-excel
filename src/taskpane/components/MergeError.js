@@ -1,5 +1,7 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
+import axios from "axios";
+
 
 /* global  */
 
@@ -13,17 +15,11 @@ export default class MergeError extends React.Component {
 
   postFeedback (e) {
     e.preventDefault();
-    console.log(document)
     const email = document.getElementById('email').value
     const response = document.getElementById('response').value
-    console.log(email)
-    console.log(response)
 
-    /*
-    const email = "test email"
-    const response = "test response"
     try {
-        // Send the signup to the server
+        // Send the feedback to the server
         axios.post(
             "https://excel.sagalab.org/submit-feedback",
             {
@@ -35,8 +31,9 @@ export default class MergeError extends React.Component {
     } catch {
         console.error("Failed to post email.")
     }
-    */
+    
 
+   // Remove Signup form, display thank you text 
    document.getElementById('project-link-card').style.display = "none"
    document.getElementById('feedback-thank-you').style.display = "block"
 
