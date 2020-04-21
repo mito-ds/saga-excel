@@ -66,7 +66,7 @@ def main():
     with open("../manifest.xml", "r") as f:
         manifest_data = f.read()
     
-    manifest_data = manifest_data.replace("localhost:3000", "excel.sagalab.org");
+    #manifest_data = manifest_data.replace("localhost:3000", "excel.sagacollab.org");
 
     # write it 
     with open("./templates/preinstall", "r") as f:

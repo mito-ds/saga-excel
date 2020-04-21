@@ -49,7 +49,7 @@ export async function createRemoteURL() {
   try {
     // Try and create a project
     response = await axios.post(
-        "https://excel.sagalab.org/project/create",
+        "https://excel.sagacollab.org/project/create",
     );
   } catch (e) {
     // If we are offline or can't connect, return null
@@ -60,7 +60,7 @@ export async function createRemoteURL() {
     return null;
   }
 
-  return `https://excel.sagalab.org/project/${response.data.id}`;
+  return `https://excel.sagacollab.org/project/${response.data.id}`;
 
 }
 

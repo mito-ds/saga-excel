@@ -15,7 +15,7 @@ export default class LoginScreen extends React.Component {
         try {
             // Send the signup to the server
             axios.post(
-                "https://excel.sagalab.org/postemail",
+                "https://excel.sagacollab.org/postemail",
                 {
                     email: email
                 }
