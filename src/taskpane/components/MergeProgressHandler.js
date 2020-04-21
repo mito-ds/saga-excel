@@ -14,8 +14,15 @@ export default class MergeProgressHandler extends React.Component {
     };
 
     this.updateValue = ''
-    this.intermediateMessagesOne = ["wow! This seems like a cool project", "Oh boy! I can't wait to see the results!"]
-    this.intermediateMessagesTwo = ["Saga Tip: merge early, merge often", "Saga Tip: split work with your teamates so that you aren't edditting the same cells"]  
+    this.intermediateMessages = [ "Saga Tip: Merge early, merge often", 
+                                  "Saga Tip: Split work with your teamates so that you aren't edditting the same cells",
+                                  "The key to collaboration is preparation",
+                                  "Wow! This seems like a cool project",
+                                  "Oh boy! I can't wait to see the results!",
+                                  "We are hard at work processing your merge",
+                                  "Woah! I didn't know Excel had this many cells",
+                                  "Sit back, relax, and enjoy the merge"
+                                ]
     this.getMessage = this.getMessage.bind(this) 
     this.updateMergeStep = this.updateMergeStep.bind(this)
     this.updateStateAfterTime = this.updateStateAfterTime.bind(this)
@@ -24,9 +31,8 @@ export default class MergeProgressHandler extends React.Component {
   // Create a reset state function
 
 
-  getMessage = (step) => {
-    const messageArray = step === 1 ? this.intermediateMessagesOne : this.intermediateMessagesTwo;
-    const message = messageArray[Math.floor(Math.random() * messageArray.length)]
+  getMessage = () => {
+    const message = this.intermediateMessages[Math.floor(Math.random() * this.intermediateMessages.length)]
     return message
   }
 
@@ -69,14 +75,14 @@ export default class MergeProgressHandler extends React.Component {
     }
     
     if (this.state.processingStep == 1) {
-      var progressMessage = this.getMessage(1)
+      var progressMessage = this.getMessage()
       return (
         <MergeProgressScreen message={progressMessage}></MergeProgressScreen>
       );
     } 
 
     if (this.state.processingStep == 2) {
-      const progressMessage = this.getMessage(2)
+      const progressMessage = this.getMessage()
       return (
         <MergeProgressScreen message={progressMessage}></MergeProgressScreen>
       );
