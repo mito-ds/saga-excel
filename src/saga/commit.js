@@ -13,37 +13,37 @@ export async function makeClique(context, sheetNames, getNewName, worksheetPosit
 
     const fileContents = await getFileContents();
     const worksheets = context.workbook.worksheets;
-  
-    var sheets = await getSheetsWithNames(context);
-    sheets = sheets.filter(sheet => {return sheetNames.includes(sheet.name)});
-  
-    // Rename all the sheets
-    for (let i = 0; i < sheets.length; i++) {
-      const newName = getNewName(sheets[i].name);
-      sheets[i].name = newName;
-  
-      if (i % 40 === 0) {
-        await context.sync();
-      }
-    }
-  
-    // Then, reinsert all the sheets
+
+    // First, we insert the new sheets
     worksheets.addFromBase64(
-      fileContents,
-      sheetNames,
-      worksheetPositionType
+        fileContents,
+        sheetNames,
+        worksheetPositionType
     );
-  
-    // Now, for each of these sheets, we set their visibility
-    // TODO
+
+    await context.sync();
+
+    // Then, we go through and rename all the newly inserted sheets, as well as set their visibility
+    // We need to find what their names are, which, for now, we assume will just be renamed + a (1)
+    for (let i = 0; i < sheetNames.length; i++) {
+        // TODO: handle more complex renamings or inserts
+        const insertedName = sheetNames[i] + " (2)";
+        const newName = getNewName(sheetNames[i]);
+        console.log(`Getting sheet ${insertedName} and changing ${newName}`)
+        const sheet = worksheets.getItem(insertedName);
+        sheet.name = newName;
+        sheet.visibility = worksheetVisibility;
+        console.log("Setting worksheet visibility to", worksheetVisibility)
+
+        // We can queue at most 50 transaction
+        if (i % 40 === 0) {
+            await context.sync();
+        }
+    }
 
     return context.sync();
 }
-  
-  
-export function runMakeClique() {
-    runOperation(makeClique, ["Sheet1", "Sheet2"], (name) => {return name + "-COMMIT"}, Excel.WorksheetPositionType.end);
-}
+
 
 /*
 Create Commit
@@ -75,8 +75,8 @@ export async function commit(context, commitName, commitMessage, branch, commitI
         context, 
         sheetNames, 
         (name) => {return `saga-${commitID}-${name}`}, 
-        Excel.WorksheetPositionType.beginning, 
-        null // TODO: add worksheet visibility
+        Excel.WorksheetPositionType.end, 
+        Excel.SheetVisibility.visible
     );
 
     // save the commit id with it's parent

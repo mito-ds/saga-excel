@@ -1,9 +1,5 @@
 import * as React from "react";
 import { Spinner, SpinnerType } from "office-ui-fabric-react";
-import axios from "axios";
-
-
-/* global Spinner */
 
 export default class MergeProgress extends React.Component {
     constructor(props) {

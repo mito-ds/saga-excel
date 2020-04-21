@@ -68,19 +68,12 @@ export async function checkoutCommitID(context, commitID) {
         return sheet.name.startsWith(`saga-${commitID}-`)
     })
 
-    console.log(`got sheets ${sheets}`)
-
     const srcWorksheets = sheets.map(sheet => sheet.name);
-
-    console.log(`got srcWorksheets ${srcWorksheets}`)
-
 
     // Delete the non-saga sheets
     await deleteNonsagaSheets(context);
 
-    console.log("detelted non saga sheets")
-
-    // backup the sheet data
+    // Checkout the sheet data in the correct location
     await makeClique(
         context, 
         srcWorksheets, 

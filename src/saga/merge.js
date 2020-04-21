@@ -399,7 +399,7 @@ const doMerge = async (context, formattingEvents) => {
         context,
         newCommitSheets,
         (sheetName) => {return sheetName.split(newCommitPrefix)[1]},
-        Excel.WorksheetPositionType.end,
+        Excel.WorksheetPositionType.beginning,
         null
     )
     console.log("Copied new commit sheets to personal branch", newCommitSheets);

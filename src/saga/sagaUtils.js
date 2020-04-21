@@ -52,7 +52,7 @@ export async function createSheet(context, worksheetName, worksheetVisibility) {
 /*
 Copies srcWorksheetName to dstWorksheetName, with the given visibility parameters
 */
-export async function copySheets(
+async function copySheets(
     context, 
     srcWorksheets, 
     getNewName,
@@ -103,7 +103,7 @@ export async function copySheets(
 /*
 Copies srcWorksheetName to dstWorksheetName, with the given visibility parameters
 */
-export async function copySheet(
+async function copySheet(
         context, 
         srcWorksheetName, 
         dstWorksheetName,
