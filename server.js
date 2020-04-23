@@ -1,6 +1,7 @@
 require('dotenv').config();
 require('./src/models/ProjectSchema');
 require('./src/models/EmailSchema');
+require('./src/models/FeedbackSchema');
 const express = require('express');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
@@ -8,6 +9,7 @@ const app = express();
 const projectRouter = require('./src/routers/project');
 const mongoose = require('mongoose');
 const Emails = mongoose.model("Emails");
+const Feedback = mongoose.model("Feedback");
 
 /* global process, require */
 
@@ -41,6 +43,30 @@ async function getEmail(email) {
 async function emailExists(email) {
     return (await getEmail(email)) !== null;
 }
+
+function createDateString () {
+    const d = new Date();
+    var dateString = '';
+    dateString += d.getMonth() + '/' + d.getDate() + '/' + d.getFullYear()
+    dateString += ' ' + d.getHours() + ':' + d.getMinutes()
+    return dateString
+}
+
+app.post('/submit-feedback', (req, res) => {
+    const email = req.body.email;
+    const relevance = req.body.relevance; 
+    const response = req.body.response;
+
+    const feedback = new Feedback();
+    feedback.email = email
+    feedback.relevance = relevance;
+    feedback.response = response;
+    feedback.date = createDateString();
+    feedback.save();
+
+    // Send Success Message
+    res.end();
+})
 
 app.use('/postemail', async function (req, res) {
     const newEmail = req.body.email;

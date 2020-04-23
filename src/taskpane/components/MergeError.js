@@ -21,7 +21,7 @@ export default class MergeError extends React.Component {
     try {
         // Send the feedback to the server
         axios.post(
-            "https://sagacollab.com/submit-feedback",
+            "https://excel.sagacollab.com/submit-feedback",
             {
                 email: email,
                 relevance: "A bug",

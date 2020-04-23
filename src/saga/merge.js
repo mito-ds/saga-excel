@@ -457,7 +457,7 @@ export async function merge(context, formattingEvents) {
         // TODO: handle this case with some better UI...
     }
 
-    return taskpaneStatus.MERGE_SUCCESS
+    return taskpaneStatus.MERGE_ERROR
 }
 
 export async function runMerge(formattingEvents) {
