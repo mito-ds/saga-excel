@@ -64,6 +64,24 @@ export default class App extends React.Component {
       return {step: state.step + 1}
     })
   }
+  toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    console.log("Called to Base 64")
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+
+  onChangeHandler = async (event) => {
+    console.log("got file", event.target.files[0]);
+    const base64String = (await this.toBase64(event.target.files[0])).split("base64,")[1];
+    console.log(base64String);
+    Excel.run(async (context) => {
+      await context.workbook.worksheets.addFromBase64(
+        base64String
+      )
+    })
+  }
 
   render() {
     const { title, isOfficeInitialized } = this.props;
@@ -72,6 +90,12 @@ export default class App extends React.Component {
       return (
         <Progress title={title} logo="assets/saga-logo/saga-logo-taskpane.png" message="Please sideload your addin to see app body." />
       );
+    }
+
+    if (true) {
+      return (
+        <input type="file" name="file" onChange={this.onChangeHandler}/>
+      )
     }
 
     if (this.state.offline) {
