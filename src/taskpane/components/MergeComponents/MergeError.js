@@ -28,7 +28,7 @@ export default class MergeError extends React.Component {
                 response: response
             }
         )
-    } catch {
+    } catch (error) {
         console.error("Failed to post email.")
     }
     

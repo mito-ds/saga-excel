@@ -1,28 +1,17 @@
 import * as React from "react";
 import Progress from "./Progress";
-import SagaLinkScreen from "./SagaLinkScreen"
+import LinkScreen from "./LinkScreen"
 import LoginScreen from "./LoginScreen"
 import ProjectSourceScreen from "./ProjectSourceScreen"
 import TaskpaneFooter from "./TaskpaneFooter"
 import OfflineErrorScreen from "./OfflineErrorScreen"
-import MergeSuccess from "./MergeSuccess"
-import MergeError from "./MergeError"
-import MergeForked from "./MergeForked"
-import MergeProgressHandler from "./MergeProgressHandler";
+import MergeHandler from "./MergeComponents/MergeHandler";
+import { taskpaneStatus, mergeState } from "../../constants";
 
 import './App.css';
 
 
 /* global */
-
-export const taskpaneStatus = {
-  CREATE: 'create',
-  SHARE: 'share',
-  MERGE_PROGRESS: 'merge_progress',
-  MERGE_SUCCESS: 'merge_success',
-  MERGE_ERROR: 'merge_error',
-  MERGE_FORKED: 'merge_forked'
-}
 
 export default class App extends React.Component {
   constructor(props) {
@@ -32,19 +21,26 @@ export default class App extends React.Component {
       email: '',
       remoteURL: '',
       offline: false,
-      taskpaneStatus: taskpaneStatus.CREATE
+      taskpaneStatus: taskpaneStatus.CREATE,
+      mergeState: mergeState.MERGE_SUCCESS
     };
 
     this.setTaskpaneStatus = this.setTaskpaneStatus.bind(this)
     this.setEmail = this.setEmail.bind(this);
     this.setURL = this.setURL.bind(this);
     this.nextStep = this.nextStep.bind(this);
-    this.offile = this.offline.bind(this);
+    this.offline = this.offline.bind(this);
+    this.setMergeState = this.setMergeState.bind(this);
+
   }
 
   setTaskpaneStatus = (taskpaneStatus) => {
-    console.log(`setting the value of context to ${taskpaneStatus}`)
+    console.log(`setting the value of taskpaneState to ${taskpaneStatus}`)
     this.setState({taskpaneStatus: taskpaneStatus})
+  }
+
+  setMergeState = (mergeState) => {
+    this.setState({mergeState: mergeState})
   }
 
   setEmail = (email) => {
@@ -81,33 +77,11 @@ export default class App extends React.Component {
     }
 
     switch(this.state.taskpaneStatus) {
-      case taskpaneStatus.MERGE_PROGRESS:
-        return (
-          <MergeProgressHandler/>
-        );
-      
-      case taskpaneStatus.MERGE_SUCCESS:
-        return (
-          <MergeSuccess />
-        )
-      
-      case taskpaneStatus.MERGE_ERROR:
-        return (
-          <MergeError />
-        )
-
-      case taskpaneStatus.MERGE_FORKED:
-        return (
-          <MergeForked />
-        )
+      case taskpaneStatus.MERGE:
+        return (<MergeHandler mergeState={this.state.mergeState}/>);
 
       case taskpaneStatus.SHARE:
-        return (
-          <div className="taskpane">
-            <SagaLinkScreen remoteURL={this.state.remoteURL}></SagaLinkScreen>
-            <TaskpaneFooter/>
-          </div>
-        );
+        return (<LinkScreen remoteURL={this.state.remoteURL}/>);
 
       case taskpaneStatus.CREATE:
         const step = this.state.step;
@@ -137,7 +111,7 @@ export default class App extends React.Component {
           // If the user has finished the creation process
           return (
             <div className="taskpane">
-              <SagaLinkScreen remoteURL={this.state.remoteURL}></SagaLinkScreen>
+              <LinkScreen remoteURL={this.state.remoteURL}></LinkScreen>
               <TaskpaneFooter/>
             </div>
           );

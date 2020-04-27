@@ -75,6 +75,7 @@ async function createSaga(context, remoteURL, email) {
   await commit(context, "Create Saga Project", "Saga project creation", "master", firstCommitID);
 
   // Update the shared repository
+  // TODO: error check this!
   await updateShared(context);
 
   // Start syncing this with master

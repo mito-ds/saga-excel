@@ -5,10 +5,12 @@ const Projects = mongoose.model('Projects');
 
 /* global require, module */
 
-const BRANCH_STATE_HEAD = 0;
-const BRANCH_STATE_AHEAD = 1;
-const BRANCH_STATE_BEHIND = 2;
-const BRANCH_STATE_FORKED = 3;
+// TODO: import these from constants!
+const BRANCH_STATE_HEAD = 'branch_state_head';
+const BRANCH_STATE_AHEAD = 'branch_state_ahead';
+const BRANCH_STATE_BEHIND ='branch_state_behind';
+const BRANCH_STATE_FORKED ='branch_state_forked';
+
 
 async function getProject(id) {
     return await Projects.findOne({id: id}).exec();

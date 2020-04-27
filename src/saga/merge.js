@@ -5,7 +5,7 @@ import { updateShared } from "./sync";
 import Project from "./Project";
 import { runOperation } from './runOperation';
 import { makeClique } from "./commit";
-import { taskpaneStatus } from '../taskpane/components/App';
+import { mergeState, branchState } from '../constants';
 
 /* global Excel */
 
@@ -425,11 +425,8 @@ export async function merge(context, formattingEvents) {
 
     const updated = await updateShared(context);
 
-    if (updated === "forked") {
-        return taskpaneStatus.MERGE_FORKED
-    } else if (!updated) {
-        console.error("Cannot checkin personal branch as shared branch may not be up to date.");
-        return taskpaneStatus.MERGE_ERROR
+    if (updated !== branchState.BRANCH_STATE_HEAD) {
+        return updated === branchState.BRANCH_STATE_FORKED ? mergeState.MERGE_FORKED : mergeState.MERGE_ERROR;
     }
 
     const project = new Project(context);
@@ -439,25 +436,22 @@ export async function merge(context, formattingEvents) {
 
     if (headBranch !== personalBranch) {
         console.error("Please check out your personal branch before checking in.");
-        return taskpaneStatus.MERGE_ERROR
+        return mergeState.MERGE_ERROR;
     }
 
     // Make a commit on the personal branch    
     await commit(context, `check in of ${personalBranch}`, "", personalBranch);
     // Merge this commit into the shared branch
     await doMerge(context, formattingEvents);
-    console.log("FINISHED DOING MERGE")
 
     // Try and update the server with this newly merged sheets
     const updatedWithMerge = await updateShared(context);
 
-    if (!updatedWithMerge) {
-        console.error("Checked in data may have not been been shared...");
-        return "merge error"
-        // TODO: handle this case with some better UI...
+    if (updatedWithMerge !== branchState.BRANCH_STATE_HEAD) {
+        return updatedWithMerge === branchState.BRANCH_STATE_FORKED ? mergeState.MERGE_FORKED : mergeState.MERGE_ERROR;
     }
 
-    return taskpaneStatus.MERGE_ERROR
+    return mergeState.MERGE_SUCCESS;
 }
 
 export async function runMerge(formattingEvents) {

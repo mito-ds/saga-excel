@@ -6,7 +6,7 @@
 import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
 import { runResetPersonalVersion } from "../saga/resetPersonal.js"
 import { runMerge } from "../saga/merge.js"
-import { taskpaneStatus } from "../taskpane/components/App.js";
+import { taskpaneStatus, mergeState } from "../constants";
 
 /* global global, Office, Excel */
 
@@ -24,7 +24,7 @@ async function openShareTaskpane(event) {
 }
 
 function openMergeTaskpane() {
-  window.appComponent.setTaskpaneStatus(taskpaneStatus.MERGE_PROGRESS)
+  window.appComponent.setTaskpaneStatus(taskpaneStatus.MERGE)
   Office.addin.showAsTaskpane();
 }
 
@@ -41,12 +41,10 @@ Office.onReady(() => {
  */
 async function merge(event) {
   openMergeTaskpane()
-  var mergeResponse = await runMerge(events);
-  if (mergeResponse === undefined) {
-    mergeResponse = taskpaneStatus.MERGE_ERROR;
-  }
-  window.appComponent.setTaskpaneStatus(mergeResponse)
-
+  window.appComponent.setTaskpaneStatus(taskpaneStatus.MERGE);
+  window.appComponent.setMergeState(mergeState.MERGE_IN_PROGRESS);
+  var mergeResult = await runMerge(events);
+  window.appComponent.setMergeState(mergeResult);
   event.completed();
   events = [];
 }

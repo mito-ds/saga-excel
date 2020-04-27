@@ -5,6 +5,8 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpack = require('webpack');
 
+/* global require, module, process */
+
 module.exports = async (env, options)  => {
   const dev = options.mode === "development";
   const config = {
@@ -64,11 +66,6 @@ module.exports = async (env, options)  => {
         filename: "taskpane.html",
           template: './src/taskpane/taskpane.html',
           chunks: ['commands', 'taskpane', 'vendor', 'polyfill']
-      }),
-      new HtmlWebpackPlugin({
-          filename: "commands.html",
-          template: "./src/commands/commands.html",
-          chunks: ["commands", 'polyfill']
       }),
       new CopyWebpackPlugin([
           {

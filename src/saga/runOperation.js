@@ -12,6 +12,7 @@ export async function runOperation(operation, ...rest) {
             // TODO: write this in a promise to make run operation return things
             result = await operation(context, ...rest);
         });
+        console.log("Done waiting with result, ", result);
     } catch (error) {
         console.error(error);
         if (error instanceof OfficeExtension.Error) {
