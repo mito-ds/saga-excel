@@ -71,6 +71,8 @@ export async function checkoutCommitID(context, commitID) {
     const srcWorksheets = sheets.map(sheet => sheet.name);
 
     // Delete the non-saga sheets
+    const tmpSheet = context.workbook.worksheets.getActiveWorksheet()
+    tmpSheet.name = "saga-tmp";
     await deleteNonsagaSheets(context);
 
     // Checkout the sheet data in the correct location
@@ -81,6 +83,7 @@ export async function checkoutCommitID(context, commitID) {
         Excel.WorksheetPositionType.beginning, 
         Excel.SheetVisibility.visible
     );
+    tmpSheet.delete();
 }
 
 
