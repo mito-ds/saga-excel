@@ -389,7 +389,7 @@ const doMerge = async (context, formattingEvents) => {
     console.log("Done with formatting")
 
     // We make a tmp sheet (so we can delete things)
-    var tmpSheet = context.workbook.worksheets.getActiveWorksheet();
+    var tmpSheet = personalSheets[0];
     tmpSheet.name = "saga-tmp";
 
     // Finially, we have to delete the old personal sheets

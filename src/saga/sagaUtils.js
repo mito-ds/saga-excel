@@ -178,6 +178,7 @@ export async function deleteNonsagaSheets(context) {
         return !sheet.name.startsWith("saga");
     })
 
+    // TODO: make it be save w/ number of sheets
     sheets.forEach(sheet => sheet.delete());
 
     await context.sync();

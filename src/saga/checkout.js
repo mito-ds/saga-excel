@@ -1,4 +1,4 @@
-import { getSheetsWithNames } from "./sagaUtils";
+import { getSheetsWithNames, deleteNonsagaSheets } from "./sagaUtils";
 import Project from './Project';
 import { runOperation } from "./runOperation";
 import { makeClique } from "./commit"
@@ -33,16 +33,6 @@ async function getNonSagaSheets(context) {
 }
 
 /* 
-Deletes all sheets that do not start with 'saga'
-*/
-export async function deleteNonsagaSheets(context) {
-    const sheets = await getNonSagaSheets(context);
-    sheets.forEach(sheet => sheet.delete());
-
-    await context.sync();
-}
-
-/* 
 Lock worksheets
 */
 async function lockWorksheets(context) {
@@ -71,7 +61,7 @@ export async function checkoutCommitID(context, commitID) {
     const srcWorksheets = sheets.map(sheet => sheet.name);
 
     // Delete the non-saga sheets
-    const tmpSheet = context.workbook.worksheets.getActiveWorksheet()
+    const tmpSheet = (await getSheetsWithNames(context)).find(sheet => !sheet.name.startsWith("saga"))
     tmpSheet.name = "saga-tmp";
     await deleteNonsagaSheets(context);
 
