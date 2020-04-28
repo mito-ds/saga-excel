@@ -76,7 +76,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
         sheetNames, 
         (name) => {return `saga-${commitID}-${name}`}, 
         Excel.WorksheetPositionType.end, 
-        Excel.SheetVisibility.visible
+        Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
     );
 
     // save the commit id with it's parent

@@ -1,11 +1,12 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import axios from "axios";
+import Taskpane from "../Taskpane";
 
 
 /* global  */
 
-export default class MergeError extends React.Component {
+export default class MergeErrorScreen extends React.Component {
 
   constructor(props) {
     super(props); 
@@ -32,28 +33,15 @@ export default class MergeError extends React.Component {
         console.error("Failed to post email.")
     }
     
-
    // Remove Signup form, display thank you text 
    document.getElementById('project-link-card').style.display = "none"
    document.getElementById('feedback-thank-you').style.display = "block"
 
-
   }
 
   render() {
-    console.log("Merge Success")
     return (
-      <section className="ms-welcome__progress ms-u-fadeIn500">
-
-        <div className="header">
-          <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-        </div>
-
-        <div className="merge-result-text">
-          <p className="title-text" id="title-text">Uh oh! We hit an error while merging your worksheets</p>
-          <p className="title-text" id="title-text">Please let us know what you were trying to do so we can make sure it works for you next time  </p>
-        </div>
-        
+      <Taskpane title="Uh oh! We hit an error while merging your worksheets. Let us know what you were working on so we can improve merge in the future!">
         <div className="floating-card" id="project-link-card">
           <h1 className="feedback-form-title">Feedback</h1>
           <form className="form" id="feedback-form" onSubmit={this.postFeedback}>
@@ -65,7 +53,7 @@ export default class MergeError extends React.Component {
         <div className="floating-card" id="feedback-thank-you" style={{display:"none", "backgroundColor": "#e6ffb3", padding: "3vh"}}>
           <p style={{textAlign: "center"}}>Thanks for your feedback!</p>
         </div>
-      </section>
+      </Taskpane>
     )
   }
 }

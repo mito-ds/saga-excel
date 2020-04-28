@@ -1,8 +1,9 @@
 import * as React from "react";
+import Taskpane from "../Taskpane";
 
 /* global  */
 
-export default class MergeForked extends React.Component {
+export default class MergeForkedScreen extends React.Component {
 
   constructor(props) {
     super(props); 
@@ -11,16 +12,7 @@ export default class MergeForked extends React.Component {
 
   render() {
     return (
-      <section className="ms-welcome__progress ms-u-fadeIn500">
-
-        <div className="header">
-          <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-        </div>
-
-        <div className="merge-result-text">
-          <p className="title-text" id="title-text">We were unable to merge your changes because you tried to merge at the same time as one of your teamates. This error will be fixed in later releases.</p>        
-        </div>
-
+      <Taskpane title="Looks like you started merging at the same time as one of your teammates. We don't support that right now.">
         <div className="forked-resolution-text-div">
           <p className="forked-resolution-text-title"> To resolve this issue: </p>
           <div className="forked-resolution-text">
@@ -30,7 +22,7 @@ export default class MergeForked extends React.Component {
             <p> 4. Merge</p>
           </div>
         </div>
-      </section>
+      </Taskpane>
     )
   }
 }

@@ -1,5 +1,5 @@
 import { commit } from './commit';
-import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets } from "./sagaUtils";
+import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets, createSheet } from "./sagaUtils";
 import { diff3Merge2d } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
@@ -280,7 +280,7 @@ const doMerge = async (context, formattingEvents) => {
         personalSheetsNames,
         (sheetName) => {return newCommitPrefix + sheetName},
         Excel.WorksheetPositionType.end,
-        null
+        Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
     )
 
     console.log("Copied over personal sheets to ", newCommitPrefix);
@@ -347,7 +347,7 @@ const doMerge = async (context, formattingEvents) => {
         masterNonDeletedNames,
         (sheetName) => {return newCommitPrefix + sheetName.split(masterPrefix)[1]},
         Excel.WorksheetPositionType.end,
-        null
+        Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
     )
 
     console.log(`Copied over the master non-deleted sheets:`, masterNonDeletedNames);
@@ -358,7 +358,7 @@ const doMerge = async (context, formattingEvents) => {
         insertedSheetsNames,
         (sheetName) => {return newCommitPrefix + sheetName},
         Excel.WorksheetPositionType.end,
-        null
+        Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
     )
 
     console.log("Copied over inserted", insertedSheetsNames);
@@ -388,6 +388,10 @@ const doMerge = async (context, formattingEvents) => {
 
     console.log("Done with formatting")
 
+    // We make a tmp sheet (so we can delete things)
+    var tmpSheet = context.workbook.worksheets.getActiveWorksheet();
+    tmpSheet.name = "saga-tmp";
+
     // Finially, we have to delete the old personal sheets
     await deleteNonsagaSheets(context);
 
@@ -401,8 +405,11 @@ const doMerge = async (context, formattingEvents) => {
         newCommitSheets,
         (sheetName) => {return sheetName.split(newCommitPrefix)[1]},
         Excel.WorksheetPositionType.beginning,
-        null
+        Excel.SheetVisibility.visible // TODO: change to very hidden, figure out deleting
     )
+
+    // Then we delete the tmp sheet
+    tmpSheet.delete();
     console.log("Copied new commit sheets to personal branch", newCommitSheets);
 
 

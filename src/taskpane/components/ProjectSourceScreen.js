@@ -1,8 +1,9 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import {runCreateSaga, runCreateFromURL, createRemoteURL}  from "../../saga/create";
+import Taskpane from "./Taskpane";
 
-/* global Office */
+/* global */
   
 
 // Login Form Component
@@ -51,11 +52,7 @@ export default class LoginScreen extends React.Component {
 
     render () {
         return (
-            <div className="content">
-                <div className="header">
-                    <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-                    <p className="title-text" id="title-text" >Choose your project creation method </p>
-                </div>
+            <Taskpane title="Choose your project creation method.">
                 <div className="card-div">     
                     <p className="creation-option">Start a new project </p>     
                     <div className="floating-card create-project-card" >
@@ -81,7 +78,7 @@ export default class LoginScreen extends React.Component {
                         </div>
                     </div>
                 </div>
-            </div>
+            </Taskpane>
         );  
     }
 }

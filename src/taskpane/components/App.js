@@ -5,11 +5,10 @@ import LoginScreen from "./LoginScreen"
 import ProjectSourceScreen from "./ProjectSourceScreen"
 import TaskpaneFooter from "./TaskpaneFooter"
 import OfflineErrorScreen from "./OfflineErrorScreen"
-import MergeHandler from "./MergeComponents/MergeHandler";
+import MergeScreen from "./MergeScreen";
 import { taskpaneStatus, mergeState } from "../../constants";
 
 import './App.css';
-
 
 /* global */
 
@@ -78,7 +77,7 @@ export default class App extends React.Component {
 
     switch(this.state.taskpaneStatus) {
       case taskpaneStatus.MERGE:
-        return (<MergeHandler mergeState={this.state.mergeState}/>);
+        return (<MergeScreen mergeState={this.state.mergeState}/>);
 
       case taskpaneStatus.SHARE:
         return (<LinkScreen remoteURL={this.state.remoteURL}/>);
@@ -89,17 +88,11 @@ export default class App extends React.Component {
     
         if (step === 0) {
           return (
-            <div className="taskpane">
-              <LoginScreen setEmail={this.setEmail} nextStep={this.nextStep}/>
-              <TaskpaneFooter/>
-            </div>
+            <LoginScreen setEmail={this.setEmail} nextStep={this.nextStep}/>
           );
         } else if (step === 1) {
           return (
-            <div className="taskpane">
-              <ProjectSourceScreen offline={this.offline} email={this.state.email} setURL={this.setURL} nextStep={this.nextStep}/>
-              <TaskpaneFooter/>
-            </div>
+            <ProjectSourceScreen offline={this.offline} email={this.state.email} setURL={this.setURL} nextStep={this.nextStep}/>
           );
         } else if (step === 2) {
           return (
@@ -110,10 +103,7 @@ export default class App extends React.Component {
         } else {
           // If the user has finished the creation process
           return (
-            <div className="taskpane">
-              <LinkScreen remoteURL={this.state.remoteURL}></LinkScreen>
-              <TaskpaneFooter/>
-            </div>
+            <LinkScreen remoteURL={this.state.remoteURL}></LinkScreen>
           );
         }
     }    

@@ -79,7 +79,7 @@ export async function checkoutCommitID(context, commitID) {
         srcWorksheets, 
         (sheetName) => sheetName.split(`saga-${commitID}-`)[1], 
         Excel.WorksheetPositionType.beginning, 
-        null // TODO: add worksheet visibility
+        Excel.SheetVisibility.visible
     );
 }
 

@@ -14,7 +14,8 @@ Sets up the headers for the commit worksheet, if they don't already exist
 */
 async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
     // First, we create the sheet
-    const worksheet = await createSheet(context, "saga", Excel.SheetVisibility.visible);
+    // TODO: change to very hidden
+    const worksheet = await createSheet(context, "saga", Excel.SheetVisibility.hidden);
 
     // Setup, name range for head branch
     const headRange = worksheet.getRange("A1");

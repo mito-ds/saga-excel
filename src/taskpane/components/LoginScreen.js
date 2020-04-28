@@ -1,6 +1,7 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import axios from "axios";
+import Taskpane from "./Taskpane";
 
 // Login Form Component
 export default class LoginScreen extends React.Component {
@@ -30,11 +31,7 @@ export default class LoginScreen extends React.Component {
 
     render () {
         return (
-            <div className="content">
-                <div className="header">
-                    <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-                    <p className="title-text" id="title-text" >You're almost ready to go. Just tell your team who you are. </p>
-                </div>
+            <Taskpane title="You're almost ready to go. Just tell your team who you are.">
                 <div className="card-div">          
                     <div className="floating-card" id="email-card">
                         <div className="subtext-div-full">
@@ -46,7 +43,7 @@ export default class LoginScreen extends React.Component {
                         </form>
                     </div>
                 </div>
-            </div>
+            </Taskpane>
         );  
     }
 }

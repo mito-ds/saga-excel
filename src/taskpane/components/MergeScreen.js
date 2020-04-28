@@ -1,9 +1,9 @@
 import * as React from "react";
-import { mergeState } from "../../../constants";
-import MergeError from "./MergeError";
-import MergeProgress from "./MergeProgress";
-import MergeForked from "./MergeForked";
-import MergeSuccess from "./MergeSuccess";
+import { mergeState } from "../../constants";
+import MergeErrorScreen from "./MergeComponents/MergeErrorScreen";
+import MergeProgressScreen from "./MergeComponents/MergeProgressScreen";
+import MergeForkedScreen from "./MergeComponents/MergeForkedScreen";
+import MergeSuccessScreen from "./MergeComponents/MergeSuccessScreen";
 
 /* global  */
 
@@ -22,7 +22,7 @@ function randomMessage() {
   return INTERMEDIATE_MESSAGES[Math.floor(Math.random() * INTERMEDIATE_MESSAGES.length)];
 }
 
-export default class MergeProgressHandler extends React.Component {
+export default class MergeScreen extends React.Component {
 
   constructor(props) {
     super(props); 
@@ -35,19 +35,25 @@ export default class MergeProgressHandler extends React.Component {
 
   render() {
 
+    // TODO: put this in a proper screen form
+    console.log("Merge state", this.props.mergeState);
+
     switch(this.props.mergeState) {
       case mergeState.MERGE_IN_PROGRESS:
         // TODO: make this display a random message
-        return (<MergeProgress/>);
+        return (<MergeProgressScreen/>);
       
       case mergeState.MERGE_SUCCESS:
-        return (<MergeSuccess/>)
+        return (<MergeSuccessScreen/>)
 
       case mergeState.MERGE_ERROR:
-        return (<MergeError/>)
+        return (<MergeErrorScreen/>)
 
       case mergeState.MERGE_FORKED:
-        return (<MergeForked/>)
+        return (<MergeForkedScreen/>)
+
+      default:
+        return (<MergeErrorScreen/>)
     }
   }
 }
