@@ -11,7 +11,7 @@ export default class MergeProgressScreen extends React.Component {
     render() {
         return (
             <Taskpane title={this.props.message}>
-                <Spinner className type={SpinnerType.large} label="Merging..." />
+                <Spinner className type={SpinnerType.large} label="Merging... please do not edit the file." />
             </Taskpane>
         );
     }
