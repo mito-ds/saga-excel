@@ -49,9 +49,9 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
   } 
 
 
-  const branchState = response.data.branchState;
-  if (branchState !== branchState.BRANCH_STATE_BEHIND) {
-    console.error("Error getting update from server, not behind.");
+  const remoteBranchState = response.data.branchState;
+  if (remoteBranchState !== branchState.BRANCH_STATE_BEHIND) {
+    console.error(`Error getting update from server, branch state is ${remoteBranchState}.`);
     return false;
   }
 
