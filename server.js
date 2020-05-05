@@ -33,7 +33,7 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 
 //Route to save emails to mongo
 async function getEmail(email) {
