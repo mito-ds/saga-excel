@@ -57,7 +57,10 @@ async function merge(event) {
 async function switchVersion(event) {
   // Todo: render message saying which branch they are on
   await runSwitchVersionFromRibbon();
-  event.completed();
+  
+  if (event) {
+    event.completed();
+  }
 }
 
 async function resetPersonalVersion(event) {
