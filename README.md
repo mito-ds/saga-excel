@@ -16,6 +16,12 @@ If that doesn't work, you can follow more detailed instructions:
 - on Windows, look [here](https://docs.microsoft.com/en-us/office/dev/add-ins/testing/create-a-network-shared-folder-catalog-for-task-pane-and-content-add-ins)
 - on Office 365 (the online Excel editor), look [here](https://docs.microsoft.com/en-us/office/dev/add-ins/testing/sideload-office-add-ins-for-testing) 
 
+### Tests
+
+There are two sorts of tests within the add-in: tests that can run without Excel running, and tests that have to run in the context of Excel. 
+
+The tests that don't need Excel to run can be run with `npm run test`. The tests that need Excel running can be run through the taskpane; click the "development" button at the bottom of the taskpane, and then click run tests. The rests will run and report in the console.
+
 
 ## Debugging the addin
 

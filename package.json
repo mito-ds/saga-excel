@@ -25,7 +25,9 @@
     "stop": "office-addin-debugging stop manifest.xml",
     "validate": "office-addin-manifest validate manifest.xml",
     "watch": "webpack --mode development --watch",
-    "test": "jest"
+    "test": "jest",
+    "clean": "rm /Users/${USER}/Library/Containers/com.microsoft.Excel/Data/Documents/wef/saga.manifest.xml; office-addin-debugging stop manifest.xml"
+
   },
   "dependencies": {
     "@fluentui/react": "^7.106.0",
