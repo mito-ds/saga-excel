@@ -191,4 +191,5 @@ export async function testMergePreservesCrossSheetReferences() {
     TODO:
     - write tests for the rest of the buttons: (reset personal, etc)
     - write tests for merge with some data
+    - Figure out how to simulate a sync? Can we fake it. 
 */
