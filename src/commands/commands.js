@@ -18,13 +18,13 @@ function formattingHandler(event) {
 }
 
 async function openShareTaskpane(event) {
-  window.appComponent.setTaskpaneStatus(taskpaneStatus.SHARE)
+  window.app.setTaskpaneStatus(taskpaneStatus.SHARE)
   Office.addin.showAsTaskpane();
   event.completed();
 }
 
 function openMergeTaskpane() {
-  window.appComponent.setTaskpaneStatus(taskpaneStatus.MERGE)
+  window.app.setTaskpaneStatus(taskpaneStatus.MERGE)
   Office.addin.showAsTaskpane();
 }
 
@@ -41,12 +41,17 @@ Office.onReady(() => {
  */
 async function merge(event) {
   openMergeTaskpane()
-  window.appComponent.setTaskpaneStatus(taskpaneStatus.MERGE);
-  window.appComponent.setMergeState(mergeState.MERGE_IN_PROGRESS);
+  window.app.setTaskpaneStatus(taskpaneStatus.MERGE);
+  window.app.setMergeState(mergeState.MERGE_IN_PROGRESS);
   var mergeResult = await runMerge(events);
-  window.appComponent.setMergeState(mergeResult);
-  event.completed();
+  window.app.setMergeState(mergeResult);
+
+  // If this function was called by clicking the button, let Excel know it's done
+  if (event) {
+    event.completed();
+  }
   events = [];
+  return mergeResult;
 }
 
 async function switchVersion(event) {
