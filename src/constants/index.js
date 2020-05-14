@@ -3,7 +3,8 @@ export const taskpaneStatus = {
     CREATE: 'create',
     SHARE: 'share',
     MERGE: 'merge',
-    OFFLINE: 'offline'
+    OFFLINE: 'offline',
+    DEVELOPMENT: 'development'
 }
 
 /*
@@ -37,3 +38,15 @@ export const branchState = {
     BRANCH_STATE_FORKED: 'branch_state_forked',
     BRANCH_STATE_ERROR: 'branch_state_error'
 }
+
+/*
+    Named items in the excel sheet
+*/
+export const item = {
+    HEAD: 'HEAD',
+    BRANCHES: 'branches',
+    COMMITS: 'commits',
+    PERSONAL_BRANCH: 'personalBranchName',
+    REMOTE_URL: 'remote'
+}
+

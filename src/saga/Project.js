@@ -1,5 +1,6 @@
 import { updateMetadataItem } from "./sagaUtils";
 import axios from 'axios';
+import { item } from "../constants";
 
 
 export default class Project {
@@ -9,7 +10,7 @@ export default class Project {
     
     getBranchRange = async () => {
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
-        const branchItem = worksheet.names.getItem(`branches`);
+        const branchItem = worksheet.names.getItem(item.BRANCHES);
         branchItem.load(`value`);
         await this.context.sync();
         return worksheet.getRange(branchItem.value);
@@ -24,7 +25,7 @@ export default class Project {
 
     getHeadRange = async () => {
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
-        const headItem = worksheet.names.getItem(`HEAD`);
+        const headItem = worksheet.names.getItem(item.HEAD);
         headItem.load(`value`);
         await this.context.sync();
         // Uh, i dont' know why, but have to call this twice sometimes???
@@ -44,7 +45,7 @@ export default class Project {
 
     getPersonalBranchNameRange = async () => {
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
-        const personalBranchNameRange = worksheet.names.getItem(`personalBranchName`);
+        const personalBranchNameRange = worksheet.names.getItem(item.PERSONAL_BRANCH);
         personalBranchNameRange.load(`value`);
         await this.context.sync();
         return worksheet.getRange(personalBranchNameRange.value)
@@ -75,7 +76,7 @@ export default class Project {
 
     getCommitRange = async () => {
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
-        const commitItem = worksheet.names.getItem(`commits`);
+        const commitItem = worksheet.names.getItem(item.COMMITS);
         commitItem.load(`value`);
         await this.context.sync();
         return worksheet.getRange(commitItem.value);
@@ -92,7 +93,7 @@ export default class Project {
 
     getRemoteRange = async () => {
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
-        const remoteItem = worksheet.names.getItem(`remote`);
+        const remoteItem = worksheet.names.getItem(item.REMOTE_URL);
         remoteItem.load(`value`);
         await this.context.sync();
         return worksheet.getRange(remoteItem.value);
@@ -245,7 +246,7 @@ export default class Project {
         // Insert the values into the sheet
         const newRange = await this.insertRowBelowRange(commitRange, [[commitID, parentID, commitName, commitMessage]]);
 
-        await updateMetadataItem(this.context, `commits`, newRange);
+        await updateMetadataItem(this.context, item.COMMITS, newRange);
     }
 
     checkBranchExists = async (branch) => {
