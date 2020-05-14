@@ -336,16 +336,6 @@ function handleOriginUndefined(a, b, possibleConflictType, rowIndex, colIndex) {
 
 /*
     This does a simple cell-address based merge. It just handles one row at a time.
-
-    It returns an object with two keys: "result", "conflicts". "result" is the best attempt
-    merge, and "conflicts" is a list of objects that represent merge conflicts.
-
-    These merge conflict objects contain a five keys: "conflictType", "rowIndex", "colIndex", "a", "b". 
-    If "conflictType" is conflictType.ROW, then there was a row insertion conflict, and "colIndex" will be null.
-    Otherwise, if it is conflictType.CELL, both "rowIndex" and "colIndex" will be defined. 
-
-    In both cases, "a" and "b" each contain the two choices.
-
 */
 function simpleMerge(oRow, aRow, bRow, rowIndex) {
 
@@ -415,10 +405,11 @@ function simpleMerge(oRow, aRow, bRow, rowIndex) {
     It returns an object with two keys: "result", "conflicts". "result" is the best attempt
     merge, and "conflicts" is a list of objects that represent merge conflicts.
 
-    These merge conflict objects contain a three keys: "conflictType", "a", "b". 
-    If "conflictType" is conflictType.ROW, then there was a row insertion conflict. Otherwise,
-    if it is conflictType.CELL, there is a conflict at the cell level.
-    "a" and "b" each contain the two choices.
+    These merge conflict objects contain a five keys: "conflictType", "rowIndex", "colIndex", "a", "b". 
+    If "conflictType" is conflictType.ROW, then there was a row insertion conflict, and "colIndex" will be null.
+    Otherwise, if it is conflictType.CELL, both "rowIndex" and "colIndex" will be defined.
+
+    In both cases, "a" and "b" each contain the two options for the conflict.
 
 */
 export function simpleMerge2D(origin, aValues, bValues) {
