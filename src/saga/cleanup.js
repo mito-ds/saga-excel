@@ -38,6 +38,12 @@ async function cleanup(context) {
             }
         }
     )
+
+    // TODO: we need to rename to Sheet1, and clear itn
+
+    // Then, we rename the current sheet to Sheet1, and clear it
+
+
     
     return true;
 }
