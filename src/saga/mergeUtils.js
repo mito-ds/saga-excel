@@ -1,5 +1,34 @@
 import { conflictType } from "../constants";
 
+
+function handleOriginUndefined(a, b, possibleConflictType, rowIndex, colIndex) {
+    if (a === undefined) {
+        return {result: b, conflicts: []};
+    }
+
+    if (b === undefined) {
+        return {result: a, conflicts: []};
+    }
+
+    /*
+        Insertions were made in both a and b, and so arbitrarily choose a as the result
+        and also note this as a conflict.
+    */
+
+    return {
+        result: a, 
+        conflicts: [
+            {
+                conflictType: possibleConflictType,
+                rowIndex: rowIndex,
+                colIndex: colIndex,
+                a: a,
+                b: b
+            }
+        ]
+    }
+}
+
 /*
     This does a simple cell-address based merge. It just handles one row at a time.
 */
