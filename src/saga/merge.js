@@ -1,6 +1,6 @@
 import { commit } from './commit';
-import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets, createSheet } from "./sagaUtils";
-import { diff3Merge2d } from "./mergeUtils";
+import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets } from "./sagaUtils";
+import { simpleMerge2D } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
 import { runOperation } from './runOperation';
@@ -317,7 +317,7 @@ const doMerge = async (context, formattingEvents) => {
         const originFormulas = await getFormulas(context, originSheetName);
 
         // Merge the formulas
-        const mergeFormulas = diff3Merge2d(originFormulas, masterFormulas, personalFormulas);
+        const mergeFormulas = simpleMerge2D(originFormulas, masterFormulas, personalFormulas);
         // And save them
         mergedData[personalSheetName] = mergeFormulas;
     }

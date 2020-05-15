@@ -1,87 +1,106 @@
-import { diff3Merge, diff3Merge2d } from "./mergeUtils";
+import { simpleMerge2D } from "./mergeUtils";
+import { conflictType } from "../constants";
 
 /* global test, expect */
 
-test('should merge unchanged empty', () => {  
-    expect(diff3Merge([], [], [])).toEqual([]);
-});
+/*
+    Tests a simple cell based merge
+*/
 
-test('should merge unchanged empty', () => {  
-    expect(diff3Merge([], [], [])).toEqual([]);
-});
+test('simple merge all empty', () => {
+    expect(simpleMerge2D([[]], [[]], [[]])).toEqual({result: [[]], conflicts: []});
+})
 
-test('should merge single addition', () => {  
-    expect(diff3Merge([], [], [1])).toEqual([1]);
-});
+test('simple merge all even more empty', () => {
+    expect(simpleMerge2D([], [], [])).toEqual({result: [], conflicts: []});
+})
 
-test('should merge many additions to single array', () => {  
-    expect(diff3Merge([], [], [1, 2, 3, 4, 5])).toEqual([1, 2, 3, 4, 5]);
-});
+test('simple merge one element', () => {
+    expect(simpleMerge2D([[1]], [[1]], [[1]])).toEqual({result: [[1]], conflicts: []});
+})
 
-test('should merge single delete', () => {  
-    expect(diff3Merge([1], [1], [])).toEqual([]);
-});
+test('simple merge mulitple elements in row', () => {
+    expect(simpleMerge2D([[1, 2, 3, 4]], [[1, 2, 3, 4]], [[1, 2, 3, 4]])).toEqual({result: [[1, 2, 3, 4]], conflicts: []});
+})
 
-test('should merge many delete', () => {  
-    expect(diff3Merge([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [])).toEqual([]);
-});
+test('simple merge mulitple rows', () => {
+    expect(simpleMerge2D([[1], [2]], [[1], [2]], [[1], [2]])).toEqual({result: [[1], [2]], conflicts: []});
+})
 
-test('should merge insert ', () => {  
-    expect(diff3Merge([1, 2], [1, 2], [1, 4, 2])).toEqual([1, 4, 2]);
-});
+test('simple merge add element in a', () => {
+    expect(simpleMerge2D([[1]], [[1, 2]], [[1]])).toEqual({result: [[1, 2]], conflicts: []});
+})
 
-test('should merge nonconflicting inserts', () => {  
-    expect(diff3Merge([1, 2], [0, 1, 2], [1, 2, 3])).toEqual([0, 1, 2, 3]);
-});
+test('simple merge add element in b', () => {
+    expect(simpleMerge2D([[1]], [[1]], [[1, 2]])).toEqual({result: [[1, 2]], conflicts: []});
+})
 
-test('2d should merge all empty', () => {  
-    expect(diff3Merge2d([], [], [])).toEqual([]);
-});
+test('simple merge add row in a', () => {
+    expect(simpleMerge2D([[1]], [[1], [2]], [[1]])).toEqual({result: [[1], [2]], conflicts: []});
+})
 
-test('2d should merge insert one', () => {  
-    expect(diff3Merge2d([], [], [[1]])).toEqual([[1]]);
-});
+test('simple merge add row in b', () => {
+    expect(simpleMerge2D([[1]], [[1]], [[1], [2]])).toEqual({result: [[1], [2]], conflicts: []});
+})
 
-test('2d should merge insert many', () => {  
-    expect(diff3Merge2d([], [], [[1, 2], [3, 4]])).toEqual([[1, 2], [3, 4]]);
-});
+test('simple merge add element and row non conflicting in b', () => {
+    expect(simpleMerge2D([[1]], [[1, 2]], [[1], [2]])).toEqual({result: [[1, 2], [2]], conflicts: []});
+})
 
-test('2d should merge delete one', () => {  
-    expect(diff3Merge2d([[1]], [], [[1]])).toEqual([]);
-});
+test('simple merge origin undefined and add element in a', () => {
+    expect(simpleMerge2D([[]], [[1, 2]], [[]])).toEqual({result: [[1, 2]], conflicts: []});
+})
 
-test('2d should edit one', () => {  
-    expect(diff3Merge2d([[1, 2]], [[1, 2]], [[1, 2, 3]])).toEqual([[1, 2, 3]]);
-});
+test('simple merge add non-conflicting changes after end of origin easy', () => {
+    expect(simpleMerge2D([[1]], [[1], [2]], [[1], [""], [3]])).toEqual({result: [[1], [2], [3]], conflicts: []});
+})
 
-test('2d should allow non conflicting changes in one', () => {  
-    expect(diff3Merge2d([[1, 2]], [[0, 1, 2]], [[1, 2, 3]])).toEqual([[0, 1, 2, 3]]);
-});
+test('simple merge add non-conflicting changes after end of origin medium', () => {
+    expect(simpleMerge2D([[1]], [[1], [2], [""], [4]], [[1], [""], [3], [""], [5]])).toEqual({result: [[1], [2], [3], [4], [5]], conflicts: []});
+})
 
-test('2d should add mulitple rows to b', () => {  
-    expect(diff3Merge2d([[1], [2]], [[1], [2]], [[1], [2], [3], [4]])).toEqual([[1], [2], [3], [4]]);
-});
+test('simple merge add to same row after end of origin', () => {
+    const conflicts = [
+        {
+            conflictType: conflictType.ROW,  
+            rowIndex: 2, 
+            colIndex: null, 
+            a: [3], 
+            b: [3]   
+        }
+    ]
+    expect(simpleMerge2D([[1]], [[1], [2], [3], [4]], [[1], [""], [3], [""], [5]])).toEqual({result: [[1], [2], [3], [4], [5]], conflicts: conflicts});
+})
 
-test('2d should add mulitple rows to a', () => {  
-    expect(diff3Merge2d([[1], [2]], [[1], [2], [3], [4]], [[1], [2]])).toEqual([[1], [2], [3], [4]]);
-});
+test('simple merge add one row conflicting', () => {
+    const conflicts = [
+        {
+            conflictType: conflictType.ROW,
+            rowIndex: 1,
+            colIndex: null,
+            a: [2],
+            b: [2]
+        }
+    ]
+    expect(simpleMerge2D([[1]], [[1], [2]], [[1], [2]])).toEqual({result: [[1], [2]], conflicts: conflicts});
+})
 
-test('2d should add mulitple rows and extend too', () => {  
-    expect(diff3Merge2d([[1], [2]], [[1, 6], [2, 7]], [[1], [2], [3], [4]])).toEqual([[1, 6], [2, 7], [3], [4]]);
-});
+test('simple merge add one element conflicting', () => {
+    const conflicts = [
+        {
+            conflictType: conflictType.CELL,
+            rowIndex: 0,
+            colIndex: 1,
+            a: 2,
+            b: 2
+        }
+    ]
+    expect(simpleMerge2D([[1]], [[1, 2]], [[1, 2]])).toEqual({result: [[1, 2]], conflicts: conflicts});
+})
 
-test('2d should extend in both places', () => {  
-    expect(diff3Merge2d([[1], [2], [3]], [[1, 4], [2], [3]], [[1], [2], [3, 5]])).toEqual([[1, 4], [2], [3, 5]]);
-});
 
-test('all equal', () => {  
-    expect(diff3Merge2d([["data"], [1], [2], [3]], [["data"], [1], [2], [3]], [["data"], [1], [2], [3]])).toEqual([["data"], [1], [2], [3]]);
-});
 
-test('insert in rows below', () => {  
-    expect(diff3Merge2d([[]], [[1, 2, 3, 4, 5]], [[""], [""], [""], [6]])).toEqual([[1, 2, 3, 4, 5], [""], [""], [6]]);
-});
 
-test('simple merge', () => {  
-    //expect(diff3Merge2d([], [[2]], [[1]])).toEqual([[1]]);
-});
+
+
+

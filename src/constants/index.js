@@ -50,3 +50,11 @@ export const item = {
     REMOTE_URL: 'remote'
 }
 
+/*
+    The type of merge conflict
+*/
+export const conflictType = {
+    ROW: 'row',
+    CELL: 'cell'
+}
+
