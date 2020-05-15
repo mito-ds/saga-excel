@@ -1,5 +1,6 @@
 import * as React from "react";
 import log from "loglevel";
+import prefix from 'loglevel-plugin-prefix';
 import Progress from "./Progress";
 import LinkScreen from "./LinkScreen"
 import LoginScreen from "./LoginScreen"
@@ -15,10 +16,31 @@ import './App.css';
 
 /* global */
 
+/*
+  Log specification: 
+*/
+
+function setupLogs() {
+  prefix.reg(log);
+  log.enableAll();
+
+  prefix.apply(log, {
+    template: '[%t] %l :'
+  });
+
+  const createLogger = log.getLogger('create');
+  prefix.apply(createLogger, {
+    template: '[create]'
+  });
+
+  log.info("initalizing app");
+}
+
 export default class App extends React.Component {
   constructor(props) {
-    log.enableAll();
-    log.info("Creating app");
+    // Setup logging
+    setupLogs();
+
     super(props);
     this.state = {
       step: 0,
