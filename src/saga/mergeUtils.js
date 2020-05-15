@@ -2,10 +2,10 @@ import { conflictType } from "../constants";
 
 function checkEmpty(row) {
     const filteredRow = row.filter(element => element != "");
-    return filteredRow.length == 0 
+    return filteredRow.length === 0; 
 }
 
-function handleOriginUndefinedRow(a, b, possibleConflictType, rowIndex, colIndex) {
+function handleOriginUndefinedRow(a, b, possibleConflictType, rowIndex) {
     if (a === undefined || checkEmpty(a)) {
         return {result: b, conflicts: []};
     }
@@ -14,7 +14,7 @@ function handleOriginUndefinedRow(a, b, possibleConflictType, rowIndex, colIndex
         return {result: a, conflicts: []};
     }
 
-    return createOriginUndefinedConflict(a, b, possibleConflictType, rowIndex, colIndex)
+    return createOriginUndefinedConflict(a, b, possibleConflictType, rowIndex, null)
 }
 
 function handleOriginUndefinedElement(a, b, possibleConflictType, rowIndex, colIndex) {
