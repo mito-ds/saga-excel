@@ -44,7 +44,6 @@ async function lockWorksheets(context) {
         //Todo: Add password to protect
         sheet.protection.protect()
         await context.sync()
-        console.log(sheet.name);
     }));
 }
 
@@ -106,9 +105,6 @@ export async function checkoutBranch(context, branch) {
     // Finially, update the head branch
     const headRange = await project.getHeadRange();
     headRange.values = [[branch]];
-
-    console.log("update head branch")
-
 
     await context.sync();
 }

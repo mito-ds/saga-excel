@@ -29,11 +29,9 @@ export async function makeClique(context, sheetNames, getNewName, worksheetPosit
         // TODO: handle more complex renamings or inserts
         const insertedName = sheetNames[i] + " (2)";
         const newName = getNewName(sheetNames[i]);
-        console.log(`Getting sheet ${insertedName} and changing ${newName}`)
         const sheet = worksheets.getItem(insertedName);
         sheet.name = newName;
         sheet.visibility = worksheetVisibility;
-        console.log("Setting worksheet visibility to", worksheetVisibility)
 
         // We can queue at most 50 transaction
         if (i % 40 === 0) {

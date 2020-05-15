@@ -27,7 +27,6 @@
     "watch": "webpack --mode development --watch",
     "test": "jest",
     "clean": "rm /Users/${USER}/Library/Containers/com.microsoft.Excel/Data/Documents/wef/saga.manifest.xml; office-addin-debugging stop manifest.xml"
-
   },
   "dependencies": {
     "@fluentui/react": "^7.106.0",
@@ -39,6 +38,7 @@
     "dotenv": "^8.2.0",
     "es6-promise": "^4.2.8",
     "express": "^4.17.1",
+    "loglevel": "^1.6.8",
     "mongoose": "^5.9.9",
     "morgan": "^1.10.0",
     "office-ui-fabric-react": "^7.105.2",

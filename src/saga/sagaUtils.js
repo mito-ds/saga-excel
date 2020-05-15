@@ -42,8 +42,6 @@ export async function createSheet(context, worksheetName, worksheetVisibility) {
     copiedSheet.name = worksheetName;
     copiedSheet.visibility = worksheetVisibility;
 
-    console.log(`Created sheet ${worksheetName} and set to ${worksheetVisibility}`);
-
     await context.sync();
 
     return copiedSheet;

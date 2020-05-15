@@ -1,4 +1,5 @@
 import * as React from "react";
+import log from "loglevel";
 import Progress from "./Progress";
 import LinkScreen from "./LinkScreen"
 import LoginScreen from "./LoginScreen"
@@ -16,6 +17,8 @@ import './App.css';
 
 export default class App extends React.Component {
   constructor(props) {
+    log.enableAll();
+    log.info("Creating app");
     super(props);
     this.state = {
       step: 0,
@@ -42,7 +45,7 @@ export default class App extends React.Component {
   }
 
   setTaskpaneStatus = (taskpaneStatus) => {
-    console.log(`setting the value of taskpaneState to ${taskpaneStatus}`)
+    log.info(`setting the value of taskpaneState to ${taskpaneStatus}`);
     this.setState({taskpaneStatus: taskpaneStatus})
   }
 
@@ -51,14 +54,17 @@ export default class App extends React.Component {
   }
 
   setMergeState = (mergeState) => {
+    log.info(`Setting merge state to ${mergeState}`);
     this.setState({mergeState: mergeState})
   }
 
   setEmail = (email) => {
+    log.info(`Setting email state to ${email}`);
     this.setState({email: email})
   }
     
   setURL = (remoteURL) => {
+    log.info(`Setting remote url to ${remoteURL}`);
     this.setState({remoteURL: remoteURL})
   }
 
@@ -67,6 +73,7 @@ export default class App extends React.Component {
   }
   
   nextStep = () => {
+    log.info(`Going to next step ${this.state.step + 1}`);
     this.setState(state => {
       return {step: state.step + 1}
     })
