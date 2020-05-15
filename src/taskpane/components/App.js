@@ -4,15 +4,16 @@ import LinkScreen from "./LinkScreen"
 import LoginScreen from "./LoginScreen"
 import ProjectSourceScreen from "./ProjectSourceScreen"
 import TaskpaneFooter from "./TaskpaneFooter"
-import OfflineErrorScreen from "./OfflineErrorScreen"
+import OutOfDateErrorScreen from "./OutOfDateErrorScreen"
 import DevScreen from "./DevScreen";
 import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
 import { taskpaneStatus, mergeState } from "../../constants";
 
+
 import './App.css';
 
-/* global */
+/* global Office */
 
 export default class App extends React.Component {
   constructor(props) {
@@ -76,7 +77,24 @@ export default class App extends React.Component {
     const { title, isOfficeInitialized } = this.props;
 
     // TODO: check if office is initialized, and that we are online
+    if (!isOfficeInitialized) {
+      return (
+        <Progress title={title} logo="assets/saga-logo/saga-logo-taskpane.png" message="Please sideload your addin to see app body." />
+      );
+    }
+    
+
+    /*
+      We check to make sure some minimum version of the ExcelApi is supported. Note that this is actually not
+      enough - we want to check that the preview set is supported (so we get addFromBase64), but I can't figure
+      out how to check this programmatically.
+    */
+    if (!Office.context.requirements.isSetSupported("ExcelApi", "1.11")) {
+      return (<OutOfDateErrorScreen/>);
+    }
+
     var toReturn;
+
 
     switch(this.state.taskpaneStatus) {
       case taskpaneStatus.DEVELOPMENT:
