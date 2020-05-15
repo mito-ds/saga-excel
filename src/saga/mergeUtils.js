@@ -2,11 +2,12 @@ import { conflictType } from "../constants";
 
 
 function handleOriginUndefined(a, b, possibleConflictType, rowIndex, colIndex) {
-    if (a === undefined) {
+
+    if (a === undefined || a.length == 0) {
         return {result: b, conflicts: []};
     }
 
-    if (b === undefined) {
+    if (b === undefined || b.length == 0) {
         return {result: a, conflicts: []};
     }
 

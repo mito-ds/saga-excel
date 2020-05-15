@@ -47,6 +47,31 @@ test('simple merge add element and row non conflicting in b', () => {
     expect(simpleMerge2D([[1]], [[1, 2]], [[1], [2]])).toEqual({result: [[1, 2], [2]], conflicts: []});
 })
 
+test('simple merge origin undefined and add element in a', () => {
+    expect(simpleMerge2D([[]], [[1, 2]], [[]])).toEqual({result: [[1, 2]], conflicts: []});
+})
+
+test('simple merge add non-conflicting changes after end of origin easy', () => {
+    expect(simpleMerge2D([[1]], [[1], [2]], [[1], [], [3]])).toEqual({result: [[1], [2], [3]], conflicts: []});
+})
+
+test('simple merge add non-conflicting changes after end of origin medium', () => {
+    expect(simpleMerge2D([[1]], [[1], [2], [], [4], []], [[1], [], [3], [], [5]])).toEqual({result: [[1], [2], [3], [4], [5]], conflicts: []});
+})
+
+test('simple merge add to same row after end of origin', () => {
+    const conflicts = [
+        {
+            conflictType: conflictType.ROW,  
+            rowIndex: 2, 
+            colIndex: null, 
+            a: [3], 
+            b: [3]   
+        }
+    ]
+    expect(simpleMerge2D([[1]], [[1], [2], [3], [4], []], [[1], [], [3], [], [5]])).toEqual({result: [[1], [2], [3], [4], [5]], conflicts: conflicts});
+})
+
 test('simple merge add one row conflicting', () => {
     const conflicts = [
         {
