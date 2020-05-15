@@ -9,7 +9,7 @@ import { runTests } from "../../tests/runTests";
 export default function DevScreen(props) {
     const {status, setStatus} = React.useContext(StatusContext);
     return (
-        <Taskpane title="Invite people to collaborate by sending them the Saga project link.">
+        <Taskpane title="Development Mode. NOTE: Run from an empty Excel workbook with no saga project">
             <button onClick={() => {runTests()}}> Run Tests </button>
             <button onClick={() => {runCleanup()}}> Cleanup </button>
         </Taskpane>
