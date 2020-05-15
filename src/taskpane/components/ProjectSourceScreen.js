@@ -2,6 +2,7 @@ import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import {runCreateSaga, runCreateFromURL, createRemoteURL}  from "../../saga/create";
 import Taskpane from "./Taskpane";
+import { headerSize } from "../../constants";
 
 /* global */
   
@@ -52,7 +53,7 @@ export default class LoginScreen extends React.Component {
 
     render () {
         return (
-            <Taskpane title="Choose your project creation method.">
+            <Taskpane header={headerSize.LARGE} title="Choose your project creation method.">
                 <div className="card-div">     
                     <p className="creation-option">Start a new project </p>     
                     <div className="floating-card create-project-card" >

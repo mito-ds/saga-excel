@@ -2,6 +2,8 @@ import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import axios from "axios";
 import Taskpane from "./Taskpane";
+import { headerSize } from "../../constants";
+
 
 // Login Form Component
 export default class LoginScreen extends React.Component {
@@ -31,7 +33,7 @@ export default class LoginScreen extends React.Component {
 
     render () {
         return (
-            <Taskpane title="You're almost ready to go. Just tell your team who you are.">
+            <Taskpane header={headerSize.LARGE} title="You're almost ready to go. Just tell your team who you are.">
                 <div className="card-div">          
                     <div className="floating-card" id="email-card">
                         <div className="subtext-div-full">

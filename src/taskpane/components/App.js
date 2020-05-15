@@ -10,7 +10,7 @@ import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
 import { taskpaneStatus, mergeState } from "../../constants";
 
-import './App.css';
+  import './App.css';
 
 /* global */
 
@@ -23,7 +23,8 @@ export default class App extends React.Component {
       remoteURL: '',
       offline: false,
       taskpaneStatus: taskpaneStatus.CREATE,
-      mergeState: mergeState.MERGE_SUCCESS
+      mergeState: mergeState.MERGE_SUCCESS,
+      mergeConflicts: null
     };
 
     this.getTaskpaneStatus = this.getTaskpaneStatus.bind(this);
@@ -51,7 +52,10 @@ export default class App extends React.Component {
   }
 
   setMergeState = (mergeState) => {
-    this.setState({mergeState: mergeState})
+    this.setState({
+      mergeState: mergeState.result, 
+      mergeConflicts: mergeState.conflicts
+    })
   }
 
   setEmail = (email) => {
@@ -84,7 +88,7 @@ export default class App extends React.Component {
         break;
 
       case taskpaneStatus.MERGE:
-        toReturn = (<MergeScreen mergeState={this.state.mergeState}/>);
+        toReturn = (<MergeScreen mergeState={this.state.mergeState} conflicts={this.state.mergeConflicts}/>);
         break;
 
       case taskpaneStatus.SHARE:

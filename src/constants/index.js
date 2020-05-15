@@ -17,6 +17,7 @@ export const taskpaneStatus = {
 export const mergeState = {
     MERGE_IN_PROGRESS: 'merge_in_progress',
     MERGE_SUCCESS: 'merge_success',
+    MERGE_CONFLICT: 'merge_conflict',
     MERGE_ERROR: 'merge_error',
     MERGE_FORKED: 'merge_forked'
 }
@@ -58,3 +59,10 @@ export const conflictType = {
     CELL: 'cell'
 }
 
+/*
+    The type of taskpane header
+*/
+export const headerSize = {
+    SMALL: 'small',
+    LARGE: "large"
+}
