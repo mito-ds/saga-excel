@@ -117,7 +117,6 @@ async function writeDataToSheet(context, sheetName, data) {
         return;
     }
 
-
     const sheet = context.workbook.worksheets.getItem(sheetName);
 
     // First, we make sure the data is a rectangle
@@ -362,11 +361,11 @@ const doMerge = async (context, formattingEvents) => {
     )
 
     console.log("Copied over inserted", insertedSheetsNames);
-
+    
     for (const sheetName in mergedData) {
         // TODO: we have to not copy over the sheets that were deleted on master
         console.log("Trying to write to ", sheetName, "with", mergedData[sheetName]);
-        await writeDataToSheet(context, newCommitPrefix + sheetName, mergedData[sheetName]);
+        await writeDataToSheet(context, newCommitPrefix + sheetName, mergedData[sheetName]["result"]);
     }
 
     console.log("Wrote data to all sheets");
@@ -417,6 +416,7 @@ const doMerge = async (context, formattingEvents) => {
     await project.updateBranchCommitID(`master`, newCommitID);
     await project.updateBranchCommitID(personalBranch, newCommitID); // we commit on both of these branches
     await project.addCommitID(newCommitID, masterCommitID, `Merged in ${personalBranch}`, "");
+    console.log(mergedData)
 }
 
 /*
