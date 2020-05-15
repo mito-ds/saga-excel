@@ -52,11 +52,11 @@ test('simple merge origin undefined and add element in a', () => {
 })
 
 test('simple merge add non-conflicting changes after end of origin easy', () => {
-    expect(simpleMerge2D([[1]], [[1], [2]], [[1], [], [3]])).toEqual({result: [[1], [2], [3]], conflicts: []});
+    expect(simpleMerge2D([[1]], [[1], [2]], [[1], [""], [3]])).toEqual({result: [[1], [2], [3]], conflicts: []});
 })
 
 test('simple merge add non-conflicting changes after end of origin medium', () => {
-    expect(simpleMerge2D([[1]], [[1], [2], [], [4], []], [[1], [], [3], [], [5]])).toEqual({result: [[1], [2], [3], [4], [5]], conflicts: []});
+    expect(simpleMerge2D([[1]], [[1], [2], [""], [4]], [[1], [""], [3], [""], [5]])).toEqual({result: [[1], [2], [3], [4], [5]], conflicts: []});
 })
 
 test('simple merge add to same row after end of origin', () => {
@@ -69,7 +69,7 @@ test('simple merge add to same row after end of origin', () => {
             b: [3]   
         }
     ]
-    expect(simpleMerge2D([[1]], [[1], [2], [3], [4], []], [[1], [], [3], [], [5]])).toEqual({result: [[1], [2], [3], [4], [5]], conflicts: conflicts});
+    expect(simpleMerge2D([[1]], [[1], [2], [3], [4]], [[1], [""], [3], [""], [5]])).toEqual({result: [[1], [2], [3], [4], [5]], conflicts: conflicts});
 })
 
 test('simple merge add one row conflicting', () => {

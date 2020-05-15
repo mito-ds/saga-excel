@@ -1,21 +1,40 @@
 import { conflictType } from "../constants";
 
+function checkEmpty(row) {
+    const filteredRow = row.filter(element => element != "");
+    return filteredRow.length == 0 
+}
 
-function handleOriginUndefined(a, b, possibleConflictType, rowIndex, colIndex) {
-
-    if (a === undefined || a.length == 0) {
+function handleOriginUndefinedRow(a, b, possibleConflictType, rowIndex, colIndex) {
+    if (a === undefined || checkEmpty(a)) {
         return {result: b, conflicts: []};
     }
 
-    if (b === undefined || b.length == 0) {
+    if (b == undefined || checkEmpty(b)) {
         return {result: a, conflicts: []};
     }
 
-    /*
-        Insertions were made in both a and b, and so arbitrarily choose a as the result
-        and also note this as a conflict.
-    */
+    return createOriginUndefinedConflict(a, b, possibleConflictType, rowIndex, colIndex)
+}
 
+function handleOriginUndefinedElement(a, b, possibleConflictType, rowIndex, colIndex) {
+
+    if (a === undefined) {
+        return {result: b, conflicts: []};
+    }
+
+    if (b === undefined) {
+        return {result: a, conflicts: []};
+    }
+
+    return createOriginUndefinedConflict(a, b, possibleConflictType, rowIndex, colIndex)
+}
+
+/*
+ Returns a conflict which occurs when both a and b were editted with an undefined origin. 
+ Arbitrarily choose a as the result
+*/
+function createOriginUndefinedConflict(a, b, possibleConflictType, rowIndex, colIndex) {
     return {
         result: a, 
         conflicts: [
@@ -40,7 +59,7 @@ function simpleMerge(oRow, aRow, bRow, rowIndex) {
         was inserted.
     */
     if (oRow === undefined) {
-        return handleOriginUndefined(aRow, bRow, conflictType.ROW, rowIndex, null);
+        return handleOriginUndefinedRow(aRow, bRow, conflictType.ROW, rowIndex, null);
     } else {
         // This is the case where the origin is defined, so we can do more intelligent merging
 
@@ -55,7 +74,7 @@ function simpleMerge(oRow, aRow, bRow, rowIndex) {
             const bElement = bRow[i];
 
             if (oElement === undefined) {
-                const cellMergeResult = handleOriginUndefined(aElement, bElement, conflictType.CELL, rowIndex, i);
+                const cellMergeResult = handleOriginUndefinedElement(aElement, bElement, conflictType.CELL, rowIndex, i);
 
                 row.push(cellMergeResult.result);
                 conflicts.push(...cellMergeResult.conflicts);
