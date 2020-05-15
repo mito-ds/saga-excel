@@ -100,7 +100,7 @@ function simpleMerge(oRow, aRow, bRow, rowIndex) {
     It returns an object with two keys: "result", "conflicts". "result" is the best attempt
     merge, and "conflicts" is a list of objects that represent merge conflicts.
 
-    These merge conflict objects contain a five keys: "conflictType", "rowIndex", "colIndex", "a", "b". 
+    These merge conflict objects contain five keys: "conflictType", "rowIndex", "colIndex", "a", "b". 
     If "conflictType" is conflictType.ROW, then there was a row insertion conflict, and "colIndex" will be null.
     Otherwise, if it is conflictType.CELL, both "rowIndex" and "colIndex" will be defined.
 
