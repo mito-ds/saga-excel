@@ -25,8 +25,19 @@ export default class MergeErrorScreen extends React.Component {
   resolveConflicts(e) {
     e.preventDefault();
     let resolutions = []
+    
     this.state.conflicts.forEach(function(conflict) {
-        const selection = document.querySelector('input[name="' + conflict.cell + '"]:checked').value;
+        const selectedButton = document.querySelector('input[name="' + conflict.cell + '"]:checked');
+
+        // If the user selected an option, use that. Otherwise, default to a
+        // TODO: Warn user of default setting
+        let selection = ""
+        if (selectedButton != null) {
+            selection = selectedButton.value;
+        } else {
+            selection = conflict.a
+        }
+        
         const resolution = {
             cell: conflict.cell, 
             value: selection
@@ -38,8 +49,6 @@ export default class MergeErrorScreen extends React.Component {
     console.log(resolutions)
   }
     
-
-
   render() {
 
     let mergeConflictComponentsArray = []
@@ -57,7 +66,7 @@ export default class MergeErrorScreen extends React.Component {
                 <div className="scrollable-div">
                     {mergeConflictComponentsArray}
                 </div>
-                <button className="resolve-conflicts-button" type="submit">Submit</button>
+                <PrimaryButton className="resolve-conflicts-button" type="submit">Submit</PrimaryButton>
             </form>
         </div>
       </Taskpane>

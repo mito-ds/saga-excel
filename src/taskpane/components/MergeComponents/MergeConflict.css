@@ -38,7 +38,7 @@
   }
   
   .boxed input[type="radio"] {
-    display: none;
+    display: none; 
   }
   
   .boxed input[type="radio"]:checked + label {

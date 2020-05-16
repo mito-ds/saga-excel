@@ -33,7 +33,7 @@ export default class MergeConflict extends React.Component {
                     </div>
                     <div className="options-div">
                         <div className="boxed">
-                            <input className="top-option"type="radio" id={idA} name={this.state.conflict.cell} value={this.state.conflict.a}/>
+                            <input className="top-option"type="radio" id={idA} name={this.state.conflict.cell} value={this.state.conflict.a} />
                             <label htmlFor={idA}>{this.state.conflict.a}</label>
 
                             <input type="radio" id={idB} name={this.state.conflict.cell} value={this.state.conflict.b}/>
