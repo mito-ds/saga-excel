@@ -2,6 +2,7 @@ import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import Taskpane from "../Taskpane";
 import { headerSize } from "../../../constants";
+import MergeConflict from "./MergeConflict";
 
 
 import './MergeConflictScreen.css';
@@ -25,6 +26,9 @@ export default class MergeErrorScreen extends React.Component {
       <Taskpane header={headerSize.SMALL} title="You need to resolve merge conflicts before your merge can finish">
         <div className="title-subtext-div">
             <div className="title-subtext">Pick which version of the cell you want to keep. They are ordered: <b>yours, collaborator’s, original</b>.</div>
+        </div>
+        <div className="conflict-card-div">
+            <MergeConflict></MergeConflict>
         </div>
       </Taskpane>
     )
