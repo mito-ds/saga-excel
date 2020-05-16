@@ -53,7 +53,7 @@ export default class App extends React.Component {
 
   setMergeState = (mergeState) => {
     this.setState({
-      mergeState: mergeState.result, 
+      mergeState: mergeState.status, 
       mergeConflicts: mergeState.conflicts
     })
   }

@@ -29,7 +29,12 @@ export default class MergeConflict extends React.Component {
             <div className="card">
                 <div className="card-cols">
                     <div className="cell-div">
-                        {this.state.conflict.cell}
+                        <div>
+                            {this.state.conflict.sheet}
+                        </div>
+                        <div>
+                            {this.state.conflict.cell}
+                        </div>
                     </div>
                     <div className="options-div">
                         <div className="boxed">

@@ -12,7 +12,10 @@
 }
 
 .cell-div {
-    display: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
     flex-grow: 0;
     margin-left: 3vw;
 }

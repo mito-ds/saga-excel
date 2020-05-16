@@ -9,6 +9,27 @@ import './MergeConflictScreen.css';
 
 /* global  */
 
+function numToChar (number) {
+    var numeric = (number - 1) % 26;
+    var letter = chr(65 + numeric);
+    var number2 = parseInt((number - 1) / 26);
+    if (number2 > 0) {
+        return numToChar(number2) + letter;
+    } else {
+        return letter;
+    }
+}
+
+function chr(codePt) {
+    if (codePt > 0xFFFF) { 
+        codePt -= 0x10000;
+        return String.fromCharCode(0xD800 + (codePt >> 10), 0xDC00 + (codePt & 0x3FF));
+    }
+    return String.fromCharCode(codePt);
+}
+
+// Take from https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
+
 export default class MergeErrorScreen extends React.Component {
 
   constructor(props) {
@@ -51,14 +72,33 @@ export default class MergeErrorScreen extends React.Component {
         */
     })
 
+
     this.setState({resolutions: resolutions});
     console.log(resolutions)
   }
     
   render() {
 
+    // Create conflict components
+    const mergeData = Object.entries(this.state.conflicts);
+    console.log(mergeData)
+    
+    let conflicts = []
+    mergeData.forEach((conflictData) => {
+        const sheet = conflictData[0];
+        const column = numToChar(conflictData[1].conflicts[0].colIndex + 1);
+        const row = conflictData[1].conflicts[0].rowIndex + 1;
+        const cell = column + ":" + row;
+        const a = conflictData[1].conflicts[0].a;
+        const b = conflictData[1].conflicts[0].b;
+        const o = "PLACE HOLDER ORIGINAL";
+        
+        const conflict = {sheet: sheet, cell: cell, a: a, b: b, o: o}
+        conflicts.push(conflict)
+    });
+    
     let mergeConflictComponentsArray = []
-    this.state.conflicts.forEach(function(conflict) {
+    conflicts.forEach(function(conflict) {
         mergeConflictComponentsArray.push(<MergeConflict conflict={conflict}></MergeConflict>)
     });
 

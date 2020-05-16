@@ -433,7 +433,7 @@ export async function merge(context, formattingEvents) {
     const updated = await updateShared(context);
 
     if (updated !== branchState.BRANCH_STATE_HEAD) {
-        return updated === branchState.BRANCH_STATE_FORKED ? mergeState.MERGE_FORKED : mergeState.MERGE_ERROR;
+        return updated === branchState.BRANCH_STATE_FORKED ? {status: mergeState.MERGE_FORKED, conflicts: null} : {status: mergeState.MERGE_ERROR, conflicts: null};
     }
 
     const project = new Project(context);
@@ -443,7 +443,7 @@ export async function merge(context, formattingEvents) {
 
     if (headBranch !== personalBranch) {
         console.error("Please check out your personal branch before checking in.");
-        return mergeState.MERGE_ERROR;
+        return {status: mergeState.MERGE_ERROR, conflicts: null};
     }
 
     // Make a commit on the personal branch    
@@ -455,7 +455,7 @@ export async function merge(context, formattingEvents) {
     const updatedWithMerge = await updateShared(context);
 
     if (updatedWithMerge !== branchState.BRANCH_STATE_HEAD) {
-        return updatedWithMerge === branchState.BRANCH_STATE_FORKED ? mergeState.MERGE_FORKED : mergeState.MERGE_ERROR;
+        return updatedWithMerge === branchState.BRANCH_STATE_FORKED ? {status: mergeState.MERGE_FORKED, conflicts: null} : {status: mergeState.MERGE_ERROR, conflicts: null};
     }
 
     // Check for merge conflicts
@@ -467,7 +467,7 @@ export async function merge(context, formattingEvents) {
         }
     });
 
-    return mergeConflict ? mergeState.MERGE_CONFLICT : mergeState.MERGE_SUCCESS;
+    return mergeConflict ? {status: mergeState.MERGE_CONFLICT, conflicts: mergeData} : {status: mergeState.MERGE_SUCCESS, conflicts: null};
 }
 
 export async function runMerge(formattingEvents) {
