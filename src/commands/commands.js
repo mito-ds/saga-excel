@@ -89,11 +89,13 @@ const g = getGlobal();
 
 const conflicts = [
   { 
-    a: "=a",
+    cell: "Sheet1 B5",
+    a: "=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     b: "=b", 
-    o: "o"
+    o: "=o"
   },
-  { 
+  {     
+    cell: "Sheet1 D7",
     a: "=a2",
     b: "=b2", 
     o: "o2"

@@ -28,7 +28,7 @@ export default class MergeErrorScreen extends React.Component {
             <div className="title-subtext">Pick which version of the cell you want to keep. They are ordered: <b>yours, collaborator’s, original</b>.</div>
         </div>
         <div className="conflict-card-div">
-            <MergeConflict></MergeConflict>
+            <MergeConflict conflict={this.props.conflicts[0]}></MergeConflict>
         </div>
       </Taskpane>
     )

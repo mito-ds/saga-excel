@@ -25,12 +25,20 @@
     margin-right: 3vw;
 }
 
+.option-form {
+    margin-top: 1vh;
+}
+
 .option {
     display: relative;
-    margin-top: 1vh;
     background-color: #E9E8E8;
     color: #000000;
     border: 1px solid #000000; 
+    width: 70%;
+}
+
+.option-selection {
+    width: 20%;
 }
 
 .bottom-option {
