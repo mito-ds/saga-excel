@@ -1,4 +1,5 @@
 import * as React from "react";
+import Taskpane from "./Taskpane";
 
 // Login Form Component
 export default class OfflineErrorScreen extends React.Component {
@@ -8,15 +9,11 @@ export default class OfflineErrorScreen extends React.Component {
 
     render () {
         return (
-            <div className="content">
-                <div className="header">
-                    <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-                    <p className="title-text" id="title-text" >Sorry, you might be offline. </p>
-                </div>
+            <Taskpane title="Sorry, you might be offline.">
                 <div className="card-div">
                     Some of Saga's features need internet to work. Make sure you're connected to the internet and try again.
                 </div>
-            </div>
+            </Taskpane>
         );  
     }
 }

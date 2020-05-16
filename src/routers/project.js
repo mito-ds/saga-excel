@@ -1,18 +1,16 @@
 const project = require('express').Router();
 const { v4: uuidv4 } = require('uuid');
-const base64 = require('base64-js');
 const mongoose = require(`mongoose`);
 const Projects = mongoose.model('Projects');
 
+/* global require, module */
 
-/* global require, module, Buffer */
+// TODO: import these from constants!
+const BRANCH_STATE_HEAD = 'branch_state_head';
+const BRANCH_STATE_AHEAD = 'branch_state_ahead';
+const BRANCH_STATE_BEHIND ='branch_state_behind';
+const BRANCH_STATE_FORKED ='branch_state_forked';
 
-const BRANCH_STATE_HEAD = 0;
-const BRANCH_STATE_AHEAD = 1;
-const BRANCH_STATE_BEHIND = 2;
-const BRANCH_STATE_FORKED = 3;
-
-var projects = {}
 
 async function getProject(id) {
     return await Projects.findOne({id: id}).exec();
@@ -64,7 +62,6 @@ project.post('/create', async function (req, res) {
     const created = await createProject(id);
 
     if (created) {
-        console.log(projects);
         res.json({"id": id});
     } else {
         res.json({"id": ""});
@@ -133,14 +130,19 @@ project.get('/:id', async function (req, res) {
     const headCommitID = req.query.headCommitID;
     const parentCommitID = req.query.parentCommitID;
 
-    if (!headCommitID && !parentCommitID) {
-        // Then, we redirect to the sagalab website, because. 
+    if (headCommitID === undefined && parentCommitID === undefined) {
+        // Then, we redirect to the sagacollab website, because. 
+        res.redirect("https://sagacollab.com/howtodownload");
+        return;
+
+        /*
+        console.log("Writing for download.");
         res.writeHead(200, {'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="sagafile.xlsx"'});
         const project = await getProject(id);
         const fileContents = project.contents.get(project.headCommitID);
         res.write(Buffer.from(base64.toByteArray(fileContents)));
         res.end();
-        return;
+        return; */
     }
 
     const branchState = await getBranchState(id, headCommitID, parentCommitID);
@@ -201,8 +203,6 @@ project.post('/:id', async function (req, res) {
 
     // 409 is a conflict, which we have if the project can't be updated!
     res.status(updatedProject ? 200 : 409).end();
-
-    console.log(`updated project ${updatedProject} : ${id} : ${fileContents}`);
 })
 
 module.exports = project;

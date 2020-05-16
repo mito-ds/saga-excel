@@ -1,41 +1,9 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
-import {runCheckoutBranch} from "../../saga/checkout";
 import {runCreateSaga, runCreateFromURL, createRemoteURL}  from "../../saga/create";
-import {runSwitchVersionFromRibbon} from "../../saga/checkout"
+import Taskpane from "./Taskpane";
 
-
-// Disable create saga button, turn others on 
-function toggleRibbonAvailability() {
-    Office.ribbon.requestUpdate({
-        tabs: [
-            {
-                id: "TabHome", 
-                controls: [
-                {
-                    id: "MergeButton", 
-                    enabled: true
-                }, 
-                {   
-                    id: "VersionButton", 
-                    enabled: true
-                },
-                {   
-                    id: "ResetPersonalButton", 
-                    enabled: true
-                },
-                {   
-                    id: "ShareProjectButton", 
-                    enabled: true
-                },
-                {   
-                    id: "TaskpaneButton", 
-                    enabled: false
-                }  
-            ]}
-        ]
-    });
-}
+/* global */
   
 
 // Login Form Component
@@ -64,8 +32,6 @@ export default class LoginScreen extends React.Component {
         // Create the project with this remote URL and email
         await runCreateSaga(remoteURL, email);
 
-        // toggle ribbon buttons availability
-        toggleRibbonAvailability()
 
         // update the state of react component
         this.props.setURL(remoteURL)
@@ -76,12 +42,9 @@ export default class LoginScreen extends React.Component {
         e.preventDefault();
         // Download the project from the url
         this.props.nextStep();
-        
+
         const url = document.getElementById('url-input').value
         await runCreateFromURL(url, this.props.email);
-
-        // toggle ribbon buttons availability
-        toggleRibbonAvailability()
 
         this.props.setURL(url)
         this.props.nextStep();
@@ -89,11 +52,7 @@ export default class LoginScreen extends React.Component {
 
     render () {
         return (
-            <div className="content">
-                <div className="header">
-                    <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-                    <p className="title-text" id="title-text" >Choose your project creation method </p>
-                </div>
+            <Taskpane title="Choose your project creation method.">
                 <div className="card-div">     
                     <p className="creation-option">Start a new project </p>     
                     <div className="floating-card create-project-card" >
@@ -112,14 +71,14 @@ export default class LoginScreen extends React.Component {
                             <p className="new-project-text subtext center">Enter the url of an existing Saga project </p>
                         </div>
                         <div className="create-project-card">
-                            <form className="form" onSubmit={this.createSagaProject}>
-                                <input className="input" id="url-input" placeholder="https://excel.sagalab.org/project/1234-12313-123123" ></input>
+                            <form className="form" onSubmit={this.downloadSagaProject}>
+                                <input className="input" id="url-input" placeholder="https://excel.sagacollab.com/project/1234-12313-123123" ></input>
                                 <PrimaryButton className="download-button" type="submit">Download</PrimaryButton>
                             </form>
                         </div>
                     </div>
                 </div>
-            </div>
+            </Taskpane>
         );  
     }
 }

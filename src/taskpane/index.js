@@ -4,7 +4,7 @@ import { AppContainer } from "react-hot-loader";
 import { initializeIcons } from "office-ui-fabric-react/lib/Icons";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import axios from "axios";
+
 /* global Office, module, require */
 
 initializeIcons();
@@ -16,7 +16,7 @@ const title = "Saga Version Control";
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component title={title} isOfficeInitialized={isOfficeInitialized} ref={(appComponent) => {window.appComponent = appComponent}} />
+      <Component title={title} isOfficeInitialized={isOfficeInitialized} ref={(app) => {window.app = app}} />
     </AppContainer>,
     document.getElementById("container")
   );

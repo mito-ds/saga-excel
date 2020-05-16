@@ -1,7 +1,7 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
-import { saveUserEmail } from "../../saga/sync"
-
+import axios from "axios";
+import Taskpane from "./Taskpane";
 
 // Login Form Component
 export default class LoginScreen extends React.Component {
@@ -13,10 +13,17 @@ export default class LoginScreen extends React.Component {
     async createSagaProject (e) {
         e.preventDefault();
         const email = document.getElementById('email-input').value
-        // TODO: send the email to the server, and log it
-
-        // Save User Email
-        saveUserEmail(email);
+        try {
+            // Send the signup to the server
+            axios.post(
+                "https://excel.sagacollab.com/postemail",
+                {
+                    email: email
+                }
+            )
+        } catch {
+            console.error("Failed to post email.")
+        }
 
         this.props.setEmail(email);
         this.props.nextStep();
@@ -24,23 +31,19 @@ export default class LoginScreen extends React.Component {
 
     render () {
         return (
-            <div className="content">
-                <div className="header">
-                    <img className="saga-logo" src="assets/saga-logo/saga-logo-taskpane.png"/>
-                    <p className="title-text" id="title-text" >You're almost ready to go. Just tell your team who you are. </p>
-                </div>
+            <Taskpane title="You're almost ready to go. Just tell your team who you are.">
                 <div className="card-div">          
                     <div className="floating-card" id="email-card">
                         <div className="subtext-div-full">
                             <p className="subtext">I understand that Saga is pre-alpha software and that my data may be lost. I will continue to backup my work. </p>
                         </div>
                         <form className="form" onSubmit={this.createSagaProject}>
-                            <input className="input" id="email-input" placeholder="example@gmail.com" type="email"></input>
+                            <input className="input" id="email-input" placeholder="example@gmail.com" type="email" required></input>
                             <PrimaryButton className="submit-button" type="submit">Submit</PrimaryButton>
                         </form>
                     </div>
                 </div>
-            </div>
+            </Taskpane>
         );  
     }
 }

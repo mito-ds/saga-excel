@@ -8,9 +8,9 @@
   <Description DefaultValue="A robust version control system for excel."/>
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-80.png"/>
-  <SupportUrl DefaultValue="https://www.sagalab.org"/>
+  <SupportUrl DefaultValue="https://www.sagacollab.com"/>
   <AppDomains>
-    <AppDomain>sagalab.org</AppDomain>
+    <AppDomain>sagacollab.com</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Workbook"/>
@@ -41,6 +41,10 @@
                   <bt:Image size="32" resid="Icon.32x32"/>
                   <bt:Image size="80" resid="Icon.80x80"/>
                 </Icon>
+                <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>ButtonId1</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url"/>
+                </Action>
                 <!--Merge Buttion-->
                 <Control xsi:type="Button" id="MergeButton">
                   <Label resid="MergeButton.Label"/>
@@ -56,7 +60,7 @@
                   <Action xsi:type="ExecuteFunction">
                     <FunctionName>merge</FunctionName>
                   </Action>
-                  <Enabled>false</Enabled>
+                  <Enabled>true</Enabled>
                 </Control>
                 <!--Switch Version Button-->
                 <Control xsi:type="Button" id="VersionButton">
@@ -73,7 +77,7 @@
                   <Action xsi:type="ExecuteFunction">
                     <FunctionName>switchVersion</FunctionName>
                   </Action>
-                  <Enabled>false</Enabled>
+                  <Enabled>true</Enabled>
                 </Control>
                 <!--Reset Personal Version Icon-->
                 <Control xsi:type="Button" id="ResetPersonalButton">
@@ -90,7 +94,7 @@
                   <Action xsi:type="ExecuteFunction">
                     <FunctionName>resetPersonalVersion</FunctionName>
                   </Action>
-                  <Enabled>false</Enabled>
+                  <Enabled>true</Enabled>
                 </Control>
                 <!--Share Project-->
                 <Control xsi:type="Button" id="ShareProjectButton">
@@ -104,11 +108,10 @@
                     <bt:Image size="32" resid="ShareProjectButtonIcon.32x32"/>
                     <bt:Image size="80" resid="ShareProjectButtonIcon.80x80"/>
                   </Icon>
-                  <Action xsi:type="ShowTaskpane">
-                    <TaskpaneId>ButtonId1</TaskpaneId>
-                    <SourceLocation resid="Taskpane.Url"/>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>openShareTaskpane</FunctionName>
                   </Action>
-                  <Enabled>false</Enabled>
+                  <Enabled>true</Enabled>
                 </Control>
                 <!--Create Saga Button-->
                 <Control xsi:type="Button" id="TaskpaneButton">

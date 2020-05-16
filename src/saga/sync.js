@@ -1,14 +1,11 @@
 import Project from "./Project";
 import axios from "axios";
 import { getFileContents } from "./fileUtils";
-import { runOperation } from "./runOperation";
+import { branchState } from "../constants";
 
 /* global Excel, OfficeExtension */
 
-const BRANCH_STATE_HEAD = 0;
-const BRANCH_STATE_AHEAD = 1;
-const BRANCH_STATE_BEHIND = 2;
-//const BRANCH_STATE_FORKED = 3;
+
 
 export async function saveUserEmail(newEmail) {
   console.log(newEmail)
@@ -62,15 +59,18 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
   } 
 
 
-  const branchState = response.data.branchState;
-  if (branchState !== BRANCH_STATE_BEHIND) {
-    console.error("Error getting update from server, not behind.");
+  const remoteBranchState = response.data.branchState;
+  if (remoteBranchState !== branchState.BRANCH_STATE_BEHIND) {
+    console.error(`Error getting update from server, branch state is ${remoteBranchState}.`);
     return false;
   }
 
   const fileContents = response.data.fileContents;
   const commitIDs = response.data.commitIDs;
   const commitSheets = response.data.commitSheets;
+
+  // TODO: we should change the head commit here...
+
 
   // We only merge in the commit sheets
   const worksheets = project.context.workbook.worksheets;
@@ -107,58 +107,77 @@ export async function updateShared(context) {
     });
 
     if (response.status === 404) {
-      console.log("Project does not exist.");
-      return false;
+      return branchState.BRANCH_STATE_ERROR;
     }
 
-    const branchState = response.data.branch_state;
+    const currBranchState = response.data.branch_state;
 
-    if (branchState === BRANCH_STATE_HEAD) {
+    if (currBranchState === branchState.BRANCH_STATE_HEAD) {
       console.log(`Already up to date with server`);
-      return true;
-    } else if (branchState === BRANCH_STATE_AHEAD) {
+      return branchState.BRANCH_STATE_HEAD;
+    } else if (currBranchState === branchState.BRANCH_STATE_AHEAD) {
       const handledAhead = await handleAhead(project, remoteURL, headCommitID, parentCommitID);
       if (handledAhead) {
         console.log(`Local was ahead... updated master on server.`);
-        return true;
+        return branchState.BRANCH_STATE_HEAD;
       } else {
         console.error(`Error: cannot update because`, response);
-        return false;
+        return branchState.BRANCH_STATE_AHEAD;
       }      
-    } else if (branchState === BRANCH_STATE_BEHIND) {
+    } else if (currBranchState === branchState.BRANCH_STATE_BEHIND) {
       const updated = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
-      return updated;
+      return updated ? branchState.BRANCH_STATE_HEAD : branchState.BRANCH_STATE_BEHIND;
     } else {
       console.error("Cannot update shared as is forked from shared :(");
-      return false;
+      return currBranchState;
     }
 }
 
 // TODO: move the sync function here
 
 async function sync() {
-  console.log("syncing...")
-  await runOperation(updateShared);
+  console.log("syncing...", g.syncInt)
+  turnSyncOff();
+  console.log("turned sync off", g.syncInt)
+  try {
+    await Excel.run(async context => {
+        // We do not use runOperation here, as sync shouldn't reload itself
+        await updateShared(context);
+    });
+  } catch (error) {
+    console.error(error);
+    if (error instanceof OfficeExtension.Error) {
+        console.error(error.debugInfo);
+    }
+  }
+  turnSyncOn();
+  console.log("turned sync back on", g.syncInt)
 }
 
-async function runSaveUserEmail(newEmail) {
-  console.log(`saving user email: ${newEmail}`)
-  await runOperation(saveUserEmail, newEmail)
+function getGlobal() {
+  return typeof self !== "undefined"
+    ? self
+    : typeof window !== "undefined"
+    ? window
+    : typeof global !== "undefined"
+    ? global
+    : undefined;
 }
 
-var syncInt;
+
+var g = getGlobal();
 
 export function turnSyncOn() {
   // If sync is not on, turn it on.
-  if (!syncInt) {
-    syncInt = setInterval(sync, 3000);
+  if (!g.syncInt) {
+    g.syncInt = setInterval(sync, 5000);
   }
 }
 
 export function turnSyncOff() {
   // If syncing is on, turn it off.
-  if (syncInt) {
-    clearInterval(syncInt);
-    syncInt = null;
+  if (g.syncInt) {
+    clearInterval(g.syncInt);
+    g.syncInt = null;
   }
 }

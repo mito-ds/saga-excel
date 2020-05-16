@@ -3,11 +3,10 @@
  * See LICENSE in the project root for license information.
  */
 
-import { runCreateSaga} from "../saga/create"
 import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
 import { runResetPersonalVersion } from "../saga/resetPersonal.js"
-import { getCurrentBranchNameFromRibbon } from "../saga/branch.js"
 import { runMerge } from "../saga/merge.js"
+import { taskpaneStatus, mergeState } from "../constants";
 
 /* global global, Office, Excel */
 
@@ -16,6 +15,17 @@ var events = [];
 
 function formattingHandler(event) {
   events.push(event);
+}
+
+async function openShareTaskpane(event) {
+  window.app.setTaskpaneStatus(taskpaneStatus.SHARE)
+  Office.addin.showAsTaskpane();
+  event.completed();
+}
+
+function openMergeTaskpane() {
+  window.app.setTaskpaneStatus(taskpaneStatus.MERGE)
+  Office.addin.showAsTaskpane();
 }
 
 Office.onReady(() => {
@@ -30,25 +40,27 @@ Office.onReady(() => {
  * @param event {Office.AddinCommands.Event}
  */
 async function merge(event) {
-  console.log(events)
-  await runMerge(events);
-  event.completed();
+  openMergeTaskpane()
+  window.app.setTaskpaneStatus(taskpaneStatus.MERGE);
+  window.app.setMergeState(mergeState.MERGE_IN_PROGRESS);
+  var mergeResult = await runMerge(events);
+  window.app.setMergeState(mergeResult);
+
+  // If this function was called by clicking the button, let Excel know it's done
+  if (event) {
+    event.completed();
+  }
   events = [];
+  return mergeResult;
 }
 
 async function switchVersion(event) {
   // Todo: render message saying which branch they are on
   await runSwitchVersionFromRibbon();
-  const headBranch = await getCurrentBranchNameFromRibbon();
-  console.log("headBranch")
-  console.log(headBranch)
-
-  if (headBranch === 'master') {
-    toggleButtons(disableMergeAndResetObj)
-  } else {
-    toggleButtons(enableMergeAndResetObj)
+  
+  if (event) {
+    event.completed();
   }
-  event.completed();
 }
 
 async function resetPersonalVersion(event) {
@@ -57,46 +69,7 @@ async function resetPersonalVersion(event) {
   event.completed();
 }
 
-
-function toggleButtons(buttonUpdateObj) {
-  Office.ribbon.requestUpdate(buttonUpdateObj);
-}
-
-const enableMergeAndResetObj = {
-    tabs: [
-        {
-            id: "TabHome", 
-            controls: [
-            {
-                id: "MergeButton", 
-                enabled: true
-            }, 
-            {   
-                id: "ResetPersonalButton", 
-                enabled: true
-            }
-        ]}
-    ]
-  };
-
-const disableMergeAndResetObj = {
-    tabs: [
-        {
-            id: "TabHome", 
-            controls: [
-            {
-                id: "MergeButton", 
-                enabled: false
-            }, 
-            {   
-                id: "ResetPersonalButton", 
-                enabled: false
-            }
-        ]}
-    ]
-  };
-
-function getGlobal() {
+export function getGlobal() {
   return typeof self !== "undefined"
     ? self
     : typeof window !== "undefined"
@@ -113,3 +86,4 @@ const g = getGlobal();
 g.merge = merge;
 g.switchVersion = switchVersion;
 g.resetPersonalVersion = resetPersonalVersion;
+g.openShareTaskpane = openShareTaskpane;

@@ -1,9 +1,12 @@
 import { createSheet, getRandomID } from "./sagaUtils";
 import { commit } from "./commit";
-import { turnSyncOn } from "./sync";
-import Project from "./Project"
-import axios from "axios"
+import { createBranch } from "./branch";
+import { turnSyncOn, updateShared } from "./sync";
+import Project from "./Project";
+import axios from "axios";
 import { runOperation } from "./runOperation";
+import { item } from "../constants";
+
 
 
 /* global Excel, OfficeExtension */
@@ -13,31 +16,32 @@ Sets up the headers for the commit worksheet, if they don't already exist
 */
 async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
     // First, we create the sheet
-    const worksheet = await createSheet(context, "saga", Excel.SheetVisibility.visible);
+    // TODO: change to very hidden
+    const worksheet = await createSheet(context, "saga", Excel.SheetVisibility.hidden);
 
     // Setup, name range for head branch
     const headRange = worksheet.getRange("A1");
-    worksheet.names.add(`HEAD`, headRange)
-    headRange.values = [["master"]];
+    worksheet.names.add(item.HEAD, headRange)
+    headRange.values = [[email]];
 
     // Setup, name range for branch name => commit mapping
     const branchRange = worksheet.getRange("B1:C2");
-    worksheet.names.add("branches", branchRange)
+    worksheet.names.add(item.BRANCHES, branchRange)
     branchRange.values = [["master", "firstcommit"], [email, firstCommitID]];
 
     // Setup, name range for commit id => (parent commit id, name, message) mapping
     const commitRange = worksheet.getRange("D1:G1");
-    worksheet.names.add("commits", commitRange)
+    worksheet.names.add(item.COMMITS, commitRange)
     commitRange.values = [["firstcommit", "", "", ""]];
 
     //Setup, name range for personal branch identifier
     const personalBranchName = worksheet.getRange("A3");
-    worksheet.names.add('personalBranchName', personalBranchName);
+    worksheet.names.add(item.PERSONAL_BRANCH, personalBranchName);
     personalBranchName.values=[[email]];
 
     // Setup, name range for remote url
     const remoteRange = worksheet.getRange("A2");
-    worksheet.names.add("remote", remoteRange)
+    worksheet.names.add(item.REMOTE_URL, remoteRange)
     remoteRange.values = [[remoteURL]]
 
     return context.sync();
@@ -48,7 +52,7 @@ export async function createRemoteURL() {
   try {
     // Try and create a project
     response = await axios.post(
-        "https://excel.sagalab.org/project/create",
+        "https://excel.sagacollab.com/project/create",
     );
   } catch (e) {
     // If we are offline or can't connect, return null
@@ -59,7 +63,7 @@ export async function createRemoteURL() {
     return null;
   }
 
-  return `https://excel.sagalab.org/project/${response.data.id}`;
+  return `https://excel.sagacollab.com/project/${response.data.id}`;
 
 }
 
@@ -72,6 +76,10 @@ async function createSaga(context, remoteURL, email) {
 
   // Create the first commit 
   await commit(context, "Create Saga Project", "Saga project creation", "master", firstCommitID);
+
+  // Update the shared repository
+  // TODO: error check this!
+  await updateShared(context);
 
   // Start syncing this with master
   turnSyncOn();
@@ -97,6 +105,8 @@ export async function setPersonalBranchName(personalBranchName) {
 
 async function createFromURL(context, url, email) {
   // TODO: make a branch w/ email, and check it out.
+
+  url = url.trim();
 
   const response = await axios.get(
     url, 
@@ -137,7 +147,16 @@ async function createFromURL(context, url, email) {
   await context.sync();
 
   sheets[0].delete();
-  // TODO: we also have to clear the personal branch!
+  
+
+  const sagaworksheet = worksheets.getItem("saga");
+  // Switch the existing personal version for your own
+  await createBranch(context, email);
+  const personalBranchRange = sagaworksheet.getRange("A3");
+  personalBranchRange.values = [[email]];
+  const headRange = sagaworksheet.getRange("A1");
+  headRange.values = [[email]];
+  await context.sync();
 
   turnSyncOn();
 

@@ -65,6 +65,8 @@ def main():
     # read in the current manifest data
     with open("../manifest.xml", "r") as f:
         manifest_data = f.read()
+    
+    manifest_data = manifest_data.replace("localhost:3000", "excel.sagacollab.com");
 
     # write it 
     with open("./templates/preinstall", "r") as f:
@@ -103,6 +105,7 @@ def main():
             "productbuild", 
             "--synthesize",
             "--package", intermediate_install_package,
+            "--version", "1.0",
             distribution_plist
         ]
     )
@@ -147,25 +150,27 @@ def main():
         ]
     )
     uuid = out.split("\n")[1].split("=")[1].strip()
+    print(f"Got uuid: {uuid}")
 
     response = False
     print("Waiting for response...", end="")
     while not response:
         out, err = run_process_exit_on_error(
             [
-                "xcrun", "altool", "--notarization-history",
+                "xcrun", "altool", "--notarization-info", uuid, 
                 "-u", username,
                 "-p", password
             ]
         )
-        line = list(filter(lambda l: uuid in l, out.split("\n")))[0]
-        if "in progress" in line:
+        status_line = list(filter(lambda l: "Status" in l, out.split("\n")))[0]
+        print(status_line)
+        if "in progress" in status_line:
             print(".", end='', flush=True)
             time.sleep(30)
         else:
             response = True
 
-    print(f"\nResponse is: {line}")
+    print(f"\nResponse is: {status_line}")
 
     # Then, we try and stable this notarization onto the signed package
     run_process_exit_on_error(

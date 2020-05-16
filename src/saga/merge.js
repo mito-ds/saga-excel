@@ -1,10 +1,11 @@
 import { commit } from './commit';
-import { copySheet, getRandomID, getFormulas } from "./sagaUtils";
-import { diff3Merge2d } from "./mergeUtils";
+import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets } from "./sagaUtils";
+import { simpleMerge2D } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
 import { runOperation } from './runOperation';
-import { format } from 'office-ui-fabric-react';
+import { makeClique } from "./commit";
+import { mergeState, branchState } from '../constants';
 
 /* global Excel */
 
@@ -34,8 +35,133 @@ const getNonsagaSheets = (sheets) => {
     })
 }
 
-const getSheetWithID = (sheets, id) => {
-    return sheets.find(sheet => sheet._I === id);
+async function findOtherSheetReferencesAddr(context, sheetName, nonSagaSheets) {
+    // In a given non-saga sheet, will return an array of all the addresses of the
+    // cells that contain a reference to another non-saga sheet
+
+    const worksheet = context.workbook.worksheets.getItem(sheetName);
+
+    /*
+    1. Get all sheet names
+    */
+    var found = []
+    for (let i = 0; i < nonSagaSheets.length; i++) {
+        console.log(`Looking for =${nonSagaSheets[i].name}`)
+        var foundRanges = worksheet.findAllOrNullObject(`=${nonSagaSheets[i].name}`, {
+            completeMatch: false, // findAll will match the whole cell value
+            matchCase: false // findAll will not match case
+        });
+        await context.sync();
+
+        if (foundRanges.isNullObject) {
+            console.log("No ranges contain this");
+        } else {
+            foundRanges.load("address");
+            await context.sync()
+            console.log(foundRanges.address)
+            found.push(...foundRanges.address.split(","));
+        }
+    }
+
+    return found;
+}
+
+async function updateReferences(context, sheetName, newCommitPrefix) {
+
+    const worksheet = context.workbook.worksheets.getItem(sheetName);
+
+    const nonSagaSheets = (await getSheetsWithNames(context)).filter(sheet => {return !sheet.name.startsWith("saga")});
+    const nonSagaSheetNames = nonSagaSheets.map(sheet => sheet.name);
+    const otherSheetReferences = await findOtherSheetReferencesAddr(context, nonSagaSheets);
+
+    // Loop over all of them, get the values, and 
+    var mapping = {};
+    for (let i = 0; i < otherSheetReferences.length; i++) {
+        const refRange = worksheet.getRange(otherSheetReferences[i]);
+        refRange.load("formulas");
+        await context.sync();
+            mapping[otherSheetReferences[i]] = refRange.formulas[0][0];
+    }
+    // TODO: fix this w/ a complicated algorithm so it works for when sheet names are substrings of eachother
+
+    var newMapping = {}
+    for (const addr in mapping) {
+        const formula = mapping[addr];
+        var newFormula = formula;
+        for (let i = 0; i < nonSagaSheetNames.length; i++) {
+            const sheetName = nonSagaSheetNames[i];
+            const newSheetName = newCommitPrefix + nonSagaSheetNames[i];
+            newFormula = newFormula.replace(sheetName, newSheetName);
+        }
+        newMapping[addr] = newFormula;
+    }
+
+    var count = 0;
+    for (const addr in newMapping) {
+        const newFormula = newMapping[addr];
+        worksheet.getRange(addr).value = newFormula;
+
+        count++;
+        // We can have at most 40 transactions
+        if (count % 40 === 0) {
+            await context.sync();
+        }
+    }
+
+    return newMapping;
+}
+
+async function writeDataToSheet(context, sheetName, data) {
+    if (data.length === 0 || (data.length === 1 && data[0].length === 0)) {
+        console.log(`No data to write to sheet ${sheetName}, returning`);
+        return;
+    }
+
+    const sheet = context.workbook.worksheets.getItem(sheetName);
+
+    // First, we make sure the data is a rectangle
+    const maxLength = Math.max(...data.map(row => {return row.length}));    
+    const rectData = data.map(row => {row.length = maxLength; return row});
+
+    // Find the address of the rectangle range we're going to write
+    const endColumn = toColumnName(maxLength);
+    const rangeAddress = `A${1}:${endColumn}${rectData.length}`;
+
+    // Finially, write the values
+    sheet.getRange(rangeAddress).values = rectData;
+
+    await context.sync();
+}
+
+async function copyFormatting(context, srcSheetName, dstSheetName, formattingEventsMap) {
+    const srcFormatting = context.workbook.worksheets.getItem(srcSheetName);
+    const dstFormatting = context.workbook.worksheets.getItem(dstSheetName);
+    // We sync here to get the sheet IDs
+    await context.sync();
+
+    const sheetID = srcFormatting._I;
+    const events = formattingEventsMap[sheetID] || []; 
+    for (let i = 0; i < events.length; i++) {
+        const address = events[i].address;
+        dstFormatting.getRange(address).copyFrom(srcFormatting.getRange(address), Excel.RangeCopyType.formats);
+        
+        if (i % 40 === 0) {
+            await context.sync();
+        }
+    }
+
+    await context.sync();
+}
+
+function replaceReferencesInData(data, srcString, dstString) {
+    data.forEach(row => {
+        for (let i = 0; i < row.length; i++) {
+            const cell = row[i];
+            if (typeof(cell) === `string` && cell.startsWith("=")) {
+                row[i] = row[i].replaceAll(srcString, dstString);
+            }
+        }
+    })
 }
 
 
@@ -61,17 +187,22 @@ const doMerge = async (context, formattingEvents) => {
     // the parent of the personal commit ID
     const originCommitID = await project.getParentCommitID(personalCommitID);
 
+    console.log("masterCommitID", masterCommitID);
+    console.log("personalCommitID", personalCommitID);
+    console.log("originCommitID", originCommitID);
+    
     const sheets = await project.getSheetsWithNames();
 
     const masterSheets = getCommitSheets(sheets, masterCommitID);
     const personalSheets = getNonsagaSheets(sheets);
     const originSheets = getCommitSheets(sheets, originCommitID);
 
-    console.log("master sheets", masterSheets);
-    console.log("personalSheets", personalSheets);
-    console.log("originSheets", originSheets);
+    console.log("MASTER SHEETS", masterSheets);
+    console.log("PERSONAL SHEETS", personalSheets);
+    console.log("ORIGIN SHEETS", originSheets);
 
     const masterPrefix = `saga-${masterCommitID}-`;
+    const personalPrefix = `saga-${personalCommitID}-`;
     const originPrefix = `saga-${originCommitID}-`;
     const newCommitID = getRandomID();
     const newCommitPrefix = `saga-${newCommitID}-`;
@@ -104,13 +235,14 @@ const doMerge = async (context, formattingEvents) => {
         return ex.inMaster && !ex.inOrigin;
     })
 
+    // TODO: we should be merging conflict sheets together
+
     // Sheets that have been removed from the head branch, but where in the origin branch
-    /*
+    
     const deletedSheets = personalSheets.filter(sheet => {
         const ex = checkExistance(sheet);
         return !ex.inMaster && ex.inOrigin;
     })
-    */
 
     // Now, we actually need to merge the sheets 
     const mergeSheets = personalSheets.filter(sheet => {
@@ -125,22 +257,120 @@ const doMerge = async (context, formattingEvents) => {
         return;
     }
 
-    // Copy over the inserted sheets
-    for (let i = 0; i < insertedSheets.length; i++) {
-        // TODO: we might wanna do this at the end!
-        // TODO: we can probably track sheet renames with sheet ID!
-        const sheet = insertedSheets[i];
-        const dst = newCommitPrefix + sheet.name;
-        await copySheet(
-            context, 
-            sheet.name,
-            dst,
-            Excel.WorksheetPositionType.end,
-            Excel.SheetVisibility.visible
-        );
+    /*
+        We have to make sure sheets all exist at the right time, so we do the following:
+
+        1. Create clique with the personal sheets we need to merge over to their new commit names.
+        2. Merge the this newly renamed personal sheet with the current master and origin commits, and save them in memory
+            - Because we renamed the personal sheets, they will have references to the correct sheets (e.g. new commit name - sheet)
+        4. Then, we delete all the personal sheet with these commit names.
+        5. Then, we copy over the master sheets with the new commit name, and write the data to these sheets.
+        6. Finially, we update these sheets with the correct formatting values.
+    */
+
+    const personalSheetsNames = personalSheets.map(sheet => sheet.name);
+    const insertedSheetsNames = insertedSheets.map(sheet => sheet.name);
+
+    console.log("Personal:", personalSheetsNames);
+    console.log("Personal renamed:", personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName}));
+
+    await makeClique(
+        context,
+        personalSheetsNames,
+        (sheetName) => {return newCommitPrefix + sheetName},
+        Excel.WorksheetPositionType.end,
+        Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
+    )
+
+    console.log("Copied over personal sheets to ", newCommitPrefix);
+
+    const renamedPersonalSheets = personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName});
+    var mergedData = {};
+    console.log("Renamed personal sheets", renamedPersonalSheets);
+    for (let i = 0; i < renamedPersonalSheets.length; i++) {
+        const personalSheetName = personalSheetsNames[i];
+        const renamedPersonalSheetName = renamedPersonalSheets[i];
+        const masterSheetName = masterPrefix + personalSheetName;
+        const originSheetName = originPrefix + personalSheetName;
+
+        // If the sheet is inserted, it's an easy merge
+        if (insertedSheetsNames.includes(personalSheetName)) {
+            const personalFormulas = await getFormulas(context, renamedPersonalSheetName);
+            mergedData[personalSheetName] = personalFormulas;
+            continue;
+        }
+
+        // TODO: do the same as above but for deleted
+
+        /*
+            We get the formulas from the renamed personal sheet, because they have the correct names
+            and so the correct references
+        */
+        console.log(`For sheet ${personalSheetName}, getting formulas`);
+        // TODO: handle the case where a sheet has been inserted (maybe deleted too)!
+        const personalFormulas = await getFormulas(context, renamedPersonalSheetName);
+        var masterFormulas = await getFormulas(context, masterSheetName);
+        // We then replace all references to the master commit w/ the origin commit, so we don't have
+        // merge conflicts that aren't really conflicts
+        replaceReferencesInData(masterFormulas, masterCommitID, originCommitID);
+        const originFormulas = await getFormulas(context, originSheetName);
+
+        // Merge the formulas
+        const mergeFormulas = simpleMerge2D(originFormulas, masterFormulas, personalFormulas);
+        // And save them
+        mergedData[personalSheetName] = mergeFormulas;
     }
 
-    // We sort the formatting events by ID
+    console.log("Saved merged data", mergedData);
+    console.log("Renamed personal sheets", renamedPersonalSheets);
+
+    // Then, we delete all the renamed personal sheets, b/c we want to copy the master so we get their formatting
+    for (let i = 0; i < renamedPersonalSheets.length; i++) {
+        const sheet = context.workbook.worksheets.getItem(renamedPersonalSheets[i]);
+        sheet.delete();
+
+        if (i % 40 === 0 || i === renamedPersonalSheets.length - 1) {
+            await context.sync()
+        }
+    }
+
+    console.log("Deleted renamed personal sheets");
+
+    // Now, we copy over master sheets, to get their formatting
+    const masterNonDeletedNames = masterSheets.filter(sheet => {
+        return !deletedSheets.some(deleted => deleted.name === sheet.name)
+    }).map(sheet => sheet.name);
+
+    await makeClique(
+        context,
+        masterNonDeletedNames,
+        (sheetName) => {return newCommitPrefix + sheetName.split(masterPrefix)[1]},
+        Excel.WorksheetPositionType.end,
+        Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
+    )
+
+    console.log(`Copied over the master non-deleted sheets:`, masterNonDeletedNames);
+
+    // As well as all the inserted sheets
+    await makeClique(
+        context,
+        insertedSheetsNames,
+        (sheetName) => {return newCommitPrefix + sheetName},
+        Excel.WorksheetPositionType.end,
+        Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
+    )
+
+    console.log("Copied over inserted", insertedSheetsNames);
+    
+    for (const sheetName in mergedData) {
+        // TODO: we have to not copy over the sheets that were deleted on master
+        console.log("Trying to write to ", sheetName, "with", mergedData[sheetName]);
+        await writeDataToSheet(context, newCommitPrefix + sheetName, mergedData[sheetName]["result"]);
+    }
+
+    console.log("Wrote data to all sheets");
+
+    // Then, we propagate over the formatting events
     var formattingEventsMap = {};
     formattingEvents.forEach(event => {
         if (!(event.worksheetId in formattingEventsMap)) {
@@ -150,86 +380,43 @@ const doMerge = async (context, formattingEvents) => {
     })
 
     for (let i = 0; i < mergeSheets.length; i++) {
-        // First, we copy all the merge sheets to a new destination
-        const sheet = mergeSheets[i];
-
-        const personalSheetName = sheet.name;
-        const masterSheetName = masterPrefix + personalSheetName;
-        const originSheetname = originPrefix + personalSheetName;
-
-        const personalFormulas = await getFormulas(context, personalSheetName);
-        const masterFormulas = await getFormulas(context, masterSheetName);
-        const originFormulas = await getFormulas(context, originSheetname);
-
-        // Merge the formulas
-        const mergeFormulas = diff3Merge2d(originFormulas, masterFormulas, personalFormulas);
-
-        // We copy over the origin sheet to get the formatting
-        const tempDst = "saga- " + getRandomID();
-        await copySheet(
-            context, 
-            masterSheetName,
-            tempDst,
-            Excel.WorksheetPositionType.beginning,
-            Excel.SheetVisibility.visible
-        );
-        const mergeSheet = project.context.workbook.worksheets.getItem(tempDst);
-
-        // If there are formatting events for this sheet, we apply them
-        
-        if (sheet._I in formattingEventsMap) {
-            const events = formattingEventsMap[sheet._I];
-            console.log(`Sheet id ${sheet._I} was in formatting events`, events);
-
-
-            // Then, we apply the formatting changes
-            for (let i = 0; i < events.length; i++) {
-                // First, we need to get the right workbook (let's just say sheet1 for now)
-                const address = events[i].address;
-                mergeSheet.getRange(address).copyFrom(sheet.getRange(address), Excel.RangeCopyType.formats);
-                
-                if (i % 40 === 0) {
-                    await context.sync();
-                }
-            }
-        } else {
-            console.log(`Sheet id ${sheet._I} was not in formatting events`, formattingEventsMap);
-        }
-
-        // Then, we update the values
-        for (let i = 0; i < mergeFormulas.length; i++) {
-            const len = mergeFormulas[i].length;
-            const endColumn = toColumnName(len);
-            const rangeAddress = `A${i + 1}:${endColumn}${i+1}`;
-            const rowRange = mergeSheet.getRange(rangeAddress);
-            rowRange.values = [mergeFormulas[i]];
-            if (i % 40 === 0) {
-                // So we don't have too many waiting (there is a cap at 50?) TODO.
-                await context.sync();
-            }
-        }
-
-        // Finially, we copy the tmp sheet to it's commit location
-
-        const mergeDst = newCommitPrefix + sheet.name;
-
-        await copySheet(
-            context, 
-            tempDst,
-            mergeDst,
-            Excel.WorksheetPositionType.end,
-            Excel.SheetVisibility.visible
-        );
-
-        sheet.delete();
-        mergeSheet.name = personalSheetName;
-
-        await context.sync();
+        const personalSheetName = mergeSheets[i].name;
+        const mergeSheetName = newCommitPrefix + personalSheetName;
+        await copyFormatting(context, personalPrefix + personalSheetName, mergeSheetName, formattingEventsMap);
     }
 
-    // Finially, after we have merged everything, we can log the commit to lock it in
+    console.log("Done with formatting")
+
+    // We make a tmp sheet (so we can delete things)
+    var tmpSheet = personalSheets[0];
+    tmpSheet.name = "saga-tmp";
+
+    // Finially, we have to delete the old personal sheets
+    await deleteNonsagaSheets(context);
+
+    console.log("Deleted non-saga sheets")
+    
+
+    // And then copy all the sheets on that merge back to the personal branch
+    const newCommitSheets = (await getSheetsWithNames(context)).map(sheet => sheet.name).filter(sheetName => sheetName.startsWith(newCommitPrefix));
+    await makeClique(
+        context,
+        newCommitSheets,
+        (sheetName) => {return sheetName.split(newCommitPrefix)[1]},
+        Excel.WorksheetPositionType.beginning,
+        Excel.SheetVisibility.visible // TODO: change to very hidden, figure out deleting
+    )
+
+    // Then we delete the tmp sheet
+    tmpSheet.delete();
+    console.log("Copied new commit sheets to personal branch", newCommitSheets);
+
+
+    // And then we update the commits and stuff in the proper places
     await project.updateBranchCommitID(`master`, newCommitID);
+    await project.updateBranchCommitID(personalBranch, newCommitID); // we commit on both of these branches
     await project.addCommitID(newCommitID, masterCommitID, `Merged in ${personalBranch}`, "");
+    console.log(mergedData)
 }
 
 /*
@@ -245,9 +432,8 @@ export async function merge(context, formattingEvents) {
 
     const updated = await updateShared(context);
 
-    if (!updated) {
-        console.error("Cannot checkin personal branch as shared branch may not be up to date.");
-        return;
+    if (updated !== branchState.BRANCH_STATE_HEAD) {
+        return updated === branchState.BRANCH_STATE_FORKED ? mergeState.MERGE_FORKED : mergeState.MERGE_ERROR;
     }
 
     const project = new Project(context);
@@ -257,7 +443,7 @@ export async function merge(context, formattingEvents) {
 
     if (headBranch !== personalBranch) {
         console.error("Please check out your personal branch before checking in.");
-        return;
+        return mergeState.MERGE_ERROR;
     }
 
     // Make a commit on the personal branch    
@@ -268,12 +454,13 @@ export async function merge(context, formattingEvents) {
     // Try and update the server with this newly merged sheets
     const updatedWithMerge = await updateShared(context);
 
-    if (!updatedWithMerge) {
-        console.error("Checked in data may have not been been shared...");
-        // TODO: handle this case with some better UI...
+    if (updatedWithMerge !== branchState.BRANCH_STATE_HEAD) {
+        return updatedWithMerge === branchState.BRANCH_STATE_FORKED ? mergeState.MERGE_FORKED : mergeState.MERGE_ERROR;
     }
+
+    return mergeState.MERGE_SUCCESS;
 }
 
 export async function runMerge(formattingEvents) {
-    await runOperation(merge, formattingEvents);
+    return runOperation(merge, formattingEvents);
 }

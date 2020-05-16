@@ -7,11 +7,7 @@ Efficiently gets all the worksheet objects with all their names loaded
 */
 export async function getSheetsWithNames(context) {
     var sheets = context.workbook.worksheets;
-
-    sheets.load("$none");
-    await context.sync();
-
-    sheets.items.forEach(sheet => sheet.load("name"));
+    sheets.load("items/name");
     await context.sync();
     return sheets.items;
 }
@@ -56,17 +52,13 @@ export async function createSheet(context, worksheetName, worksheetVisibility) {
 /*
 Copies srcWorksheetName to dstWorksheetName, with the given visibility parameters
 */
-export async function copySheets(
+async function copySheets(
     context, 
     srcWorksheets, 
-    dstWorksheets,
+    getNewName,
     worksheetPositionType,
     worksheetVisibility
 ) {
-    if (srcWorksheets.length !== dstWorksheets.length) {
-        console.error(`Cannot copy ${srcWorksheets} to ${dstWorksheets}, don't match up`);
-        return false;
-    }
 
     if (worksheetPositionType !== Excel.WorksheetPositionType.end && worksheetPositionType !== Excel.WorksheetPositionType.beginning) {
         console.error(`Bulk copy only supports beggining or end, not ${worksheetPositionType}`);
@@ -74,12 +66,11 @@ export async function copySheets(
     }
 
     console.log(srcWorksheets)
-    console.log(dstWorksheets);
 
     if (worksheetPositionType === Excel.WorksheetPositionType.end) {
         for (let i = 0; i < srcWorksheets.length; i++) {
             const srcName = srcWorksheets[i];
-            const dstName = dstWorksheets[i];
+            const dstName = getNewName(srcName);
             const src = context.workbook.worksheets.getItemOrNullObject(srcName);
             const dst = src.copy(worksheetPositionType);
             dst.name = dstName;
@@ -93,7 +84,7 @@ export async function copySheets(
     } else if (worksheetPositionType === Excel.WorksheetPositionType.beginning) {
         for (let i = srcWorksheets.length - 1; i >= 0; i--) {
             const srcName = srcWorksheets[i];
-            const dstName = dstWorksheets[i];
+            const dstName = getNewName(srcName);
             const src = context.workbook.worksheets.getItemOrNullObject(srcName);
             const dst = src.copy(worksheetPositionType);
             dst.name = dstName;
@@ -112,7 +103,7 @@ export async function copySheets(
 /*
 Copies srcWorksheetName to dstWorksheetName, with the given visibility parameters
 */
-export async function copySheet(
+async function copySheet(
         context, 
         srcWorksheetName, 
         dstWorksheetName,
@@ -141,15 +132,41 @@ export function getRandomID() {
     return Math.random().toString(36).substring(2, 15);
 }
 
+function fromColumnName(col){
+    return col.split('').reduce((r, a) => r * 26 + parseInt(a, 36) - 9, 0);
+}
+// Taken https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
+
 
 export async function getFormulas(context, sheetName) {
-  // Get's the defined range and prints it
-  var sheet = context.workbook.worksheets.getItem(sheetName);
-  var usedRange = sheet.getUsedRange(true);
-  // Have to load and then sync to run the command
-  usedRange.load("formulas")
-  await context.sync();
-  return usedRange.formulas;
+    // Get's the defined range and prints it
+    var sheet = context.workbook.worksheets.getItem(sheetName);
+    var usedRange = sheet.getUsedRangeOrNullObject(true);
+    // Have to load and then sync to run the command
+    usedRange.load("formulas")
+    usedRange.load("address")
+    usedRange.load("isNullObject")
+    await context.sync();
+    
+    if (usedRange.isNullObject) {
+        return [[]];
+    }
+
+    const addrParts = usedRange.address.split(":");
+
+    if (addrParts[0] === "A1") {
+        return usedRange.formulas;
+    }
+
+    // Redefine the box to include the 
+    const bottomRight = addrParts.length === 1 ? addrParts[0] : addrParts[1];
+
+    var usedRangeWithA1 = sheet.getRange(`A1:${bottomRight}`);
+    usedRangeWithA1.load("formulas")
+    await context.sync();
+
+    return usedRangeWithA1.formulas;
+
 }
 
 /*
@@ -161,6 +178,7 @@ export async function deleteNonsagaSheets(context) {
         return !sheet.name.startsWith("saga");
     })
 
+    // TODO: make it be save w/ number of sheets
     sheets.forEach(sheet => sheet.delete());
 
     await context.sync();

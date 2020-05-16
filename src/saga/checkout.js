@@ -1,33 +1,26 @@
-import { getSheetsWithNames, copySheet, copySheets } from "./sagaUtils";
+import { getSheetsWithNames, deleteNonsagaSheets } from "./sagaUtils";
 import Project from './Project';
 import { runOperation } from "./runOperation";
+import { makeClique } from "./commit"
 
 /* global Excel */
 
 
 export async function switchVersionFromRibbon(context) {
-    console.log("1")
-
-    const project = await new Project(context);
-
-    console.log("2")
+    const project = new Project(context);
 
     // Get current branch
     const currentBranch = await project.getHeadBranch();
 
-    console.log("3")
-    console.log(currentBranch)
-
     // Switch Branches
     if (currentBranch === 'master') {
         const personalBranchName = await project.getPersonalBranchName();
-        await runCheckoutBranch(personalBranchName);
+        await checkoutBranch(context, personalBranchName);
     } else {
-        await runCheckoutBranch('master');
+        await checkoutBranch(context, "master");
+        // If master, lock sheets
+        await lockWorksheets(context)
     }
-
-    console.log("5")
-
 }
 
 
@@ -40,27 +33,47 @@ async function getNonSagaSheets(context) {
 }
 
 /* 
-Deletes all sheets that do not start with 'saga'
-*/
-export async function deleteNonsagaSheets(context) {
-    const sheets = await getNonSagaSheets(context);
-    sheets.forEach(sheet => sheet.delete());
-
-    await context.sync();
-}
-
-/* 
 Lock worksheets
 */
 async function lockWorksheets(context) {
-    const sheets = await getNonSagaSheets(context)
+    const sheets = await getNonSagaSheets(context);
+
     await Promise.all(sheets.map(async (sheet) => {
-        await sheet.load("protection/protected")
+        sheet.load("protection/protected")
         await context.sync()
         //Todo: Add password to protect
-        await sheet.protection.protect()
+        sheet.protection.protect()
         await context.sync()
+        console.log(sheet.name);
     }));
+}
+
+/*
+    TODO: If this is called with a non-existant commit id, who knows what it will do!
+*/
+export async function checkoutCommitID(context, commitID) {
+    // Find those sheets that we should copy back
+    let sheets = await getSheetsWithNames(context);
+    sheets = sheets.filter(sheet => {
+        return sheet.name.startsWith(`saga-${commitID}-`)
+    })
+
+    const srcWorksheets = sheets.map(sheet => sheet.name);
+
+    // Delete the non-saga sheets
+    const tmpSheet = (await getSheetsWithNames(context)).find(sheet => !sheet.name.startsWith("saga"))
+    tmpSheet.name = "saga-tmp";
+    await deleteNonsagaSheets(context);
+
+    // Checkout the sheet data in the correct location
+    await makeClique(
+        context, 
+        srcWorksheets, 
+        (sheetName) => sheetName.split(`saga-${commitID}-`)[1], 
+        Excel.WorksheetPositionType.beginning, 
+        Excel.SheetVisibility.visible
+    );
+    tmpSheet.delete();
 }
 
 
@@ -84,37 +97,18 @@ export async function checkoutBranch(context, branch) {
     await commit(context, "Automatic checkout commit", `Switching from ${currentBranch} to ${branch}`, currentBranch)
     */
    
+
     // Find the commit for a branch
     const commitID = await project.getCommitIDFromBranch(branch);
 
-    // Find those sheets that we should copy back
-    let sheets = await getSheetsWithNames(context);
-    sheets = sheets.filter(sheet => {
-        return sheet.name.startsWith(`saga-${commitID}-`)
-    })
-
-    const srcWorksheets = sheets.map(sheet => sheet.name);
-    const dstWorksheets = srcWorksheets.map(sheetName=> sheetName.split(`saga-${commitID}-`)[1]);
-
-    // Delete the non-saga sheets
-    await deleteNonsagaSheets(context);
-
-    await copySheets(
-        context,
-        srcWorksheets,
-        dstWorksheets,
-        Excel.WorksheetPositionType.beginning,
-        Excel.SheetVisibility.visible
-    )
-
-    // If master, lock sheets
-    if (branch === 'master') {
-        lockWorksheets(context)
-    }
+    await checkoutCommitID(context, commitID);
 
     // Finially, update the head branch
     const headRange = await project.getHeadRange();
     headRange.values = [[branch]];
+
+    console.log("update head branch")
+
 
     await context.sync();
 }

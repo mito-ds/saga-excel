@@ -1,16 +1,20 @@
 require('dotenv').config();
 require('./src/models/ProjectSchema');
 require('./src/models/EmailSchema');
+require('./src/models/FeedbackSchema');
 const express = require('express');
 const bodyParser = require('body-parser');
+const logger = require('morgan');
 const app = express();
 const projectRouter = require('./src/routers/project');
 const mongoose = require('mongoose');
-const Emails = mongoose.model('Emails');
+const Emails = mongoose.model("Emails");
+const Feedback = mongoose.model("Feedback");
 
 /* global process, require */
 
-// Load the project module
+// Log all our routes
+app.use(logger("short"));
 
 // Connect to mongo
 mongoose.connect(
@@ -29,7 +33,52 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
+
+//Route to save emails to mongo
+async function getEmail(email) {
+    return await Emails.findOne({email: email}).exec();
+}
+
+async function emailExists(email) {
+    return (await getEmail(email)) !== null;
+}
+
+function createDateString () {
+    const d = new Date();
+    var dateString = '';
+    dateString += d.getMonth() + '/' + d.getDate() + '/' + d.getFullYear()
+    dateString += ' ' + d.getHours() + ':' + d.getMinutes()
+    return dateString
+}
+
+app.post('/submit-feedback', (req, res) => {
+    const email = req.body.email;
+    const relevance = req.body.relevance; 
+    const response = req.body.response;
+
+    const feedback = new Feedback();
+    feedback.email = email
+    feedback.relevance = relevance;
+    feedback.response = response;
+    feedback.date = createDateString();
+    feedback.save();
+
+    // Send Success Message
+    res.end();
+})
+
+app.use('/postemail', async function (req, res) {
+    const newEmail = req.body.email;
+    const exists = await emailExists(newEmail);
+    if (newEmail && !exists) {
+        // TODO: don't save duplicates
+        const email = new Emails();
+        email.email = newEmail;
+        await email.save();
+    }
+    res.status(200).end()
+});
 
 
 //Route to save emails to mongo
