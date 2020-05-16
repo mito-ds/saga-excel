@@ -17,11 +17,14 @@ export default class MergeConflict extends React.Component {
 
     handleResolve(e) {
         e.preventDefault();
-        console.log("clicked")
+        console.log(e)
     }
 
-
     render() {
+        const idA = this.state.conflict.cell + "a"
+        const idB = this.state.conflict.cell + "b"
+        const idO = this.state.conflict.cell + "o"
+
         return (
             <div className="card">
                 <div className="card-cols">
@@ -29,18 +32,17 @@ export default class MergeConflict extends React.Component {
                         {this.state.conflict.cell}
                     </div>
                     <div className="options-div">
-                        <form className="option-form form-inline" onSubmit={this.handleResolve}>
-                            <input className="option" id="a" value={this.state.conflict.a} readOnly></input>
-                            <button className="option-selection" type="submit">mine</button>
-                        </form>
-                        <form className="option-form form-inline" onSubmit={this.handleResolve}>
-                            <input className="option" id="b" value={this.state.conflict.b} readOnly></input>
-                            <button className="option-selection" type="submit">change</button>
-                        </form>
-                        <form className="option-form bottom-option form-inline" onSubmit={this.handleResolve}>
-                            <input className="option" id="o" value={this.state.conflict.o} readOnly></input>
-                            <button className="option-selection" type="submit">original</button>
-                        </form>                
+                        <div className="boxed">
+                            <input className="top-option"type="radio" id={idA} name={this.state.conflict.cell} value={this.state.conflict.a}/>
+                            <label htmlFor={idA}>{this.state.conflict.a}</label>
+
+                            <input type="radio" id={idB} name={this.state.conflict.cell} value={this.state.conflict.b}/>
+                            <label htmlFor={idB}> {this.state.conflict.b} </label>
+
+                            <input type="radio" id={idO} name={this.state.conflict.cell} value={this.state.conflict.o}/>
+                            <label htmlFor={idO}> {this.state.conflict.o} </label>
+                        </div>
+                                   
                     </div>
                 </div>
             </div>
