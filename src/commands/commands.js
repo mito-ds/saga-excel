@@ -90,7 +90,7 @@ const g = getGlobal();
 const conflicts = [
   { 
     cell: "Sheet1 B5",
-    a: "=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    a: "=aaaaa",
     b: "=b", 
     o: "=o"
   },

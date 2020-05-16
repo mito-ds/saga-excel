@@ -1,5 +1,26 @@
 import { conflictType } from "../constants";
 
+
+async function resolveMergeConflicts(context, conflicts) {
+
+    const worksheets = context.workbook.worksheets;
+    
+    for (var i = 0; i < conflicts.length; i++) {
+        // Get the worksheet
+        const sheetName = conflicts[i].sheetName
+        const worksheet = worksheets.getItem(sheetName);
+        for (var j = 0; j < conflicts[0].resolutions.length; j++) {
+            const cell = conflicts[0].resolutions[j].cell
+            const value = conflicts[0].resolutions[j].value
+
+            // Set cell value
+            const cellRange = worksheet.getRange(cell);
+            cellRange.values = [[value]];
+            await context.sync();
+        }
+    }     
+}
+
 function checkEmpty(row) {
     const filteredRow = row.filter(element => element != "");
     return filteredRow.length === 0; 

@@ -24,7 +24,7 @@ export default class MergeErrorScreen extends React.Component {
 
   resolveConflicts(e) {
     e.preventDefault();
-    let resolutions = []
+    let resolutions = {}
     
     this.state.conflicts.forEach(function(conflict) {
         const selectedButton = document.querySelector('input[name="' + conflict.cell + '"]:checked');
@@ -37,12 +37,16 @@ export default class MergeErrorScreen extends React.Component {
         } else {
             selection = conflict.a
         }
-        
+
         const resolution = {
             cell: conflict.cell, 
             value: selection
         }
-        resolutions.push(resolution)
+        if (sheetName in resolutions) {
+            resolutions.sheetName.push(resolution)
+        } else {
+            resolutions[sheetName] = resolution
+        }
     })
 
     this.setState({resolutions: resolutions});
