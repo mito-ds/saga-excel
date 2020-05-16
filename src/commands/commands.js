@@ -98,7 +98,31 @@ const conflicts = [
     cell: "Sheet1 D7",
     a: "=a2",
     b: "=b2", 
-    o: "o2"
+    o: "=o2"
+  }, 
+  {     
+    cell: "Sheet1 E7",
+    a: "=a3",
+    b: "=b3", 
+    o: "=o3"
+  },
+  {     
+    cell: "Sheet1 F9",
+    a: "=a4",
+    b: "=b4", 
+    o: "=o4"
+  },
+  {     
+    cell: "Sheet1 G3",
+    a: "=a5",
+    b: "=b5", 
+    o: "=o5"
+  },
+  {     
+    cell: "Sheet1 L100",
+    a: "=a6",
+    b: "=b7", 
+    o: "=o8"
   }
 ]
 

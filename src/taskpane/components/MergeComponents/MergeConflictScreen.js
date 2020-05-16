@@ -16,19 +16,29 @@ export default class MergeErrorScreen extends React.Component {
     this.state = {
         conflicts: this.props.conflicts
     }
-  }
 
+  }
 
   render() {
     console.log("STATE CONFLICTS")
     console.log(this.state.conflicts)
+
+    let mergeConflictComponentsArray = []
+    this.state.conflicts.forEach(function(conflict) {
+        mergeConflictComponentsArray.push(<MergeConflict conflict={conflict}></MergeConflict>)
+    });
+
+
+
     return (
       <Taskpane header={headerSize.SMALL} title="You need to resolve merge conflicts before your merge can finish">
         <div className="title-subtext-div">
             <div className="title-subtext">Pick which version of the cell you want to keep. They are ordered: <b>yours, collaborator’s, original</b>.</div>
         </div>
         <div className="conflict-card-div">
-            <MergeConflict conflict={this.props.conflicts[0]}></MergeConflict>
+            <div className="scrollable-div">
+                {mergeConflictComponentsArray}
+            </div>
         </div>
       </Taskpane>
     )
