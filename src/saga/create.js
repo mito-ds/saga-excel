@@ -4,7 +4,7 @@ import { createBranch } from "./branch";
 import { turnSyncOn, updateShared } from "./sync";
 import Project from "./Project";
 import axios from "axios";
-import { runOperation } from "./runOperation";
+import { runOperation, runOperationNoSync } from "./runOperation";
 import { item } from "../constants";
 
 
@@ -103,6 +103,39 @@ export async function setPersonalBranchName(personalBranchName) {
   }
 }
 
+
+/*
+  Replaces the current workbook with the given base 64 string
+*/
+async function replaceFromBase64(context, fileContents) {
+
+  console.log(fileContents)
+  const project = new Project(context);
+  const sheets = await project.getSheetsWithNames();
+
+  for (let i = 1; i < sheets.length; i++) {
+    sheets[i].delete();
+  }
+
+  sheets[0].name = "saga-tmp"
+
+  await context.sync()
+
+  const worksheets = context.workbook.worksheets;
+  worksheets.addFromBase64(
+    fileContents
+  );
+  await context.sync();
+
+  sheets[0].delete();
+  
+  return context.sync();
+}
+
+export async function runReplaceFromBase64(fileContents) {
+  runOperationNoSync(replaceFromBase64, fileContents);
+}
+
 async function createFromURL(context, url, email) {
   // TODO: make a branch w/ email, and check it out.
 
@@ -129,28 +162,12 @@ async function createFromURL(context, url, email) {
     return;
   }
 
-  const project = new Project(context);
-  const sheets = await project.getSheetsWithNames();
+  // Load in the project
+  await replaceFromBase64(context, fileContents);
 
-  for (let i = 1; i < sheets.length; i++) {
-    sheets[i].delete();
-  }
-
-  sheets[0].name = "saga-tmp"
-
-  await context.sync()
-
-  const worksheets = context.workbook.worksheets;
-  worksheets.addFromBase64(
-    fileContents
-  );
-  await context.sync();
-
-  sheets[0].delete();
-  
-
-  const sagaworksheet = worksheets.getItem("saga");
   // Switch the existing personal version for your own
+  const worksheets = context.workbook.worksheets;
+  const sagaworksheet = worksheets.getItem("saga");
   await createBranch(context, email);
   const personalBranchRange = sagaworksheet.getRange("A3");
   personalBranchRange.values = [[email]];
