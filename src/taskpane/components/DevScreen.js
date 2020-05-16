@@ -42,12 +42,7 @@ export default function DevScreen(props) {
     })
 
     return (
-<<<<<<< HEAD
         <Taskpane header={headerSize.LARGE} title="Development Mode. NOTE: Run from an empty Excel workbook with no saga project">
-            <button onClick={() => {runTests()}}> Run Tests </button>
-            <button onClick={() => {runCleanup()}}> Cleanup </button>
-=======
-        <Taskpane title="Development Mode. NOTE: Run from an empty Excel workbook with no saga project">
             <button onClick={runTests}> Run Tests </button>
             <button onClick={runCleanup}> Cleanup </button>
             <button onClick={createScenario}> Create Scenario from Current Workbook (check console) </button>
@@ -55,7 +50,6 @@ export default function DevScreen(props) {
                 <option> Select Secenario</option>
                 {scenarioArray}                
             </select>
->>>>>>> scenario
         </Taskpane>
     );
 
