@@ -1,4 +1,4 @@
 # Changes
 
 
-- [ ] I ran the tests to make sure I didn't break anything.
+- [ ] I ran all the tests to make sure I didn't break anything.
