@@ -42,11 +42,13 @@ export default class MergeErrorScreen extends React.Component {
             cell: conflict.cell, 
             value: selection
         }
+        /*
         if (sheetName in resolutions) {
             resolutions.sheetName.push(resolution)
         } else {
             resolutions[sheetName] = resolution
         }
+        */
     })
 
     this.setState({resolutions: resolutions});
