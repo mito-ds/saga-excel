@@ -416,7 +416,7 @@ const doMerge = async (context, formattingEvents) => {
     await project.updateBranchCommitID(`master`, newCommitID);
     await project.updateBranchCommitID(personalBranch, newCommitID); // we commit on both of these branches
     await project.addCommitID(newCommitID, masterCommitID, `Merged in ${personalBranch}`, "");
-    console.log(mergedData)
+    return mergedData
 }
 
 /*
@@ -449,7 +449,7 @@ export async function merge(context, formattingEvents) {
     // Make a commit on the personal branch    
     await commit(context, `check in of ${personalBranch}`, "", personalBranch);
     // Merge this commit into the shared branch
-    await doMerge(context, formattingEvents);
+    const mergeData = await doMerge(context, formattingEvents);
 
     // Try and update the server with this newly merged sheets
     const updatedWithMerge = await updateShared(context);
@@ -458,7 +458,16 @@ export async function merge(context, formattingEvents) {
         return updatedWithMerge === branchState.BRANCH_STATE_FORKED ? mergeState.MERGE_FORKED : mergeState.MERGE_ERROR;
     }
 
-    return mergeState.MERGE_SUCCESS;
+    // Check for merge conflicts
+    const mergedSheets = Object.entries(mergeData);
+    let mergeConflict = false
+    mergedSheets.forEach((sheet) => {
+        if (sheet[1].conflicts.length !== 0) {
+            mergeConflict = true
+        }
+    });
+
+    return mergeConflict ? mergeState.MERGE_CONFLICT : mergeState.MERGE_SUCCESS;
 }
 
 export async function runMerge(formattingEvents) {

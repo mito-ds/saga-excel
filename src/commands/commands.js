@@ -43,13 +43,16 @@ async function merge(event) {
   openMergeTaskpane()
   window.app.setTaskpaneStatus(taskpaneStatus.MERGE);
   window.app.setMergeState(mergeState.MERGE_IN_PROGRESS);
-  //var mergeResult = await runMerge(events);
-  //window.app.setMergeState(mergeResult);
+  var mergeResult = await runMerge(events);
+  console.log(mergeResult)
+  window.app.setMergeState(mergeResult);
+  /*
   const fakeMergeState = {
     result: mergeState.MERGE_CONFLICT,
     conflicts: conflicts
   }
   window.app.setMergeState(fakeMergeState);
+  */
 
 
   // If this function was called by clicking the button, let Excel know it's done
