@@ -29,24 +29,39 @@ async function resolveMergeConflicts(context, resolutions) {
     const sheetsResolutionsArray = Object.entries(resolutions);
     console.log(sheetsResolutionsArray)
     
-    sheetsResolutionsArray.forEach(async (sheetResolution) => {
+    for (var i = 0; i < sheetsResolutionsArray.length; i++) {
 
-        // Get the worksheet
-        const sheetName = sheetResolution[0]
-        const worksheet = worksheets.getItem(sheetName);
+        // Get personal and master verison of the worksheet
+        const sheetName = sheetsResolutionsArray[i][0]
+        const personalWorksheet = worksheets.getItem(sheetName);
+        console.log(sheetName)
 
-        const resolutions = sheetResolution[1]
+        const project = new Project(context);
+        const headCommit = await project.getCommitIDFromBranch("master");
+        const masterWorksheetName = "saga-" + headCommit + "-" + sheetName
+        console.log(masterWorksheetName)
+
+        const masterWorksheet = worksheets.getItem(masterWorksheetName)
+
+        const resolutions = sheetsResolutionsArray[i][1]
         
-        for (var i = 0; i < resolutions.length; i++) {
-            const cell = resolutions[i].cell
-            const value = resolutions[i].value
+        for (var j = 0; j < resolutions.length; j++) {
+            const cell = resolutions[j].cell
+            const value = resolutions[j].value
 
-            // Set cell value
-            const cellRange = worksheet.getRange(cell);
-            cellRange.values = [[value]];
+            console.log(`Resolving ${cell} to ${value}`)
+
+            // Set cell value on personal Branch
+            const cellRangePersonal = personalWorksheet.getRange(cell);
+            cellRangePersonal.values = [[value]];
+            await context.sync();
+            
+            // Set cell value on master Branch
+            const cellRangeMaster = masterWorksheet.getRange(cell);
+            cellRangeMaster.values = [[value]];
             await context.sync();
         } 
-    });
+    }
 
     return true;
 } 
