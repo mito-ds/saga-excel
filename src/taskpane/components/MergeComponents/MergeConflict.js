@@ -21,9 +21,10 @@ export default class MergeConflict extends React.Component {
     }
 
     render() {
-        const idA = this.state.conflict.cell + "a"
-        const idB = this.state.conflict.cell + "b"
-        const idO = this.state.conflict.cell + "o"
+        const cellID = this.state.conflict.sheet + ":" + this.state.conflict.cell
+        const idA = cellID + "a"
+        const idB = cellID + "b"
+        const idO = cellID + "o"
 
         return (
             <div className="card">
@@ -38,13 +39,13 @@ export default class MergeConflict extends React.Component {
                     </div>
                     <div className="options-div">
                         <div className="boxed">
-                            <input className="top-option"type="radio" id={idA} name={this.state.conflict.cell} value={this.state.conflict.a} />
+                            <input className="top-option"type="radio" id={idA} name={cellID} value={this.state.conflict.a} />
                             <label htmlFor={idA}>{this.state.conflict.a}</label>
 
-                            <input type="radio" id={idB} name={this.state.conflict.cell} value={this.state.conflict.b}/>
+                            <input type="radio" id={idB} name={cellID} value={this.state.conflict.b}/>
                             <label htmlFor={idB}> {this.state.conflict.b} </label>
 
-                            <input type="radio" id={idO} name={this.state.conflict.cell} value={this.state.conflict.o}/>
+                            <input type="radio" id={idO} name={cellID} value={this.state.conflict.o}/>
                             <label htmlFor={idO}> {this.state.conflict.o} </label>
                         </div>
                                    

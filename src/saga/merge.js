@@ -22,6 +22,34 @@ function toColumnName(num) {
 }
 // Taken from https://cwestblog.com/2013/09/05/javascript-snippet-convert-number-to-column-name/
 
+// Resolve merge conflicts by updating the given cells with their given values
+async function resolveMergeConflicts(context, resolutions) {
+    const worksheets = context.workbook.worksheets;
+
+    const sheetsResolutionsArray = Object.entries(resolutions);
+    console.log(sheetsResolutionsArray)
+    
+    sheetsResolutionsArray.forEach(async (sheetResolution) => {
+
+        // Get the worksheet
+        const sheetName = sheetResolution[0]
+        const worksheet = worksheets.getItem(sheetName);
+
+        const resolutions = sheetResolution[1]
+        
+        for (var i = 0; i < resolutions.length; i++) {
+            const cell = resolutions[i].cell
+            const value = resolutions[i].value
+
+            // Set cell value
+            const cellRange = worksheet.getRange(cell);
+            cellRange.values = [[value]];
+            await context.sync();
+        } 
+    });
+
+    return true;
+} 
 
 const getCommitSheets = (sheets, commitID) => {
     return sheets.filter(sheet => {
@@ -472,4 +500,8 @@ export async function merge(context, formattingEvents) {
 
 export async function runMerge(formattingEvents) {
     return runOperation(merge, formattingEvents);
+}
+
+export async function runResolveMergeConflicts(resolutions) {
+    return runOperation(resolveMergeConflicts, resolutions)
 }
