@@ -1,8 +1,18 @@
 import * as React from "react";
 import './MergeConflict.css';
-import { PrimaryButton } from '@fluentui/react';
+import { runSelectCell }  from "../../../saga/sagaUtils.js";
+ 
 
 /* global */
+
+async function selectCell(e, sheet, cell) {
+    e.preventDefault()
+    console.log("selecting cell")
+    console.log(sheet)
+    console.log(cell)
+
+    runSelectCell(sheet, cell)
+}
 
 export default class MergeConflict extends React.Component {
 
@@ -29,7 +39,7 @@ export default class MergeConflict extends React.Component {
         return (
             <div className="card">
                 <div className="card-cols">
-                    <div className="cell-div">
+                    <div className="cell-div" onClick={(e)=> {selectCell(e, this.state.conflict.sheet, this.state.conflict.cell)}}>
                         <div>
                             {this.state.conflict.sheet}
                         </div>

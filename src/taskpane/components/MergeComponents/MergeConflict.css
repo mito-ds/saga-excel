@@ -20,6 +20,10 @@
     margin-left: 3vw;
 }
 
+.cell-div:hover {
+  text-decoration: underline;
+}
+
 .options-div {
     display: flex;
     flex-direction: column;
