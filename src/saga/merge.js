@@ -324,7 +324,10 @@ const doMerge = async (context, formattingEvents) => {
         // If the sheet is inserted, it's an easy merge
         if (insertedSheetsNames.includes(personalSheetName)) {
             const personalFormulas = await getFormulas(context, renamedPersonalSheetName);
-            mergedData[personalSheetName] = personalFormulas;
+            mergedData[personalSheetName] = {
+                result: personalFormulas,
+                conflicts: []
+            }
             continue;
         }
 
