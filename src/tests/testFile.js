@@ -218,6 +218,8 @@ export async function testGetSagaObject() {
     return true;
 }
 
+export default null;
+
 
 /*
     TODO:

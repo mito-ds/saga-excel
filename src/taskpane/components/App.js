@@ -70,10 +70,7 @@ export default class App extends React.Component {
   */
   async componentDidUpdate(prevProps) {
     if (!prevProps.isOfficeInitialized && this.props.isOfficeInitialized) {
-      console.log("compnent did mount")
-      console.log(`Office initalized ${this.props.isOfficeInitialized}`)
       const projectObj = await sagaProjectJSON();
-      console.log(projectObj)
       if (("remoteURL" in projectObj)) {
         this.setURL(projectObj["remoteURL"]);
         this.setEmail(projectObj["email"]);
@@ -123,7 +120,6 @@ export default class App extends React.Component {
 
   render() {
     const { title, isOfficeInitialized } = this.props;
-    console.log(`Office initalized ${isOfficeInitialized}`)
 
     // TODO: check if office is initialized, and that we are online
     var toReturn;

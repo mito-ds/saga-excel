@@ -211,13 +211,11 @@ export async function sagaProjectJSON() {
             
             // If there is no saga project, we just return, as there is no project
             if (sagaSheet.isNullObject) {
-                console.log("isNull, returning")
                 return;
             }
 
             // If there is a saga project, we get the remote URL and the email
             const project = new Project(context);
-            console.log("made project")
             const remoteURL = await project.getRemoteURL();
             const email = await project.getPersonalBranchName();
 
