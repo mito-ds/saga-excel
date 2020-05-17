@@ -1,7 +1,21 @@
 import * as tests from "./testFile";
+import defaultTest from "./testFile";
 import { runCleanup } from "../saga/cleanup";
 
 export async function runTests() {
+
+    // To run one test at once, export it as default
+    if (defaultTest) {
+        try {
+            await defaultTest();
+            console.log("ran default test")
+        } catch (e) {
+            console.log(e)
+        }
+        await runCleanup();
+        return;
+    }
+
     const testNames = Object.keys(tests);
 
     console.log(`Make sure you run these tests from an empty workbook`);
@@ -32,6 +46,7 @@ export async function runTests() {
         }
         await runCleanup();
     }
+    await runCleanup();
     console.log(results);
 
     if (numFailed !== 0) {

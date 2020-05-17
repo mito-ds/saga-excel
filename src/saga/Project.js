@@ -113,18 +113,6 @@ export default class Project {
         return remoteRange.values[0][0];
     }
 
-    /*
-    An instance for interacting with the remote branch
-    */
-    getAxios = async () => {
-        // TODO: we probably wanna replace this with a "remote" object!
-        const remoteURL = await this.getRemoteURL();
-        const instance = axios.create({
-            baseURL: remoteURL
-        });
-        return instance;
-    }
-
 
     /*
     Returns the branch in the HEAD variable

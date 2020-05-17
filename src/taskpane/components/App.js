@@ -11,10 +11,12 @@ import DevScreen from "./DevScreen";
 import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
 import { taskpaneStatus, mergeState } from "../../constants";
+import { sagaProjectExists, sagaProjectJSON } from "../../saga/sagaUtils";
 
 import './App.css';
 
 /* global */
+
 
 /*
   Log specification: 
@@ -30,7 +32,8 @@ function setupLogs() {
 
   const createLogger = log.getLogger('create');
   prefix.apply(createLogger, {
-    template: '[create]'
+    template: '[%t] %l [create]'
+    
   });
 
   log.info("initalizing app");
@@ -62,12 +65,29 @@ export default class App extends React.Component {
 
   }
 
+  /*
+    If there is a saga project already, we load it into the taskpane
+  */
+  async componentDidUpdate(prevProps) {
+    if (!prevProps.isOfficeInitialized && this.props.isOfficeInitialized) {
+      console.log("compnent did mount")
+      console.log(`Office initalized ${this.props.isOfficeInitialized}`)
+      const projectObj = await sagaProjectJSON();
+      console.log(projectObj)
+      if (("remoteURL" in projectObj)) {
+        this.setURL(projectObj["remoteURL"]);
+        this.setEmail(projectObj["email"]);
+        this.setTaskpaneStatus(taskpaneStatus.SHARE);
+      }
+    }
+  }
+
   getTaskpaneStatus = () => {
     return this.state.taskpaneStatus;
   }
 
   setTaskpaneStatus = (taskpaneStatus) => {
-    log.info(`setting the value of taskpaneState to ${taskpaneStatus}`);
+    log.getLogger('create').info(`taskpaneState=${taskpaneStatus}`);
     this.setState({taskpaneStatus: taskpaneStatus})
   }
 
@@ -76,17 +96,17 @@ export default class App extends React.Component {
   }
 
   setMergeState = (mergeState) => {
-    log.info(`Setting merge state to ${mergeState}`);
+    log.getLogger('create').info(`mergeState=${mergeState}`);
     this.setState({mergeState: mergeState})
   }
 
   setEmail = (email) => {
-    log.info(`Setting email state to ${email}`);
+    log.getLogger('create').info(`email=${email}`);
     this.setState({email: email})
   }
     
   setURL = (remoteURL) => {
-    log.info(`Setting remote url to ${remoteURL}`);
+    log.getLogger('create').info(`remoteURL=${remoteURL}`);
     this.setState({remoteURL: remoteURL})
   }
 
@@ -95,7 +115,7 @@ export default class App extends React.Component {
   }
   
   nextStep = () => {
-    log.info(`Going to next step ${this.state.step + 1}`);
+    log.getLogger('create').info(`step=${this.state.step}`);
     this.setState(state => {
       return {step: state.step + 1}
     })
@@ -103,6 +123,7 @@ export default class App extends React.Component {
 
   render() {
     const { title, isOfficeInitialized } = this.props;
+    console.log(`Office initalized ${isOfficeInitialized}`)
 
     // TODO: check if office is initialized, and that we are online
     var toReturn;

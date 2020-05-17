@@ -1,6 +1,6 @@
 import { runCreateSaga, createRemoteURL } from "../saga/create";
 import { runOperation } from "../saga/runOperation";
-import { getSheetsWithNames } from "../saga/sagaUtils";
+import { getSheetsWithNames, sagaProjectExists, sagaProjectJSON } from "../saga/sagaUtils";
 import { strict as assert } from 'assert';
 import { item, mergeState, taskpaneStatus } from '../constants';
 import { runCleanup } from "../saga/cleanup";
@@ -155,6 +155,7 @@ export async function testMergePreservesCrossSheetReferences() {
 
     // First, we make another sheet, called sheet 2, and fill it in with some data
     // that references Sheet1
+    // TODO: move this to use a loaded scenario
     await Excel.run(async (context) => {
         const sheet1 = context.workbook.worksheets.getItem("Sheet1");
         sheet1.getRange("A1").values = [["10"]];
@@ -186,6 +187,37 @@ export async function testMergePreservesCrossSheetReferences() {
 
     return true;
 }
+
+export async function testSagaProjectExists() {
+
+    const existsBeforeCreation = await sagaProjectExists();
+    assert.ok(!existsBeforeCreation, "No saga project should exist");
+
+    // First, we create the project
+    const remoteURL = await createRemoteURL();
+    await runCreateSaga(remoteURL, "email");
+
+
+    const existsAfterCreate = await sagaProjectExists();
+    assert.ok(existsAfterCreate, "A saga project should have been created");
+
+    return true;
+}
+
+export async function testGetSagaObject() {
+
+    const beforeObj = await sagaProjectJSON();
+    assert.deepEqual(beforeObj, {}, "No project should result in empty json");
+
+    const remoteURL = await createRemoteURL();
+    await runCreateSaga(remoteURL, "email");
+
+    const afterObj = await sagaProjectJSON();
+    assert.deepEqual(afterObj, {"remoteURL": remoteURL, "email": "email"}, "Project should fill in JSON json")
+
+    return true;
+}
+
 
 /*
     TODO:
