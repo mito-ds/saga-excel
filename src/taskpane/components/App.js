@@ -46,7 +46,8 @@ export default class App extends React.Component {
       offline: false,
       taskpaneStatus: taskpaneStatus.CREATE,
       mergeState: mergeState.MERGE_SUCCESS,
-      mergeConflicts: null
+      mergeConflicts: null,
+      setupLogs: false
     };
 
     this.getTaskpaneStatus = this.getTaskpaneStatus.bind(this);
@@ -79,9 +80,13 @@ export default class App extends React.Component {
     return this.state.taskpaneStatus;
   }
 
-  setTaskpaneStatus = (taskpaneStatus) => {
-    log.info(`taskpaneState=${taskpaneStatus}`);
-    this.setState({taskpaneStatus: taskpaneStatus})
+  setTaskpaneStatus = (newTaskpaneStatus) => {
+    if (!this.state.setupLogs && newTaskpaneStatus === taskpaneStatus.DEVELOPMENT) {
+      setupLoggers(this.state.email, this.state.remoteURL);
+      this.setState({setupLogs: true})
+    }
+    log.info(`taskpaneState=${newTaskpaneStatus}`);
+    this.setState({taskpaneStatus: newTaskpaneStatus})
   }
 
   getMergeState = () => {
@@ -114,7 +119,10 @@ export default class App extends React.Component {
     log.getLogger('app').info(`step=${this.state.step}`);
     // On the last step, we setup loggers
     if (this.state.step >= 2) {
-      setupLoggers(this.state.email, this.state.remoteURL);
+      if (!this.state.setupLogs) {
+        setupLoggers(this.state.email, this.state.remoteURL);
+        this.setState({setupLogs: true})
+      }
     }
     this.setState(state => {
       return {step: state.step + 1}

@@ -15,14 +15,23 @@ export function setupLoggers(email, remoteURL) {
     prefix.reg(log);
     log.enableAll();
 
+    console.log("setting up loggers");
+
     setupAppLogger(email, remoteURL);
     setupMergeLogger(email, remoteURL);
     setupSyncLogger(email, remoteURL);
-    setupCommitLogger(email, remoteURL);
-
+    setupCommitLogger(email, remoteURL);    
 }
 
+export function silenceLog(logName) {
+    const logger = log.getLogger(logName);
+    logger.setLevel('silent');
+}
 
+export function enableLog(logName) {
+    const logger = log.getLogger(logName);
+    logger.enableAll();
+}
 
 
 
