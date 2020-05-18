@@ -1,11 +1,28 @@
+import log from 'loglevel';
+import prefix from 'loglevel-plugin-prefix';
 import Project from "./Project";
 import axios from "axios";
 import { getFileContents } from "./fileUtils";
 import { branchState, TEST_URL } from "../constants";
+import { getGlobal } from "../commands/commands"
 
 /* global Excel, OfficeExtension */
 
+var syncLogger;
+var setupLog = false;
 
+
+function setupLogger() {
+    if (!setupLog) {
+        prefix.reg(log);
+        syncLogger = log.getLogger('sync');
+        const global = getGlobal();
+        prefix.apply(syncLogger, {
+            template: `[%t] %l [sync] email=${global.email} remoteURL=${global.remoteURL}`
+        });
+        setupLog = true;
+    }
+}
 
 
 async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
@@ -33,6 +50,8 @@ async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
 }
 
 async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID) {
+  
+  syncLogger.info("getUpdateFromServer");
 
   // Merge in the sheet
   const response = await axios.get(remoteURL, {
@@ -44,14 +63,14 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
   // TODO: error check!
   if (response.status === 404) {
     // TODO: we need to handle the case where there is no remote!
-    console.error("Error getting update from server, project doesn't exist");
+    syncLogger.error("404");
     return false;
   } 
 
 
   const remoteBranchState = response.data.branchState;
   if (remoteBranchState !== branchState.BRANCH_STATE_BEHIND) {
-    console.error(`Error getting update from server, branch state is ${remoteBranchState}.`);
+    syncLogger.error(`remoteBranchState=${remoteBranchState}`);
     return false;
   }
 
@@ -60,7 +79,6 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
   const commitSheets = response.data.commitSheets;
 
   // TODO: we should change the head commit here...
-
 
   // We only merge in the commit sheets
   const worksheets = project.context.workbook.worksheets;
@@ -78,62 +96,65 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
     await project.addCommitID(commitID, parentID, "from remote", "from remote");
     parentID = commitID;
   }
-  console.log(`Local updated from server.`);
+
   return true;
 }
 
 export async function updateShared(context) {
-    const project = new Project(context);
+  setupLogger();
+  const project = new Project(context);
 
-    const headCommitID = await project.getCommitIDFromBranch(`master`);
-    const parentCommitID = await project.getParentCommitID(headCommitID);
-    const remoteURL = await project.getRemoteURL();
+  const headCommitID = await project.getCommitIDFromBranch(`master`);
+  const parentCommitID = await project.getParentCommitID(headCommitID);
+  const remoteURL = await project.getRemoteURL();
 
-    if (remoteURL === TEST_URL) {
-      console.log("using test url, done syncing");
-      return branchState.BRANCH_STATE_HEAD;
+  syncLogger.info(`headCommitID=${headCommitID} parentCommitID=${parentCommitID}`);
+
+  if (remoteURL === TEST_URL) {
+    syncLogger.info(`${TEST_URL}, returning`);
+    return branchState.BRANCH_STATE_HEAD;
+  }
+
+  const response = await axios.get(`${remoteURL}/checkhead`, {
+    params: {
+      headCommitID: headCommitID,
+      parentCommitID: parentCommitID
     }
+  });
 
-    const response = await axios.get(`${remoteURL}/checkhead`, {
-      params: {
-        headCommitID: headCommitID,
-        parentCommitID: parentCommitID
-      }
-    });
+  if (response.status === 404) {
+    syncLogger.warn(`404`);
+    return branchState.BRANCH_STATE_ERROR;
+  }
 
-    if (response.status === 404) {
-      return branchState.BRANCH_STATE_ERROR;
-    }
+  const currBranchState = response.data.branch_state;
+  syncLogger.info(`currBranchState=${branchState.BRANCH_STATE_HEAD}`);
 
-    const currBranchState = response.data.branch_state;
-
-    if (currBranchState === branchState.BRANCH_STATE_HEAD) {
-      console.log(`Already up to date with server`);
+  if (currBranchState === branchState.BRANCH_STATE_HEAD) {
+    return branchState.BRANCH_STATE_HEAD;
+  } else if (currBranchState === branchState.BRANCH_STATE_AHEAD) {
+    const handledAhead = await handleAhead(project, remoteURL, headCommitID, parentCommitID);
+    if (handledAhead) {
+      syncLogger.info(`updated remote`);
       return branchState.BRANCH_STATE_HEAD;
-    } else if (currBranchState === branchState.BRANCH_STATE_AHEAD) {
-      const handledAhead = await handleAhead(project, remoteURL, headCommitID, parentCommitID);
-      if (handledAhead) {
-        console.log(`Local was ahead... updated master on server.`);
-        return branchState.BRANCH_STATE_HEAD;
-      } else {
-        console.error(`Error: cannot update because`, response);
-        return branchState.BRANCH_STATE_AHEAD;
-      }      
-    } else if (currBranchState === branchState.BRANCH_STATE_BEHIND) {
-      const updated = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
-      return updated ? branchState.BRANCH_STATE_HEAD : branchState.BRANCH_STATE_BEHIND;
     } else {
-      console.error("Cannot update shared as is forked from shared :(");
-      return currBranchState;
-    }
+      syncLogger.error(`did not update remote`, response);
+      return branchState.BRANCH_STATE_AHEAD;
+    }      
+  } else if (currBranchState === branchState.BRANCH_STATE_BEHIND) {
+    const updated = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
+    return updated ? branchState.BRANCH_STATE_HEAD : branchState.BRANCH_STATE_BEHIND;
+  } else {
+    return currBranchState;
+  }
 }
 
 // TODO: move the sync function here
 
 async function sync() {
-  console.log("syncing...", g.syncInt)
+  syncLogger.info("sync")
+  setupLogger();
   turnSyncOff();
-  console.log("turned sync off", g.syncInt)
   try {
     await Excel.run(async context => {
         // We do not use runOperation here, as sync shouldn't reload itself
@@ -146,19 +167,8 @@ async function sync() {
     }
   }
   turnSyncOn();
-  console.log("turned sync back on", g.syncInt)
+  syncLogger.info("done sync")
 }
-
-function getGlobal() {
-  return typeof self !== "undefined"
-    ? self
-    : typeof window !== "undefined"
-    ? window
-    : typeof global !== "undefined"
-    ? global
-    : undefined;
-}
-
 
 var g = getGlobal();
 

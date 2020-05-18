@@ -36,92 +36,15 @@ export async function createSheet(context, worksheetName, worksheetVisibility) {
     // copy a sheet
     const activeSheet = context.workbook.worksheets.getActiveWorksheet();
     const copiedSheet = activeSheet.copy(Excel.WorksheetPositionType.end);
-    // clear the sheet
+    // clear the sheet, update it's name and visibility
     copiedSheet.getUsedRange().clear("all");
-    // Set the name and visibiliy
-    await context.sync();
     copiedSheet.name = worksheetName;
     copiedSheet.visibility = worksheetVisibility;
 
-    await context.sync();
-
-    return copiedSheet;
-}
-
-/*
-Copies srcWorksheetName to dstWorksheetName, with the given visibility parameters
-*/
-async function copySheets(
-    context, 
-    srcWorksheets, 
-    getNewName,
-    worksheetPositionType,
-    worksheetVisibility
-) {
-
-    if (worksheetPositionType !== Excel.WorksheetPositionType.end && worksheetPositionType !== Excel.WorksheetPositionType.beginning) {
-        console.error(`Bulk copy only supports beggining or end, not ${worksheetPositionType}`);
-        return false;
-    }
-
-    console.log(srcWorksheets)
-
-    if (worksheetPositionType === Excel.WorksheetPositionType.end) {
-        for (let i = 0; i < srcWorksheets.length; i++) {
-            const srcName = srcWorksheets[i];
-            const dstName = getNewName(srcName);
-            const src = context.workbook.worksheets.getItemOrNullObject(srcName);
-            const dst = src.copy(worksheetPositionType);
-            dst.name = dstName;
-            dst.visibility = worksheetVisibility;
-    
-            // We can queue at most 40 txs
-            if (i % 40 === 0) {
-                await context.sync();
-            }
-        }
-    } else if (worksheetPositionType === Excel.WorksheetPositionType.beginning) {
-        for (let i = srcWorksheets.length - 1; i >= 0; i--) {
-            const srcName = srcWorksheets[i];
-            const dstName = getNewName(srcName);
-            const src = context.workbook.worksheets.getItemOrNullObject(srcName);
-            const dst = src.copy(worksheetPositionType);
-            dst.name = dstName;
-            dst.visibility = worksheetVisibility;
-    
-            // We can queue at most 40 txs
-            if (i % 40 === 0) {
-                await context.sync();
-            }
-        }
-    }
-
-    return context.sync();
-}
-
-/*
-Copies srcWorksheetName to dstWorksheetName, with the given visibility parameters
-*/
-async function copySheet(
-        context, 
-        srcWorksheetName, 
-        dstWorksheetName,
-        worksheetPositionType,
-        worksheetVisibility
-    ) {
-    // copy a sheet
-    const activeSheet = context.workbook.worksheets.getItemOrNullObject(srcWorksheetName);
-    const copiedSheet = activeSheet.copy(worksheetPositionType);
     // Set the name and visibiliy
-    copiedSheet.name = dstWorksheetName;
-    copiedSheet.visibility = worksheetVisibility;
-
-    console.log(
-        `Copied ${srcWorksheetName} to ${dstWorksheetName}
-         at position ${worksheetPositionType} and set to ${worksheetVisibility}`
-    );
-
-    return context.sync();
+    await context.sync();
+    
+    return copiedSheet;
 }
 
 /*
@@ -192,14 +115,11 @@ export async function sagaProjectExists() {
             const sagaSheet = context.workbook.worksheets.getItemOrNullObject("saga");
 
             await context.sync();
-            console.log("sagasheet")
-            console.log(sagaSheet.isNullObject)
             exists = !sagaSheet.isNullObject;
         })
     } catch (e) {
         return false;
     }
-    console.log("using exists", exists);
     return exists;
 }
 

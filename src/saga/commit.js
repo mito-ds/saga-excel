@@ -1,8 +1,27 @@
+import log from 'loglevel';
+import prefix from 'loglevel-plugin-prefix';
 import { getSheetsWithNames, getRandomID } from "./sagaUtils";
 import { getFileContents } from "./fileUtils";
 import { checkBranchPermission } from "./branch";
 import Project from "./Project";
 import { runOperation } from "./runOperation";
+import { getGlobal } from "../commands/commands"
+
+var commitLogger;
+var setupLog = false;
+
+
+function setupLogger() {
+    if (!setupLog) {
+        prefix.reg(log);
+        commitLogger = log.getLogger('commit');
+        const global = getGlobal();
+        prefix.apply(commitLogger, {
+            template: `[%t] %l [commit] email=${global.email} remoteURL=${global.remoteURL}`
+        });
+        setupLog = true;
+    }
+}
 
 /* global Excel */
 
@@ -47,19 +66,18 @@ export async function makeClique(context, sheetNames, getNewName, worksheetPosit
 Create Commit
 */
 export async function commit(context, commitName, commitMessage, branch, commitID) {
+    setupLogger();
     const project = new Project(context);
-
-    // Get the name of the personal branch of the committing user
 
     if (!branch) {
         branch = await project.getHeadBranch();
     }
 
-    console.log(`making a commit on branch ${branch}`)
-
     if (!commitID) {
         commitID = getRandomID();
     }
+    
+    commitLogger.info(`branch=${branch} commitName=${commitName} commitMessage=${commitMessage} commitID=${commitID}`)
 
     // Find the names of all the sheets we have to copy to this commit
     const sheets = (await getSheetsWithNames(context)).filter((sheet) => {
@@ -67,6 +85,9 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     });
 
     const sheetNames = sheets.map(sheet => sheet.name);
+
+    commitLogger.info(`sheetNames=${JSON.stringify(sheetNames)}`)
+
     
     // backup the sheet data
     await makeClique(
@@ -83,6 +104,8 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     await project.addCommitID(commitID, parentID, commitName, commitMessage);
 
     await context.sync();
+
+    commitLogger.info(`commited`)
 
     // Return the new commit ID!
     return commitID;

@@ -109,7 +109,6 @@ export async function setPersonalBranchName(personalBranchName) {
 */
 async function replaceFromBase64(context, fileContents) {
 
-  console.log(fileContents)
   const project = new Project(context);
   const sheets = await project.getSheetsWithNames();
 

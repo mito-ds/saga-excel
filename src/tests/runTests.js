@@ -11,8 +11,8 @@ export async function runTests() {
             const result = await defaultTest();
             log.info(`default test: ${result}`);
         } catch (e) {
-            log.info(`default test: false`);
-            console.log(e)
+            log.error(`default test: false`);
+            log.error(e)
         }
         await runCleanup();
         return;

@@ -98,7 +98,7 @@ export default class App extends React.Component {
   }
 
   setMergeState = (mergeState) => {
-    log.getLogger('app').info(`mergeState=${mergeState}`);
+    log.getLogger('app').info(`mergeStatus=${mergeState.status}`);
     this.setState({
       mergeState: mergeState.status, 
       mergeConflicts: mergeState.conflicts

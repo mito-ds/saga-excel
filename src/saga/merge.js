@@ -163,7 +163,6 @@ async function updateReferences(context, sheetName, newCommitPrefix) {
 
 async function writeDataToSheet(context, sheetName, data) {
     if (data.length === 0 || (data.length === 1 && data[0].length === 0)) {
-        console.log(`No data to write to sheet ${sheetName}, returning`);
         return;
     }
 
@@ -258,8 +257,6 @@ const doMerge = async (context, formattingEvents) => {
     function checkExistance(branchSheet) {
         const masterName = masterPrefix + branchSheet.name;
         const originName = originPrefix + branchSheet.name;
-
-        console.log(masterName, originName);
 
         const inMaster = (masterSheets.find(s => {return s.name === masterName;}) !== undefined);
         const inOrigin = (originSheets.find(s => {return s.name === originName;}) !== undefined);
@@ -451,14 +448,14 @@ const doMerge = async (context, formattingEvents) => {
 
     // Then we delete the tmp sheet
     tmpSheet.delete();
-    console.log("Copied new commit sheets to personal branch", newCommitSheets);
-
+    mergeLogger.info(`copied new commit sheets to personal branch`);
 
     // And then we update the commits and stuff in the proper places
     await project.updateBranchCommitID(`master`, newCommitID);
     await project.updateBranchCommitID(personalBranch, newCommitID); // we commit on both of these branches
     await project.addCommitID(newCommitID, masterCommitID, `Merged in ${personalBranch}`, "");
-    return mergedData
+
+    return mergedData;
 }
 
 /*
@@ -503,6 +500,8 @@ export async function merge(context, formattingEvents) {
     if (updatedWithMerge !== branchState.BRANCH_STATE_HEAD) {
         return updatedWithMerge === branchState.BRANCH_STATE_FORKED ? {status: mergeState.MERGE_FORKED, conflicts: null} : {status: mergeState.MERGE_ERROR, conflicts: null};
     }
+
+    mergeLogger.debug(`mergeData=${JSON.stringify(mergeData)}`);
 
     // Check for merge conflicts
     const mergedSheets = Object.entries(mergeData);

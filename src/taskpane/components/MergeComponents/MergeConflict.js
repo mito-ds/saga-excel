@@ -24,7 +24,6 @@ export default class MergeConflict extends React.Component {
 
     handleResolve(e) {
         e.preventDefault();
-        console.log(e)
     }
 
     render() {

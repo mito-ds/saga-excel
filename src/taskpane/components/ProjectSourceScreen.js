@@ -20,7 +20,6 @@ export default class LoginScreen extends React.Component {
         this.props.nextStep();
         //Create the Saga project
         const remoteURL = await createRemoteURL();
-        console.log(remoteURL)
 
         if (!remoteURL) {
             this.props.offline();
