@@ -40,13 +40,14 @@ export default class MergeErrorScreen extends React.Component {
 
     let conflictsArray = []
     mergeData.forEach((conflictData) => {
+        console.log(conflictData)
         const sheet = conflictData[0];
         const column = numToChar(conflictData[1].conflicts[0].colIndex + 1);
         const row = conflictData[1].conflicts[0].rowIndex + 1;
         const cell = column + row;
         const a = conflictData[1].conflicts[0].a;
         const b = conflictData[1].conflicts[0].b;
-        const o = "PLACE HOLDER ORIGINAL THIS SHOULD SCROLL BECAUSER ITS HUGE";
+        const o = conflictData[1].conflicts[0].o;
         
         const conflict = {sheet: sheet, cell: cell, a: a, b: b, o: o}
         conflictsArray.push(conflict)
@@ -54,6 +55,7 @@ export default class MergeErrorScreen extends React.Component {
 
     this.state = {
         conflicts: conflictsArray,
+        resolutions: {}
     }
 
     this.collectResolutions = this.collectResolutions.bind(this)
@@ -92,9 +94,12 @@ export default class MergeErrorScreen extends React.Component {
             collectedResolutions.sheetName.push(resolution)
         } else {
             collectedResolutions[conflict.sheet] = [resolution]
-        }        
+        }
         
     });
+
+    // save the resolutions
+    this.setState({resolutions: collectedResolutions})
 
     if (usingDefault) {
         // If not all conflicts were resolved, display warning
@@ -113,6 +118,7 @@ export default class MergeErrorScreen extends React.Component {
     // display merge in progress
     window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
 
+    console.log(resolutions)
     // resolve merge conflicts
     const mergeResult = await runResolveMergeConflicts(resolutions)
 

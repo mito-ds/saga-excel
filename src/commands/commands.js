@@ -43,9 +43,9 @@ async function merge(event) {
   openMergeTaskpane()
   window.app.setTaskpaneStatus(taskpaneStatus.MERGE);
 
+  // update UI and execute merge
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
   var mergeResult = await runMerge(events);
-  console.log(mergeResult)
   window.app.setMergeState(mergeResult);
 
   // If this function was called by clicking the button, let Excel know it's done
@@ -82,46 +82,6 @@ export function getGlobal() {
 }
 
 const g = getGlobal();
-
-const conflicts = [
-  { 
-    cell: "Sheet1 B5",
-    a: "=aaaaa",
-    b: "=b", 
-    o: "=o"
-  },
-  {     
-    cell: "Sheet1 D7",
-    a: "=a2",
-    b: "=b2", 
-    o: "=o2"
-  }, 
-  {     
-    cell: "Sheet1 E7",
-    a: "=a3",
-    b: "=b3", 
-    o: "=o3"
-  },
-  {     
-    cell: "Sheet1 F9",
-    a: "=a4",
-    b: "=b4", 
-    o: "=o4"
-  },
-  {     
-    cell: "Sheet1 G3",
-    a: "=a5",
-    b: "=b5", 
-    o: "=o5"
-  },
-  {     
-    cell: "Sheet1 L100",
-    a: "=a6",
-    b: "=b7", 
-    o: "=o8"
-  }
-]
-
 
 // the add-in command functions need to be available in global scope
 g.merge = merge;

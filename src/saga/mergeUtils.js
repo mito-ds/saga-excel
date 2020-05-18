@@ -43,7 +43,8 @@ function createOriginUndefinedConflict(a, b, possibleConflictType, rowIndex, col
                 rowIndex: rowIndex,
                 colIndex: colIndex,
                 a: a,
-                b: b
+                b: b,
+                o: ""
             }
         ]
     }
@@ -103,7 +104,8 @@ function simpleMerge(oRow, aRow, bRow, rowIndex) {
                         rowIndex: rowIndex, 
                         colIndex: i,
                         a: aElement,
-                        b: bElement
+                        b: bElement,
+                        o: oElement
                     })
                 }
             }            
