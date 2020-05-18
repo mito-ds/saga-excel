@@ -5,6 +5,7 @@ import { strict as assert } from 'assert';
 import { item, mergeState, taskpaneStatus } from '../constants';
 import { runCleanup } from "../saga/cleanup";
 import { getGlobal } from "../commands/commands";
+import { TEST_URL } from "../constants";
 
 /* global Excel */
 
@@ -40,8 +41,7 @@ async function getFormulas(context, sheetName, rangeAddr) {
 export async function testCreateSaga() {
     
     // First, we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Then, we check that the sheets were created correctly
     const sheets = await runOperation(getSheetsWithNames);
@@ -50,7 +50,7 @@ export async function testCreateSaga() {
 
     // and also that the url and email are stored correctly
     const storedURL = (await runOperation(getItemRangeValues, item.REMOTE_URL))[0][0]; 
-    assert.equal(remoteURL, storedURL, "Wrong remote URL stored");
+    assert.equal(TEST_URL, storedURL, "Wrong remote URL stored");
 
     const storedEmail = (await runOperation(getItemRangeValues, item.PERSONAL_BRANCH))[0][0]; 
     assert.equal("email", storedEmail, "Wrong remote URL stored");
@@ -62,8 +62,7 @@ export async function testCreateSaga() {
 export async function testCleanup() {
     
     // First, we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Then, we cleanup the project
     await runCleanup();
@@ -78,8 +77,7 @@ export async function testCleanup() {
 export async function testEmptyMerge() {
     
     // First, we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Then, we call the merge function
     const g = getGlobal();
@@ -99,8 +97,7 @@ export async function testEmptyMerge() {
 export async function testSwitchVersions() {
     
     // First, we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Then, we make sure the personal branch is checked out
     const head = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
@@ -125,8 +122,7 @@ export async function testSwitchVersions() {
 export async function testMergeThenSwitchVersions() {
     
     // First, we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Do a merge and make sure it works
     const g = getGlobal();
@@ -169,8 +165,7 @@ export async function testMergePreservesCrossSheetReferences() {
 
 
     // Then we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Do a merge and make sure it works
     const g = getGlobal();
