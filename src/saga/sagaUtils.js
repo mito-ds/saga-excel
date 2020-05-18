@@ -1,4 +1,5 @@
 import Project from "./Project";
+import { runOperation } from './runOperation';
 
 /* global Excel */
 
@@ -182,6 +183,7 @@ export async function deleteNonsagaSheets(context) {
     await context.sync();
 }
 
+<<<<<<< HEAD
 
 // TODO: have to move this to take context as input, and run through the safe channels
 export async function sagaProjectExists() {
@@ -228,3 +230,24 @@ export async function sagaProjectJSON() {
     }
     return obj;
 }
+=======
+/*
+Select the given cell on the given sheet
+*/
+async function selectCell(context, sheetName, cell) {
+
+    // Get worksheet
+    var sheet = context.workbook.worksheets.getItem(sheetName);
+    sheet.activate();
+
+    // Get Cell
+    var range = sheet.getRange(cell);
+    range.select();
+    await context.sync();
+}
+
+export async function runSelectCell(sheet, cell) {
+    return runOperation(selectCell, sheet, cell)
+}
+
+>>>>>>> merge-conflict-resolution

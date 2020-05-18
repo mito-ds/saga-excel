@@ -99,6 +99,16 @@ export default class Project {
         return worksheet.getRange(remoteItem.value);
     }
 
+    setRemoteURL = async (remoteURL) => {
+        const worksheet = this.context.workbook.worksheets.getItem(`saga`);
+        const remoteItem = worksheet.names.getItem(item.REMOTE_URL);
+        remoteItem.load(`value`);
+        await this.context.sync();
+        const remoteRange = worksheet.getRange(remoteItem.value);
+        remoteItem.values = [[remoteURL]]
+        return this.context.sync();
+    }
+
     getRemoteRangeWithValues = async () => {
         const remoteRange = await this.getRemoteRange(this.context);
         remoteRange.load("values");

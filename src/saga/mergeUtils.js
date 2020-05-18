@@ -145,5 +145,7 @@ export function simpleMerge2D(origin, aValues, bValues) {
         conflicts.push(...rowMerge.conflicts);
     }
 
+    console.log("RETURNING FROM SIMPLE MERGE")
+    console.log(conflicts)
     return {result: result, conflicts: conflicts};
 }

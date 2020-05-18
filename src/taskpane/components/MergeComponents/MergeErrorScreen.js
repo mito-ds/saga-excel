@@ -2,6 +2,8 @@ import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import axios from "axios";
 import Taskpane from "../Taskpane";
+import { headerSize } from "../../../constants";
+
 
 
 /* global  */
@@ -41,7 +43,7 @@ export default class MergeErrorScreen extends React.Component {
 
   render() {
     return (
-      <Taskpane title="Uh oh! We hit an error while merging your worksheets. Let us know what you were working on so we can improve merge in the future!">
+      <Taskpane header={headerSize.LARGE} title="Uh oh! We hit an error while merging your worksheets. Let us know what you were working on so we can improve merge in the future!">
         <div className="floating-card" id="project-link-card">
           <h1 className="feedback-form-title">Feedback</h1>
           <form className="form" id="feedback-form" onSubmit={this.postFeedback}>

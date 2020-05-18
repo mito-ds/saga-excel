@@ -1,0 +1,53 @@
+.title-subtext-div {
+    position: relative;
+    text-align: center;
+}
+
+.title-subtext {
+    position: relative;
+    font-size: 14px;
+}
+
+.conflict-card-div {
+    position: relative;
+    margin-top: 5vh;
+}
+
+.scrollable-div {
+    position: relative;
+    overflow: auto;
+    height: 50vh;
+} 
+
+.submit-button-div {
+    width: 100%;
+    text-align: center;
+}
+
+.submit-button {
+    background-color: var(--saga-red-color);
+    color: white;
+}
+
+.warning-div {
+    position: absolute;
+    display: none;
+    background-color: rgb(250, 208, 208);
+    margin: 2vw;
+    z-index: 2;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    padding: 5vw;
+}
+
+.warning-box-button-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.warning-box-button {
+    background-color: var(--form-input-color);
+    color: black;
+    border-color: black;
+}
+
