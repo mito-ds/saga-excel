@@ -183,7 +183,6 @@ export async function deleteNonsagaSheets(context) {
     await context.sync();
 }
 
-<<<<<<< HEAD
 
 // TODO: have to move this to take context as input, and run through the safe channels
 export async function sagaProjectExists() {
@@ -230,7 +229,6 @@ export async function sagaProjectJSON() {
     }
     return obj;
 }
-=======
 /*
 Select the given cell on the given sheet
 */
@@ -250,4 +248,3 @@ export async function runSelectCell(sheet, cell) {
     return runOperation(selectCell, sheet, cell)
 }
 
->>>>>>> merge-conflict-resolution
