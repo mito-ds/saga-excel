@@ -66,3 +66,5 @@ export const headerSize = {
     SMALL: 'small',
     LARGE: "large"
 }
+
+export const TEST_URL = "test_url";
