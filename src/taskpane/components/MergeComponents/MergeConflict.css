@@ -4,7 +4,6 @@
     margin-bottom: 1vh;
 }
 
-
 .card-cols {
     display: flex;
     flex-direction: row;
@@ -43,12 +42,12 @@
     background-color: #F3F3F3;
     transition: all 0.3s;
     overflow-x: scroll;
-  }
+}
   
-  .boxed input[type="radio"] {
-    display: none; 
-  }
+.boxed input[type="radio"] {
+  display: none; 
+}
   
-  .boxed input[type="radio"]:checked + label {
-    background-color: #adebad;
-  }
+.boxed input[type="radio"]:checked + label {
+  background-color: #adebad;
+}

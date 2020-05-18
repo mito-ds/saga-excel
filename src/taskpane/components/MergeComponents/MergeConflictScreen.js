@@ -4,8 +4,6 @@ import Taskpane from "../Taskpane";
 import { headerSize, mergeState } from "../../../constants";
 import MergeConflict from "./MergeConflict";
 import { runResolveMergeConflicts }  from "../../../saga/merge";
- 
-
 
 import './MergeConflictScreen.css';
 
@@ -30,7 +28,7 @@ function chr(codePt) {
     return String.fromCharCode(codePt);
 }
 
-// Take from https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
+// Taken from https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
 
 export default class MergeErrorScreen extends React.Component {
 
@@ -39,8 +37,7 @@ export default class MergeErrorScreen extends React.Component {
 
     // Format Conflict Data
     const mergeData = Object.entries(this.props.conflicts);
-    console.log(mergeData)
-    
+
     let conflictsArray = []
     mergeData.forEach((conflictData) => {
         const sheet = conflictData[0];
@@ -57,7 +54,6 @@ export default class MergeErrorScreen extends React.Component {
 
     this.state = {
         conflicts: conflictsArray,
-        resolutions: {},
     }
 
     this.collectResolutions = this.collectResolutions.bind(this)
@@ -76,8 +72,7 @@ export default class MergeErrorScreen extends React.Component {
         const cellID = conflict.sheet + ":" + conflict.cell
         const selectedButton = document.querySelector('input[name="' + cellID + '"]:checked');
 
-        // If the user selected an option, use that. Otherwise, default to a
-        // TODO: Warn user of default setting
+        // If the user selected an option, use that. Otherwise, default to option a
         let selection = ""
         if (selectedButton !== null) {
             selection = selectedButton.value;
@@ -101,12 +96,12 @@ export default class MergeErrorScreen extends React.Component {
         
     });
 
-    this.setState({resolutions: collectedResolutions});
-
     if (usingDefault) {
+        // If not all conflicts were resolved, display warning
         document.getElementById("warning-div").style.display = "block";
         return;
     } else {
+        // If all conflicts are resolved, execute them
         this.executeResolutions(collectedResolutions)
     }
   }
@@ -118,7 +113,6 @@ export default class MergeErrorScreen extends React.Component {
     // display merge in progress
     window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
 
-    console.log(resolutions)
     // resolve merge conflicts
     const mergeResult = await runResolveMergeConflicts(resolutions)
 
@@ -146,8 +140,8 @@ export default class MergeErrorScreen extends React.Component {
         <div className="warning-div" id="warning-div">
             <p><b>Warning</b>: You didn't resolve all of the merge conflicts. Either continue resolving them or use the values in the main version of the project to resolve the remaining conflicts </p>
             <div className="warning-box-button-div">
-                <PrimaryButton className="warning-box-button" type="button" onClick={(e) => this.executeResolutions(this.state.resolutions)}>Use Main Version</PrimaryButton>
                 <PrimaryButton className="warning-box-button" type="button" onClick={(e) => this.hideWarningBox(e)}>Finish Resolving</PrimaryButton>
+                <PrimaryButton className="warning-box-button" type="button" onClick={(e) => this.executeResolutions(this.state.resolutions)}>Use Main Version</PrimaryButton>
             </div>
         </div>
         <div className="conflict-card-div">

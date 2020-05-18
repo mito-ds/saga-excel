@@ -27,20 +27,17 @@ async function resolveMergeConflicts(context, resolutions) {
     const worksheets = context.workbook.worksheets;
 
     const sheetsResolutionsArray = Object.entries(resolutions);
-    console.log(sheetsResolutionsArray)
     
-    for (var i = 0; i < sheetsResolutionsArray.length; i++) {
+    for (var i=0; i < sheetsResolutionsArray.length; i++) {
 
-        // Get personal and master verison of the worksheet
+        // Get the personal version of the worksheet
         const sheetName = sheetsResolutionsArray[i][0]
         const personalWorksheet = worksheets.getItem(sheetName);
-        console.log(sheetName)
 
+        // Get the master version of the worksheet
         const project = new Project(context);
         const headCommit = await project.getCommitIDFromBranch("master");
         const masterWorksheetName = "saga-" + headCommit + "-" + sheetName
-        console.log(masterWorksheetName)
-
         const masterWorksheet = worksheets.getItem(masterWorksheetName)
 
         const resolutions = sheetsResolutionsArray[i][1]
@@ -49,8 +46,6 @@ async function resolveMergeConflicts(context, resolutions) {
             const cell = resolutions[j].cell
             const value = resolutions[j].value
 
-            console.log(`Resolving ${cell} to ${value}`)
-
             // Set cell value on personal Branch
             const cellRangePersonal = personalWorksheet.getRange(cell);
             cellRangePersonal.values = [[value]];
@@ -58,12 +53,12 @@ async function resolveMergeConflicts(context, resolutions) {
             
             // Set cell value on master Branch
             const cellRangeMaster = masterWorksheet.getRange(cell);
+            console.log(`Resolving ${cell} to ${value}`)
             cellRangeMaster.values = [[value]];
             await context.sync();
         } 
     }
 
-    
     return {status: mergeState.MERGE_SUCCESS, conflicts: null};
 } 
 

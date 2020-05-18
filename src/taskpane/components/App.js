@@ -3,14 +3,12 @@ import Progress from "./Progress";
 import LinkScreen from "./LinkScreen"
 import LoginScreen from "./LoginScreen"
 import ProjectSourceScreen from "./ProjectSourceScreen"
-import TaskpaneFooter from "./TaskpaneFooter"
-import OfflineErrorScreen from "./OfflineErrorScreen"
 import DevScreen from "./DevScreen";
 import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
 import { taskpaneStatus, mergeState } from "../../constants";
 
-  import './App.css';
+import './App.css';
 
 /* global */
 

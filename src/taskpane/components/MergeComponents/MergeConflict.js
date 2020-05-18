@@ -5,6 +5,7 @@ import { runSelectCell }  from "../../../saga/sagaUtils.js";
 
 /* global */
 
+// select the given cell in the Excel UI
 async function selectCell(e, sheet, cell) {
     e.preventDefault()
     runSelectCell(sheet, cell)
@@ -45,7 +46,7 @@ export default class MergeConflict extends React.Component {
                     </div>
                     <div className="options-div">
                         <div className="boxed">
-                            <input className="top-option"type="radio" id={idA} name={cellID} value={this.state.conflict.a} />
+                            <input className="top-option" type="radio" id={idA} name={cellID} value={this.state.conflict.a} />
                             <label htmlFor={idA}>{this.state.conflict.a}</label>
 
                             <input type="radio" id={idB} name={cellID} value={this.state.conflict.b}/>
