@@ -15,6 +15,9 @@ export default class LoginScreen extends React.Component {
     async createSagaProject (e) {
         e.preventDefault();
         const email = document.getElementById('email-input').value
+        this.props.setEmail(email);
+        this.props.nextStep();
+
         try {
             // Send the signup to the server
             axios.post(
@@ -26,9 +29,6 @@ export default class LoginScreen extends React.Component {
         } catch {
             console.error("Failed to post email.")
         }
-
-        this.props.setEmail(email);
-        this.props.nextStep();
     }
 
     render () {

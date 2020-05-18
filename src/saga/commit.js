@@ -8,19 +8,11 @@ import { runOperation } from "./runOperation";
 import { getGlobal } from "../commands/commands"
 
 var commitLogger;
-var setupLog = false;
-
-
-function setupLogger() {
-    if (!setupLog) {
-        prefix.reg(log);
-        commitLogger = log.getLogger('commit');
-        const global = getGlobal();
-        prefix.apply(commitLogger, {
-            template: `[%t] %l [commit] email=${global.email} remoteURL=${global.remoteURL}`
-        });
-        setupLog = true;
-    }
+export function setupCommitLogger(email, remoteURL) {
+    commitLogger = log.getLogger("commit");
+    prefix.apply(commitLogger, {
+        template: `[%t] %l [commit] email=${email} remoteURL=${remoteURL}`
+    });
 }
 
 /* global Excel */
@@ -66,7 +58,6 @@ export async function makeClique(context, sheetNames, getNewName, worksheetPosit
 Create Commit
 */
 export async function commit(context, commitName, commitMessage, branch, commitID) {
-    setupLogger();
     const project = new Project(context);
 
     if (!branch) {

@@ -28,14 +28,13 @@ export default class LoginScreen extends React.Component {
 
         // TODO: save email in database
         const email = this.props.email;
-
-        // Create the project with this remote URL and email
-        await runCreateSaga(remoteURL, email);
-
-
         // update the state of react component
         this.props.setURL(remoteURL)
         this.props.nextStep();
+
+        // Create the project with this remote URL and email
+        await runCreateSaga(remoteURL, email);
+        
     }
 
     async downloadSagaProject(e) {
@@ -44,10 +43,10 @@ export default class LoginScreen extends React.Component {
         this.props.nextStep();
 
         const url = document.getElementById('url-input').value
-        await runCreateFromURL(url, this.props.email);
-
         this.props.setURL(url)
         this.props.nextStep();
+
+        await runCreateFromURL(url, this.props.email);        
     }
 
     render () {

@@ -9,19 +9,11 @@ import { getGlobal } from "../commands/commands"
 /* global Excel, OfficeExtension */
 
 var syncLogger;
-var setupLog = false;
-
-
-function setupLogger() {
-    if (!setupLog) {
-        prefix.reg(log);
-        syncLogger = log.getLogger('sync');
-        const global = getGlobal();
-        prefix.apply(syncLogger, {
-            template: `[%t] %l [sync] email=${global.email} remoteURL=${global.remoteURL}`
-        });
-        setupLog = true;
-    }
+export function setupSyncLogger(email, remoteURL) {
+  syncLogger = log.getLogger("sync");
+    prefix.apply(syncLogger, {
+        template: `[%t] %l [sync] email=${email} remoteURL=${remoteURL}`
+    });
 }
 
 
@@ -101,7 +93,6 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
 }
 
 export async function updateShared(context) {
-  setupLogger();
   const project = new Project(context);
 
   const headCommitID = await project.getCommitIDFromBranch(`master`);
@@ -153,7 +144,6 @@ export async function updateShared(context) {
 
 async function sync() {
   syncLogger.info("sync")
-  setupLogger();
   turnSyncOff();
   try {
     await Excel.run(async context => {

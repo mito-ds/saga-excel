@@ -11,42 +11,32 @@ import { StatusContext } from "./StatusContext";
 import { taskpaneStatus, mergeState } from "../../constants";
 import { sagaProjectExists, sagaProjectJSON } from "../../saga/sagaUtils";
 import { getGlobal } from "../../commands/commands";
-
-
-import './App.css';
+import { setupLoggers } from "../logging";
 
 /* global */
 
-/*
-  Setup logging
-*/
-prefix.reg(log);
-log.enableAll();
+import './App.css';
 
-prefix.apply(log, {template: '[%t] %l :'});
-const appLogger = log.getLogger('app');
+var appLogger;
 
-
-// Setup logging
-
-
-/*
-  Log specification: 
-*/
-
-function setupLogs() {
-
+export function setupAppLogger(email, remoteURL) {
+  appLogger = log.getLogger('app');
   prefix.apply(appLogger, {
-    template: '[%t] %l [app]'
+    template: `[%t] %l [app] email=${email} remoteURL=${remoteURL}`
   });
-
-  log.info("initalizing app");
 }
 
 export default class App extends React.Component {
   constructor(props) {
     // We apply the first log template
-    setupLogs();
+
+    prefix.reg(log);
+    log.enableAll();
+    prefix.apply(log, {
+      template: '[%t] %l'
+    });
+    log.info("initalizing app");
+
 
     super(props);
     this.state = {
@@ -77,9 +67,10 @@ export default class App extends React.Component {
     if (!prevProps.isOfficeInitialized && this.props.isOfficeInitialized) {
       const projectObj = await sagaProjectJSON();
       if (("remoteURL" in projectObj)) {
-        this.setURL(projectObj["remoteURL"]);
         this.setEmail(projectObj["email"]);
+        this.setURL(projectObj["remoteURL"]);
         this.setTaskpaneStatus(taskpaneStatus.SHARE);
+        setupLoggers(projectObj["email"], projectObj["remoteURL"]);
       }
     }
   }
@@ -89,7 +80,7 @@ export default class App extends React.Component {
   }
 
   setTaskpaneStatus = (taskpaneStatus) => {
-    log.getLogger('app').info(`taskpaneState=${taskpaneStatus}`);
+    log.info(`taskpaneState=${taskpaneStatus}`);
     this.setState({taskpaneStatus: taskpaneStatus})
   }
 
@@ -98,7 +89,7 @@ export default class App extends React.Component {
   }
 
   setMergeState = (mergeState) => {
-    log.getLogger('app').info(`mergeStatus=${mergeState.status}`);
+    log.info(`mergeStatus=${mergeState.status}`);
     this.setState({
       mergeState: mergeState.status, 
       mergeConflicts: mergeState.conflicts
@@ -106,15 +97,13 @@ export default class App extends React.Component {
   }
 
   setEmail = (email) => {
-    log.getLogger('app').info(`email=${email}`);
+    log.info(`email=${email}`);
     this.setState({email: email})
-    getGlobal().email = email;
   }
     
   setURL = (remoteURL) => {
-    log.getLogger('app').info(`remoteURL=${remoteURL}`);
+    log.info(`remoteURL=${remoteURL}`);
     this.setState({remoteURL: remoteURL})
-    getGlobal().remoteURL = remoteURL;
   }
 
   offline = () => {
@@ -123,6 +112,10 @@ export default class App extends React.Component {
   
   nextStep = () => {
     log.getLogger('app').info(`step=${this.state.step}`);
+    // On the last step, we setup loggers
+    if (this.state.step >= 2) {
+      setupLoggers(this.state.email, this.state.remoteURL);
+    }
     this.setState(state => {
       return {step: state.step + 1}
     })

@@ -10,9 +10,14 @@ import { makeClique } from "./commit";
 import { mergeState, branchState } from '../constants';
 import { getGlobal } from "../commands/commands"
 
-prefix.reg(log);
-const mergeLogger = log.getLogger('merge');
-var setupLog = false;
+var mergeLogger;
+export function setupMergeLogger(email, remoteURL) {
+    mergeLogger = log.getLogger("merge");
+    prefix.apply(mergeLogger, {
+        template: `[%t] %l [merge] email=${email} remoteURL=${remoteURL}`
+    });
+}
+
 
 /* global Excel */
 
@@ -515,15 +520,7 @@ export async function merge(context, formattingEvents) {
     return mergeConflict ? {status: mergeState.MERGE_CONFLICT, conflicts: mergeData} : {status: mergeState.MERGE_SUCCESS, conflicts: null};
 }
 
-
 export async function runMerge(formattingEvents) {
-    if (!setupLog) {
-        const global = getGlobal();
-        prefix.apply(mergeLogger, {
-            template: `[%t] %l [merge] email=${global.email} remoteURL=${global.remoteURL}`
-        });
-        setupLog = true;
-    }
     return runOperation(merge, formattingEvents);
 }
 
