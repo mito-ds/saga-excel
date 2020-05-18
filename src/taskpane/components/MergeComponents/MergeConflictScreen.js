@@ -49,7 +49,7 @@ export default class MergeErrorScreen extends React.Component {
         const cell = column + row;
         const a = conflictData[1].conflicts[0].a;
         const b = conflictData[1].conflicts[0].b;
-        const o = "PLACE HOLDER ORIGINAL";
+        const o = "PLACE HOLDER ORIGINAL THIS SHOULD SCROLL BECAUSER ITS HUGE";
         
         const conflict = {sheet: sheet, cell: cell, a: a, b: b, o: o}
         conflictsArray.push(conflict)

@@ -36,13 +36,13 @@
 
 .boxed label {
     display: block;
-    width: 50vw;
     padding: 5px;
     margin-bottom: 1vh;
     margin-top: 1vh;
     border: solid 2px #ccc;
     background-color: #F3F3F3;
     transition: all 0.3s;
+    overflow-x: scroll;
   }
   
   .boxed input[type="radio"] {
@@ -50,5 +50,5 @@
   }
   
   .boxed input[type="radio"]:checked + label {
-    background-color: green;
+    background-color: #adebad;
   }

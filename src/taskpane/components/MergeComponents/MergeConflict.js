@@ -53,8 +53,7 @@ export default class MergeConflict extends React.Component {
 
                             <input type="radio" id={idO} name={cellID} value={this.state.conflict.o}/>
                             <label htmlFor={idO}> {this.state.conflict.o} </label>
-                        </div>
-                                   
+                        </div>         
                     </div>
                 </div>
             </div>
