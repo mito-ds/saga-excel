@@ -12,10 +12,24 @@ import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
 import { taskpaneStatus, mergeState } from "../../constants";
 import { sagaProjectExists, sagaProjectJSON } from "../../saga/sagaUtils";
+import { getGlobal } from "../../commands/commands";
+
 
 import './App.css';
 
 /* global */
+
+/*
+  Setup logging
+*/
+prefix.reg(log);
+log.enableAll();
+
+prefix.apply(log, {template: '[%t] %l :'});
+const appLogger = log.getLogger('app');
+
+
+// Setup logging
 
 
 /*
@@ -23,17 +37,9 @@ import './App.css';
 */
 
 function setupLogs() {
-  prefix.reg(log);
-  log.enableAll();
 
-  prefix.apply(log, {
-    template: '[%t] %l :'
-  });
-
-  const createLogger = log.getLogger('create');
-  prefix.apply(createLogger, {
-    template: '[%t] %l [create]'
-    
+  prefix.apply(appLogger, {
+    template: '[%t] %l [app]'
   });
 
   log.info("initalizing app");
@@ -41,7 +47,7 @@ function setupLogs() {
 
 export default class App extends React.Component {
   constructor(props) {
-    // Setup logging
+    // We apply the first log template
     setupLogs();
 
     super(props);
@@ -84,7 +90,7 @@ export default class App extends React.Component {
   }
 
   setTaskpaneStatus = (taskpaneStatus) => {
-    log.getLogger('create').info(`taskpaneState=${taskpaneStatus}`);
+    log.getLogger('app').info(`taskpaneState=${taskpaneStatus}`);
     this.setState({taskpaneStatus: taskpaneStatus})
   }
 
@@ -93,18 +99,20 @@ export default class App extends React.Component {
   }
 
   setMergeState = (mergeState) => {
-    log.getLogger('create').info(`mergeState=${mergeState}`);
+    log.getLogger('app').info(`mergeState=${mergeState}`);
     this.setState({mergeState: mergeState})
   }
 
   setEmail = (email) => {
-    log.getLogger('create').info(`email=${email}`);
+    log.getLogger('app').info(`email=${email}`);
     this.setState({email: email})
+    getGlobal().email = email;
   }
     
   setURL = (remoteURL) => {
-    log.getLogger('create').info(`remoteURL=${remoteURL}`);
+    log.getLogger('app').info(`remoteURL=${remoteURL}`);
     this.setState({remoteURL: remoteURL})
+    getGlobal().remoteURL = remoteURL;
   }
 
   offline = () => {
@@ -112,7 +120,7 @@ export default class App extends React.Component {
   }
   
   nextStep = () => {
-    log.getLogger('create').info(`step=${this.state.step}`);
+    log.getLogger('app').info(`step=${this.state.step}`);
     this.setState(state => {
       return {step: state.step + 1}
     })

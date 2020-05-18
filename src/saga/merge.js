@@ -1,3 +1,5 @@
+import log from 'loglevel';
+import prefix from 'loglevel-plugin-prefix';
 import { commit } from './commit';
 import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets } from "./sagaUtils";
 import { simpleMerge2D } from "./mergeUtils";
@@ -6,6 +8,11 @@ import Project from "./Project";
 import { runOperation } from './runOperation';
 import { makeClique } from "./commit";
 import { mergeState, branchState } from '../constants';
+import { getGlobal } from "../commands/commands"
+
+prefix.reg(log);
+const mergeLogger = log.getLogger('merge');
+var setupLog = false;
 
 /* global Excel */
 
@@ -187,19 +194,15 @@ const doMerge = async (context, formattingEvents) => {
     // the parent of the personal commit ID
     const originCommitID = await project.getParentCommitID(personalCommitID);
 
-    console.log("masterCommitID", masterCommitID);
-    console.log("personalCommitID", personalCommitID);
-    console.log("originCommitID", originCommitID);
-    
+    mergeLogger.info(`masterCommitID=${masterCommitID} personalCommitID=${personalCommitID} originCommitID=${originCommitID} numFormattingEvents=${formattingEvents.length}`)
+
     const sheets = await project.getSheetsWithNames();
 
     const masterSheets = getCommitSheets(sheets, masterCommitID);
     const personalSheets = getNonsagaSheets(sheets);
     const originSheets = getCommitSheets(sheets, originCommitID);
 
-    console.log("MASTER SHEETS", masterSheets);
-    console.log("PERSONAL SHEETS", personalSheets);
-    console.log("ORIGIN SHEETS", originSheets);
+    mergeLogger.info(`masterSheets=${masterSheets} personalSheets=${personalSheets} originSheets=${originSheets}`)
 
     const masterPrefix = `saga-${masterCommitID}-`;
     const personalPrefix = `saga-${personalCommitID}-`;
@@ -251,9 +254,7 @@ const doMerge = async (context, formattingEvents) => {
     })
 
     if (conflictSheets.length > 0) {
-        conflictSheets.forEach(sheet => {
-            console.error(`Merge conflict on ${sheet.name}`);
-        })
+        mergeLogger.error(`conflictSheets=${conflictSheets}`);
         return;
     }
 
@@ -271,9 +272,6 @@ const doMerge = async (context, formattingEvents) => {
     const personalSheetsNames = personalSheets.map(sheet => sheet.name);
     const insertedSheetsNames = insertedSheets.map(sheet => sheet.name);
 
-    console.log("Personal:", personalSheetsNames);
-    console.log("Personal renamed:", personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName}));
-
     await makeClique(
         context,
         personalSheetsNames,
@@ -282,11 +280,10 @@ const doMerge = async (context, formattingEvents) => {
         Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
     )
 
-    console.log("Copied over personal sheets to ", newCommitPrefix);
+    mergeLogger.info(`saved personal sheets`);
 
     const renamedPersonalSheets = personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName});
     var mergedData = {};
-    console.log("Renamed personal sheets", renamedPersonalSheets);
     for (let i = 0; i < renamedPersonalSheets.length; i++) {
         const personalSheetName = personalSheetsNames[i];
         const renamedPersonalSheetName = renamedPersonalSheets[i];
@@ -306,7 +303,6 @@ const doMerge = async (context, formattingEvents) => {
             We get the formulas from the renamed personal sheet, because they have the correct names
             and so the correct references
         */
-        console.log(`For sheet ${personalSheetName}, getting formulas`);
         // TODO: handle the case where a sheet has been inserted (maybe deleted too)!
         const personalFormulas = await getFormulas(context, renamedPersonalSheetName);
         var masterFormulas = await getFormulas(context, masterSheetName);
@@ -321,8 +317,7 @@ const doMerge = async (context, formattingEvents) => {
         mergedData[personalSheetName] = mergeFormulas;
     }
 
-    console.log("Saved merged data", mergedData);
-    console.log("Renamed personal sheets", renamedPersonalSheets);
+    mergeLogger.info(`saved merged data`);
 
     // Then, we delete all the renamed personal sheets, b/c we want to copy the master so we get their formatting
     for (let i = 0; i < renamedPersonalSheets.length; i++) {
@@ -334,7 +329,8 @@ const doMerge = async (context, formattingEvents) => {
         }
     }
 
-    console.log("Deleted renamed personal sheets");
+    mergeLogger.info(`deleted renamed sheets`);
+
 
     // Now, we copy over master sheets, to get their formatting
     const masterNonDeletedNames = masterSheets.filter(sheet => {
@@ -349,7 +345,7 @@ const doMerge = async (context, formattingEvents) => {
         Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
     )
 
-    console.log(`Copied over the master non-deleted sheets:`, masterNonDeletedNames);
+    mergeLogger.info(`copied over non-deleted from master`);
 
     // As well as all the inserted sheets
     await makeClique(
@@ -360,15 +356,15 @@ const doMerge = async (context, formattingEvents) => {
         Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
     )
 
-    console.log("Copied over inserted", insertedSheetsNames);
+    mergeLogger.info(`copied over inserted`);
+
     
     for (const sheetName in mergedData) {
         // TODO: we have to not copy over the sheets that were deleted on master
-        console.log("Trying to write to ", sheetName, "with", mergedData[sheetName]);
         await writeDataToSheet(context, newCommitPrefix + sheetName, mergedData[sheetName]["result"]);
     }
 
-    console.log("Wrote data to all sheets");
+    mergeLogger.info(`wrote sheet data`);
 
     // Then, we propagate over the formatting events
     var formattingEventsMap = {};
@@ -385,7 +381,7 @@ const doMerge = async (context, formattingEvents) => {
         await copyFormatting(context, personalPrefix + personalSheetName, mergeSheetName, formattingEventsMap);
     }
 
-    console.log("Done with formatting")
+    mergeLogger.info(`copied over formatting`);
 
     // We make a tmp sheet (so we can delete things)
     var tmpSheet = personalSheets[0];
@@ -394,7 +390,7 @@ const doMerge = async (context, formattingEvents) => {
     // Finially, we have to delete the old personal sheets
     await deleteNonsagaSheets(context);
 
-    console.log("Deleted non-saga sheets")
+    mergeLogger.info(`deleted non-saga sheets`);
     
 
     // And then copy all the sheets on that merge back to the personal branch
@@ -432,6 +428,8 @@ export async function merge(context, formattingEvents) {
 
     const updated = await updateShared(context);
 
+    mergeLogger.info(`sharedUpdated=${updated}`)
+
     if (updated !== branchState.BRANCH_STATE_HEAD) {
         return updated === branchState.BRANCH_STATE_FORKED ? mergeState.MERGE_FORKED : mergeState.MERGE_ERROR;
     }
@@ -441,8 +439,10 @@ export async function merge(context, formattingEvents) {
     const personalBranch = personalBranchRange.values[0][0];
     const headBranch = await project.getHeadBranch();
 
+    mergeLogger.info(`personalBranch=${personalBranch} headBranch=${headBranch}`)
+
     if (headBranch !== personalBranch) {
-        console.error("Please check out your personal branch before checking in.");
+        mergeLogger.error(`wrong branch`)
         return mergeState.MERGE_ERROR;
     }
 
@@ -461,6 +461,14 @@ export async function merge(context, formattingEvents) {
     return mergeState.MERGE_SUCCESS;
 }
 
+
 export async function runMerge(formattingEvents) {
+    if (!setupLog) {
+        const global = getGlobal();
+        prefix.apply(mergeLogger, {
+            template: `[%t] %l [merge] email=${global.email} remoteURL=${global.remoteURL}`
+        });
+        setupLog = true;
+    }
     return runOperation(merge, formattingEvents);
 }
