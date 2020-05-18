@@ -6,6 +6,8 @@ import { item, mergeState, taskpaneStatus } from '../constants';
 import { runCleanup } from "../saga/cleanup";
 import { getGlobal } from "../commands/commands";
 import { TEST_URL } from "../constants";
+import * as scenarios from "../../scenarios";
+import { runReplaceFromBase64 } from "../saga/create";
 
 /* global Excel */
 
@@ -83,7 +85,7 @@ export async function testEmptyMerge() {
     const g = getGlobal();
     const mergeResult = await g.merge();
 
-    assert.equal(mergeResult, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
+    assert.equal(mergeResult.status, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
     const sheets = await runOperation(getSheetsWithNames);
     assert.equal(sheets.length, 5, "Should have created 3 commit sheets, 1 checked out sheet, and one saga sheet");
 
@@ -128,7 +130,7 @@ export async function testMergeThenSwitchVersions() {
     const g = getGlobal();
     const mergeResult = await g.merge();
 
-    assert.equal(mergeResult, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
+    assert.equal(mergeResult.status, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
 
     // Then, we make sure the personal branch is checked out
     const head = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
@@ -170,7 +172,7 @@ export async function testMergePreservesCrossSheetReferences() {
     // Do a merge and make sure it works
     const g = getGlobal();
     const mergeResult = await g.merge();
-    assert.equal(mergeResult, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
+    assert.equal(mergeResult.status, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
 
     // Then, we check to make sure that the values are correctly set
     const sheet1A1 = (await runOperation(getValues, "Sheet1", "A1"))[0][0];
@@ -180,6 +182,19 @@ export async function testMergePreservesCrossSheetReferences() {
     assert.equal(sheet2A1, "=Sheet1!A1", "Wrong formula in Sheet2!A1");
 
     return true;
+}
+
+export async function testMergeConflictIdentification() {
+    
+    // Load scenario
+    const fileContents = scenarios["twoPageUnmergedConflict"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Perform a merge
+    const g = getGlobal();
+    const mergeResult = await g.merge();
+    console.log(mergeResult)
+    assert.equal(mergeResult.status, mergeState.MERGE_CONFLICT, "Should be a merge conflict");
 }
 
 /*

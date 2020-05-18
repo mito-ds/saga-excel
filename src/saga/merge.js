@@ -476,16 +476,27 @@ we refuse to checkin (as this might lead to a fork).
 */
 export async function merge(context, formattingEvents) {
 
+    console.log("0")
+    console.log(context)
+
     const updated = await updateShared(context);
+
+    console.log("0.1")
+
 
     if (updated !== branchState.BRANCH_STATE_HEAD) {
         return updated === branchState.BRANCH_STATE_FORKED ? {status: mergeState.MERGE_FORKED, conflicts: null} : {status: mergeState.MERGE_ERROR, conflicts: null};
     }
 
+    console.log("1")
+
     const project = new Project(context);
     const personalBranchRange = await project.getPersonalBranchNameWithValues();
     const personalBranch = personalBranchRange.values[0][0];
     const headBranch = await project.getHeadBranch();
+
+    console.log("2")
+
 
     if (headBranch !== personalBranch) {
         console.error("Please check out your personal branch before checking in.");
@@ -494,11 +505,21 @@ export async function merge(context, formattingEvents) {
 
     // Make a commit on the personal branch    
     await commit(context, `check in of ${personalBranch}`, "", personalBranch);
+
+    console.log("3")
+
     // Merge this commit into the shared branch
     const mergeData = await doMerge(context, formattingEvents);
 
+    console.log("4")
+    console.log(mergeData)
+
+
     // Try and update the server with this newly merged sheets
     const updatedWithMerge = await updateShared(context);
+
+    console.log("5")
+
 
     if (updatedWithMerge !== branchState.BRANCH_STATE_HEAD) {
         return updatedWithMerge === branchState.BRANCH_STATE_FORKED ? {status: mergeState.MERGE_FORKED, conflicts: null} : {status: mergeState.MERGE_ERROR, conflicts: null};
@@ -513,10 +534,14 @@ export async function merge(context, formattingEvents) {
         }
     });
 
+    console.log("6")
+
+
     return mergeConflict ? {status: mergeState.MERGE_CONFLICT, conflicts: mergeData} : {status: mergeState.MERGE_SUCCESS, conflicts: null};
 }
 
 export async function runMerge(formattingEvents) {
+    console.log("INSIDE Run MERGE")
     return runOperation(merge, formattingEvents);
 }
 
