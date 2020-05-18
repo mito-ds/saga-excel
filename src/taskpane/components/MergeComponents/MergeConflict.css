@@ -4,6 +4,7 @@
     margin-bottom: 1vh;
 }
 
+
 .card-cols {
     display: flex;
     flex-direction: row;
@@ -51,4 +52,3 @@
   .boxed input[type="radio"]:checked + label {
     background-color: green;
   }
-

@@ -63,7 +63,8 @@ async function resolveMergeConflicts(context, resolutions) {
         } 
     }
 
-    return true;
+    
+    return {status: mergeState.MERGE_SUCCESS, conflicts: null};
 } 
 
 const getCommitSheets = (sheets, commitID) => {

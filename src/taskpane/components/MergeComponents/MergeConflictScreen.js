@@ -1,7 +1,7 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import Taskpane from "../Taskpane";
-import { headerSize } from "../../../constants";
+import { headerSize, mergeState } from "../../../constants";
 import MergeConflict from "./MergeConflict";
 import { runResolveMergeConflicts }  from "../../../saga/merge";
  
@@ -55,20 +55,20 @@ export default class MergeErrorScreen extends React.Component {
         conflictsArray.push(conflict)
     });
 
-     this.state = {
+    this.state = {
         conflicts: conflictsArray,
-        resolutions: [],
+        resolutions: {},
     }
 
-    this.resolveConflicts = this.resolveConflicts.bind(this)
-
+    this.collectResolutions = this.collectResolutions.bind(this)
+    this.executeResolutions = this.executeResolutions.bind(this)
+    this.hideWarningBox = this.hideWarningBox.bind(this)
   }
 
-  resolveConflicts(e) {
+  collectResolutions(e) {
     e.preventDefault();
-    let resolutions = {}
-
-    console.log("resolving conflicts")
+    var collectedResolutions = {}
+    let usingDefault = false
     
     this.state.conflicts.forEach(function(conflict) {
 
@@ -83,6 +83,7 @@ export default class MergeErrorScreen extends React.Component {
             selection = selectedButton.value;
         } else {
             selection = conflict.a
+            usingDefault = true
         }
 
         // create the resolution object
@@ -92,20 +93,42 @@ export default class MergeErrorScreen extends React.Component {
         }
 
         // Add resolution to resolutions list in the correct sheet entry 
-        if (conflict.sheet in resolutions) {
-            resolutions.sheetName.push(resolution)
+        if (conflict.sheet in collectedResolutions) {
+            collectedResolutions.sheetName.push(resolution)
         } else {
-            resolutions[conflict.sheet] = [resolution]
-        }
+            collectedResolutions[conflict.sheet] = [resolution]
+        }        
+        
+    });
 
-        // Send resolution data to update the sheets
-        runResolveMergeConflicts(resolutions)
-        
-        
-    })
-    this.setState({resolutions: resolutions});
-    console.log("RESOLUTIONS")
+    this.setState({resolutions: collectedResolutions});
+
+    if (usingDefault) {
+        document.getElementById("warning-div").style.display = "block";
+        return;
+    } else {
+        this.executeResolutions(collectedResolutions)
+    }
+  }
+
+  async executeResolutions (resolutions) {
+    // Send resolution data to update the sheets
+    document.getElementById("warning-div").style.display = "none";
+
+    // display merge in progress
+    window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
+
     console.log(resolutions)
+    // resolve merge conflicts
+    const mergeResult = await runResolveMergeConflicts(resolutions)
+
+    // display success screen
+    window.app.setMergeState(mergeResult);
+  }
+
+  hideWarningBox (e) {
+    e.preventDefault()
+    document.getElementById("warning-div").style.display = "none";
   }
     
   render() {
@@ -120,12 +143,21 @@ export default class MergeErrorScreen extends React.Component {
         <div className="title-subtext-div">
             <div className="title-subtext">Pick which version of the cell you want to keep. They are ordered: <b>yours, collaborator’s, original</b>.</div>
         </div>
+        <div className="warning-div" id="warning-div">
+            <p><b>Warning</b>: You didn't resolve all of the merge conflicts. Either continue resolving them or use the values in the main version of the project to resolve the remaining conflicts </p>
+            <div className="warning-box-button-div">
+                <PrimaryButton className="warning-box-button" type="button" onClick={(e) => this.executeResolutions(this.state.resolutions)}>Use Main Version</PrimaryButton>
+                <PrimaryButton className="warning-box-button" type="button" onClick={(e) => this.hideWarningBox(e)}>Finish Resolving</PrimaryButton>
+            </div>
+        </div>
         <div className="conflict-card-div">
-            <form onSubmit={this.resolveConflicts}>
+            <form onSubmit={this.collectResolutions}>
                 <div className="scrollable-div">
                     {mergeConflictComponentsArray}
                 </div>
-                <PrimaryButton className="resolve-conflicts-button" type="submit">Submit</PrimaryButton>
+                <div className="submit-button-div"> 
+                    <PrimaryButton className="submit-button" type="submit">Submit</PrimaryButton>
+                </div>
             </form>
         </div>
       </Taskpane>

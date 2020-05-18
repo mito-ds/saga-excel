@@ -7,10 +7,6 @@ import { runSelectCell }  from "../../../saga/sagaUtils.js";
 
 async function selectCell(e, sheet, cell) {
     e.preventDefault()
-    console.log("selecting cell")
-    console.log(sheet)
-    console.log(cell)
-
     runSelectCell(sheet, cell)
 }
 
