@@ -29,9 +29,6 @@ function checkEmpty(row) {
 }
 
 function handleOriginUndefinedRow(aRow, bRow, sheetName, possibleConflictType, rowIndex) {
-    //TODO: This functionality can be integrated into the original functionality relativly cleanly,
-    // for now it is not to preserve ease of understanding. 
-
 
     // If only one version made edits to the row, then no conflict exists
     if (aRow === undefined || checkEmpty(aRow)) {
@@ -55,21 +52,16 @@ function handleOriginUndefinedRow(aRow, bRow, sheetName, possibleConflictType, r
         if (aElement === undefined || aElement === "") {
             // TODO: Make sure that bElement is not undefined
             row.push(bElement)
-        }
+        } else if (bElement === undefined || bElement === "") {
+            // If bRow does not contain a value at the cell, then take the a value which can't be undefined
 
-        // If bRow does not contain a value at the cell, then take the a value which can't be undefined
-        if (bElement === undefined || bElement === "") {
             // TODO: Make sure that aElement is not undefined
             row.push(aElement)
-        }
-
-        // If both cells are updated to the same value, then no conflict
-        if (aElement === bElement) {
+        } else if (aElement === bElement) {
+            // If both cells are updated to the same value, then no conflict
             row.push(aElement)
-        }
-
-        // If the cells are different, then create a merge conflict and default to the value in a
-        if (aElement !== bElement) {
+        } else if (aElement !== bElement) {
+            // If the cells are different, then create a merge conflict and default to the value in a
             const columnName = numToChar(i + 1);
             const excelRow = rowIndex + 1
             const cell = columnName + excelRow;
@@ -125,7 +117,7 @@ function handleOriginUndefinedElement(aElement, bElement, sheetName, possibleCon
 /*
     This does a simple cell-address based merge. It just handles one row at a time.
 */
-function simpleMerge(oRow, aRow, bRow, sheetName, rowIndex) {
+function simpleMerge(oRow, aRow, bRow, rowIndex, sheetName) {
 
     /*
         If the origin row is undefined, then we can take aRow or bRow if only one of them
@@ -161,9 +153,9 @@ function simpleMerge(oRow, aRow, bRow, sheetName, rowIndex) {
                     continue;
                 }
 
-                // No changes were made
-                if (oElement === aElement && oElement === bElement) {
-                    row.push(oElement);
+                // No changes were made, or both elements were changed to the same thing
+                if (aElement === bElement) {
+                    row.push(aElement);
                 }
 
                 // Only a was changed
@@ -221,7 +213,10 @@ export function simpleMerge2D(origin, aValues, bValues, sheetName) {
         const aRow = aValues[i];
         const bRow = bValues[i];
 
-        const rowMerge = simpleMerge(oRow, aRow, bRow, sheetName, i);
+        console.log("Merging row", oRow, aRow, bRow);
+
+        const rowMerge = simpleMerge(oRow, aRow, bRow, i, sheetName);
+        console.log(rowMerge.result)
 
         result.push(rowMerge.result);
         conflicts.push(...rowMerge.conflicts);

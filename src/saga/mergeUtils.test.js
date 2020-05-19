@@ -63,6 +63,10 @@ test('simple merge add to same row after end of origin the same element', () => 
     expect(simpleMerge2D([[1]], [[1], [2], [3], [4]], [[1], [""], [3], [""], [5]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [2], [3], [4], [5]], conflicts: []});
 })
 
+test('simple merge add in different spaces in new row', () => {
+    expect(simpleMerge2D([[1]], [[1, ""], [2, ""]], [[1, ""], ["", 3]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, ""], [2, 3]], conflicts: []});
+})
+
 test('simple merge add to same row after end of origin different elements', () => {
     const conflicts = [
         {
