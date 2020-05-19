@@ -9,7 +9,7 @@ import './MergeConflictScreen.css';
 
 /* global  */
 
-export default class MergeErrorScreen extends React.Component {
+export default class MergeConflictScreen extends React.Component {
 
   constructor(props) {
     super(props); 
