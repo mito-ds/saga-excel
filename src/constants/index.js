@@ -11,6 +11,7 @@ export const taskpaneStatus = {
     The states a merge can be in:
     - If the merge is still occuring, it is MERGE_IN_PROGRESS.
     - If the merge succeded and pushed to remote, it is MERGE_SUCCESS.
+    - If the merge resolted in merge conflicts, it is MERGE_CONFLICT.
     - If there was an unspecified error in the merge, it is MERGE_ERROR.
     - If the merge succeded but then was unable to push to remote, it is MERGE_FORKED.
 */

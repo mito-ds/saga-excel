@@ -15,9 +15,6 @@ export default class MergeConflict extends React.Component {
 
     constructor(props) {
         super(props); 
-        this.state = {
-            conflict: this.props.conflict
-        }
 
         this.handleResolve = this.handleResolve.bind(this)
     }
@@ -31,7 +28,7 @@ export default class MergeConflict extends React.Component {
         console.log(this.props)
         console.log(this.props.conflict)
 
-        const cellID = this.state.conflict.sheet + ":" + this.state.conflict.cellOrRow
+        const cellID = this.props.conflict.sheet + ":" + this.props.conflict.cellOrRow
         const idA = cellID + "a"
         const idB = cellID + "b"
         const idO = cellID + "o"
@@ -39,24 +36,24 @@ export default class MergeConflict extends React.Component {
         return (
             <div className="card">
                 <div className="card-cols">
-                    <div className="cell-div" onClick={(e)=> {selectCell(e, this.state.conflict.sheet, this.state.conflict.cellOrRow)}}>
+                    <div className="cell-div" onClick={(e)=> {selectCell(e, this.props.conflict.sheet, this.props.conflict.cellOrRow)}}>
                         <div>
-                            {this.state.conflict.sheet}
+                            {this.props.conflict.sheet}
                         </div>
                         <div>
-                            {this.state.conflict.cellOrRow}
+                            {this.props.conflict.cellOrRow}
                         </div>
                     </div>
                     <div className="options-div">
                         <div className="boxed">
-                            <input className="top-option" type="radio" id={idA} name={cellID} value={this.state.conflict.a} />
-                            <label htmlFor={idA}>{this.state.conflict.a}</label>
+                            <input className="top-option" type="radio" id={idA} name={cellID} value={this.props.conflict.a} />
+                            <label htmlFor={idA}>{this.props.conflict.a}</label>
 
-                            <input type="radio" id={idB} name={cellID} value={this.state.conflict.b}/>
-                            <label htmlFor={idB}> {this.state.conflict.b} </label>
+                            <input type="radio" id={idB} name={cellID} value={this.props.conflict.b}/>
+                            <label htmlFor={idB}> {this.props.conflict.b} </label>
 
-                            <input type="radio" id={idO} name={cellID} value={this.state.conflict.o}/>
-                            <label htmlFor={idO}> {this.state.conflict.o} </label>
+                            <input type="radio" id={idO} name={cellID} value={this.props.conflict.o}/>
+                            <label htmlFor={idO}> {this.props.conflict.o} </label>
                         </div>         
                     </div>
                 </div>

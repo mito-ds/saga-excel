@@ -63,8 +63,6 @@ async function resolveMergeConflicts(context, resolutions) {
 
     await commit(context, "resolved merge conflicts", "resolved merge conflicts", "master")
 
-    //TODO: Sync with server now
-
     return {status: mergeState.MERGE_SUCCESS, conflicts: null};
 } 
 

@@ -1,5 +1,7 @@
 import { conflictType } from "../constants";
 
+// numToChar and chr are taken from https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
+
 function numToChar (number) {
     var numeric = (number - 1) % 26;
     var letter = chr(65 + numeric);
@@ -11,6 +13,7 @@ function numToChar (number) {
     }
 }
 
+// helper function to numToChar
 function chr(codePt) {
     if (codePt > 0xFFFF) { 
         codePt -= 0x10000;
@@ -19,7 +22,6 @@ function chr(codePt) {
     return String.fromCharCode(codePt);
 }
 
-// Taken from https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
 
 function checkEmpty(row) {
     const filteredRow = row.filter(element => element != "");
@@ -192,7 +194,6 @@ function simpleMerge(oRow, aRow, bRow, sheetName, rowIndex) {
         return {result: row, conflicts: conflicts};
     }
 }
-
 
 /*
     This does a simple cell-address based merge. It doesn't handle inserts/deletions of rows, 
