@@ -41,7 +41,7 @@ async function getFormulas(context, sheetName, rangeAddr) {
     return range.formulas;
 }
 
-/*
+
 export async function testCreateSaga() {
     
     // First, we create the project
@@ -185,7 +185,7 @@ export async function testMergePreservesCrossSheetReferences() {
 
     return true;
 }
-*/
+
 export async function testMergeConflict() {
     
     // Load scenario
