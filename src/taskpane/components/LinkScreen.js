@@ -1,5 +1,6 @@
 import * as React from "react";
 import Taskpane from "./Taskpane";
+import { headerSize } from "../../constants";
 
 // Login Form Component
 export default class LinkScreen extends React.Component {
@@ -21,7 +22,7 @@ export default class LinkScreen extends React.Component {
 
     render () {
         return (
-            <Taskpane title="Invite people to collaborate by sending them the Saga project link.">
+            <Taskpane header={headerSize.LARGE} title="Invite people to collaborate by sending them the Saga project link.">
                 <div className="floating-card" id="project-link-card">
                     <form className="form" onSubmit={this.copyToClipboard}>
                         <input className="project-link-div input" id="project-link" value={this.state.remoteURL} disabled></input>

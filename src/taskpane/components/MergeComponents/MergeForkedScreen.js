@@ -1,5 +1,7 @@
 import * as React from "react";
 import Taskpane from "../Taskpane";
+import { headerSize } from "../../../constants";
+
 
 /* global  */
 
@@ -12,7 +14,7 @@ export default class MergeForkedScreen extends React.Component {
 
   render() {
     return (
-      <Taskpane title="Looks like you started merging at the same time as one of your teammates. We don't support that right now.">
+      <Taskpane header={headerSize.LARGE} title="Looks like you started merging at the same time as one of your teammates. We don't support that right now.">
         <div className="forked-resolution-text-div">
           <p className="forked-resolution-text-title"> To resolve this issue: </p>
           <div className="forked-resolution-text">

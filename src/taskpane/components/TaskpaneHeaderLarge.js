@@ -4,7 +4,7 @@ import './App.css';
 
 /* global */
 
-export default class TaskpaneFooter extends React.Component {
+export default class TaskpaneHeaderLarge extends React.Component {
     render() {
         return (
             <div className="header">

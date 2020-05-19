@@ -3,9 +3,14 @@ import Taskpane from "./Taskpane";
 import { StatusContext } from "./StatusContext";
 import { runCleanup } from "../../saga/cleanup";
 import { runTests } from "../../tests/runTests";
+import { headerSize, TEST_URL } from "../../constants";
+
 import { getFileContents } from "../../saga/fileUtils";
 import * as scenarios from "../../../scenarios";
 import { runReplaceFromBase64 } from "../../saga/create";
+import Project from "../../saga/Project";
+
+/* global Excel */
 
 async function loadScenario(e) {
     e.preventDefault();
@@ -18,6 +23,12 @@ async function loadScenario(e) {
 }
 
 async function createScenario() {
+    // First, we make sure we're using the test url, so we don't sync things to the scenario
+    await Excel.run(async (context) => {
+        const project = new Project(context);
+        project.setRemoteURL(TEST_URL);
+    })
+
     // We just get the 
     const fileContents = await getFileContents();
 
@@ -40,7 +51,7 @@ export default function DevScreen(props) {
     })
 
     return (
-        <Taskpane title="Development Mode. NOTE: Run from an empty Excel workbook with no saga project">
+        <Taskpane header={headerSize.LARGE} title="Development Mode. NOTE: Run from an empty Excel workbook with no saga project">
             <button onClick={runTests}> Run Tests </button>
             <button onClick={runCleanup}> Cleanup </button>
             <button onClick={createScenario}> Create Scenario from Current Workbook (check console) </button>

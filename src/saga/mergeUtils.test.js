@@ -8,99 +8,102 @@ import { conflictType } from "../constants";
 */
 
 test('simple merge all empty', () => {
-    expect(simpleMerge2D([[]], [[]], [[]])).toEqual({result: [[]], conflicts: []});
+    expect(simpleMerge2D([[]], [[]], [[]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[]], conflicts: []});
 })
 
 test('simple merge all even more empty', () => {
-    expect(simpleMerge2D([], [], [])).toEqual({result: [], conflicts: []});
+    expect(simpleMerge2D([], [], [], "Sheet1")).toEqual({sheet: "Sheet1", result: [], conflicts: []});
 })
 
 test('simple merge one element', () => {
-    expect(simpleMerge2D([[1]], [[1]], [[1]])).toEqual({result: [[1]], conflicts: []});
+    expect(simpleMerge2D([[1]], [[1]], [[1]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1]], conflicts: []});
 })
 
 test('simple merge mulitple elements in row', () => {
-    expect(simpleMerge2D([[1, 2, 3, 4]], [[1, 2, 3, 4]], [[1, 2, 3, 4]])).toEqual({result: [[1, 2, 3, 4]], conflicts: []});
+    expect(simpleMerge2D([[1, 2, 3, 4]], [[1, 2, 3, 4]], [[1, 2, 3, 4]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, 2, 3, 4]], conflicts: []});
 })
 
 test('simple merge mulitple rows', () => {
-    expect(simpleMerge2D([[1], [2]], [[1], [2]], [[1], [2]])).toEqual({result: [[1], [2]], conflicts: []});
+    expect(simpleMerge2D([[1], [2]], [[1], [2]], [[1], [2]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [2]], conflicts: []});
 })
 
 test('simple merge add element in a', () => {
-    expect(simpleMerge2D([[1]], [[1, 2]], [[1]])).toEqual({result: [[1, 2]], conflicts: []});
+    expect(simpleMerge2D([[1]], [[1, 2]], [[1]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, 2]], conflicts: []});
 })
 
 test('simple merge add element in b', () => {
-    expect(simpleMerge2D([[1]], [[1]], [[1, 2]])).toEqual({result: [[1, 2]], conflicts: []});
+    expect(simpleMerge2D([[1]], [[1]], [[1, 2]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, 2]], conflicts: []});
 })
 
 test('simple merge add row in a', () => {
-    expect(simpleMerge2D([[1]], [[1], [2]], [[1]])).toEqual({result: [[1], [2]], conflicts: []});
+    expect(simpleMerge2D([[1]], [[1], [2]], [[1]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [2]], conflicts: []});
 })
 
 test('simple merge add row in b', () => {
-    expect(simpleMerge2D([[1]], [[1]], [[1], [2]])).toEqual({result: [[1], [2]], conflicts: []});
+    expect(simpleMerge2D([[1]], [[1]], [[1], [2]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [2]], conflicts: []});
 })
 
 test('simple merge add element and row non conflicting in b', () => {
-    expect(simpleMerge2D([[1]], [[1, 2]], [[1], [2]])).toEqual({result: [[1, 2], [2]], conflicts: []});
+    expect(simpleMerge2D([[1]], [[1, 2]], [[1], [2]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, 2], [2]], conflicts: []});
 })
 
 test('simple merge origin undefined and add element in a', () => {
-    expect(simpleMerge2D([[]], [[1, 2]], [[]])).toEqual({result: [[1, 2]], conflicts: []});
+    expect(simpleMerge2D([[]], [[1, 2]], [[]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, 2]], conflicts: []});
 })
 
 test('simple merge add non-conflicting changes after end of origin easy', () => {
-    expect(simpleMerge2D([[1]], [[1], [2]], [[1], [""], [3]])).toEqual({result: [[1], [2], [3]], conflicts: []});
+    expect(simpleMerge2D([[1]], [[1], [2]], [[1], [""], [3]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [2], [3]], conflicts: []});
 })
 
 test('simple merge add non-conflicting changes after end of origin medium', () => {
-    expect(simpleMerge2D([[1]], [[1], [2], [""], [4]], [[1], [""], [3], [""], [5]])).toEqual({result: [[1], [2], [3], [4], [5]], conflicts: []});
+    expect(simpleMerge2D([[1]], [[1], [2], [""], [4]], [[1], [""], [3], [""], [5]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [2], [3], [4], [5]], conflicts: []});
 })
 
-test('simple merge add to same row after end of origin', () => {
+test('simple merge add to same row after end of origin the same element', () => {
+    expect(simpleMerge2D([[1]], [[1], [2], [3], [4]], [[1], [""], [3], [""], [5]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [2], [3], [4], [5]], conflicts: []});
+})
+
+test('simple merge add in different spaces in new row', () => {
+    expect(simpleMerge2D([[1]], [[1, ""], [2, ""]], [[1, ""], ["", 3]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, ""], [2, 3]], conflicts: []});
+})
+
+test('simple merge add to same row after end of origin different elements', () => {
     const conflicts = [
         {
-            conflictType: conflictType.ROW,  
-            rowIndex: 2, 
-            colIndex: null, 
-            a: [3], 
-            b: [3]   
+            conflictType: conflictType.CELL,  
+            sheet: "Sheet1",
+            cellOrRow: "A3",
+            a: 3, 
+            b: 33,  
+            o: ""
         }
     ]
-    expect(simpleMerge2D([[1]], [[1], [2], [3], [4]], [[1], [""], [3], [""], [5]])).toEqual({result: [[1], [2], [3], [4], [5]], conflicts: conflicts});
+    expect(simpleMerge2D([[1]], [[1], [2], [3], [4]], [[1], [""], [33], [""], [5]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [2], [3], [4], [5]], conflicts: conflicts});
 })
 
-test('simple merge add one row conflicting', () => {
-    const conflicts = [
-        {
-            conflictType: conflictType.ROW,
-            rowIndex: 1,
-            colIndex: null,
-            a: [2],
-            b: [2]
-        }
-    ]
-    expect(simpleMerge2D([[1]], [[1], [2]], [[1], [2]])).toEqual({result: [[1], [2]], conflicts: conflicts});
+test('simple merge add one row conflicting with non coflicting elements', () => {
+    expect(simpleMerge2D([[1]], [[1], [2]], [[1], [2]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [2]], conflicts: []});
 })
 
-test('simple merge add one element conflicting', () => {
+
+test('simple merge add one row conflicting with non coflicting elements', () => {
     const conflicts = [
         {
             conflictType: conflictType.CELL,
-            rowIndex: 0,
-            colIndex: 1,
+            sheet: "Sheet1",
+            cellOrRow: "A2",
             a: 2,
-            b: 2
+            b: 3,
+            o: ""
         }
     ]
-    expect(simpleMerge2D([[1]], [[1, 2]], [[1, 2]])).toEqual({result: [[1, 2]], conflicts: conflicts});
+    expect(simpleMerge2D([[1]], [[1], [2]], [[1], [3]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [2]], conflicts: conflicts});
 })
 
 
-
-
+test('simple merge add one element conflicting', () => {
+    expect(simpleMerge2D([[1]], [[1, 2]], [[1, 2]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, 2]], conflicts: []});
+})
 
 
 

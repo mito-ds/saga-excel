@@ -3,8 +3,6 @@ import Progress from "./Progress";
 import LinkScreen from "./LinkScreen"
 import LoginScreen from "./LoginScreen"
 import ProjectSourceScreen from "./ProjectSourceScreen"
-import TaskpaneFooter from "./TaskpaneFooter"
-import OfflineErrorScreen from "./OfflineErrorScreen"
 import DevScreen from "./DevScreen";
 import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
@@ -23,7 +21,8 @@ export default class App extends React.Component {
       remoteURL: '',
       offline: false,
       taskpaneStatus: taskpaneStatus.CREATE,
-      mergeState: mergeState.MERGE_SUCCESS
+      mergeState: mergeState.MERGE_SUCCESS,
+      mergeConflicts: null
     };
 
     this.getTaskpaneStatus = this.getTaskpaneStatus.bind(this);
@@ -51,7 +50,10 @@ export default class App extends React.Component {
   }
 
   setMergeState = (mergeState) => {
-    this.setState({mergeState: mergeState})
+    this.setState({
+      mergeState: mergeState.status, 
+      mergeConflictData: mergeState.mergeConflictData
+    })
   }
 
   setEmail = (email) => {
@@ -84,7 +86,7 @@ export default class App extends React.Component {
         break;
 
       case taskpaneStatus.MERGE:
-        toReturn = (<MergeScreen mergeState={this.state.mergeState}/>);
+        toReturn = (<MergeScreen mergeState={this.state.mergeState} mergeConflictData={this.state.mergeConflictData}/>);
         break;
 
       case taskpaneStatus.SHARE:

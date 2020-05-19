@@ -1,4 +1,4 @@
-
+import { runOperation } from './runOperation';
 
 /* global Excel */
 
@@ -182,5 +182,24 @@ export async function deleteNonsagaSheets(context) {
     sheets.forEach(sheet => sheet.delete());
 
     await context.sync();
+}
+
+/*
+Select the given cell on the given sheet
+*/
+async function selectCell(context, sheetName, cell) {
+
+    // Get worksheet
+    var sheet = context.workbook.worksheets.getItem(sheetName);
+    sheet.activate();
+
+    // Get Cell
+    var range = sheet.getRange(cell);
+    range.select();
+    await context.sync();
+}
+
+export async function runSelectCell(sheet, cell) {
+    return runOperation(selectCell, sheet, cell)
 }
 

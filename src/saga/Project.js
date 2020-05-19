@@ -18,7 +18,10 @@ export default class Project {
     
     getBranchRangeWithValues = async () => {
         const branchRange = await this.getBranchRange(this.context);
+        console.log("got branch range")
+
         branchRange.load("values");
+        console.log("loaded branch range")
         await this.context.sync();
         return branchRange;
     }
@@ -99,6 +102,16 @@ export default class Project {
         return worksheet.getRange(remoteItem.value);
     }
 
+    setRemoteURL = async (remoteURL) => {
+        const worksheet = this.context.workbook.worksheets.getItem(`saga`);
+        const remoteItem = worksheet.names.getItem(item.REMOTE_URL);
+        remoteItem.load(`value`);
+        await this.context.sync();
+        const remoteRange = worksheet.getRange(remoteItem.value);
+        remoteItem.values = [[remoteURL]]
+        return this.context.sync();
+    }
+
     getRemoteRangeWithValues = async () => {
         const remoteRange = await this.getRemoteRange(this.context);
         remoteRange.load("values");
@@ -141,6 +154,7 @@ export default class Project {
     and "" if the branch has no previous commits on it
     */
     getCommitIDFromBranch = async (branch) => {
+
         const branchRange = await this.getBranchRangeWithValues(this.context);
         
         const row = branchRange.values.find(row => {
@@ -150,6 +164,7 @@ export default class Project {
         if (!row) {
             return null;
         }
+
         return row[1];
     }
 

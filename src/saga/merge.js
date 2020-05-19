@@ -22,6 +22,49 @@ function toColumnName(num) {
 }
 // Taken from https://cwestblog.com/2013/09/05/javascript-snippet-convert-number-to-column-name/
 
+// Resolve merge conflicts by updating the given cells with their given values
+async function resolveMergeConflicts(context, resolutions) {
+    const worksheets = context.workbook.worksheets;
+
+    console.log(resolutions)
+
+    const sheetsResolutionsArray = Object.entries(resolutions);
+    
+    for (var i=0; i < sheetsResolutionsArray.length; i++) {
+
+        // Get the personal version of the worksheet
+        const sheetName = sheetsResolutionsArray[i][0]
+        const personalWorksheet = worksheets.getItem(sheetName);
+
+        // Get the master version of the worksheet
+        const project = new Project(context);
+        const headCommit = await project.getCommitIDFromBranch("master");
+        const masterWorksheetName = "saga-" + headCommit + "-" + sheetName
+        const masterWorksheet = worksheets.getItem(masterWorksheetName)
+
+        const resolutions = sheetsResolutionsArray[i][1]
+        
+        for (var j = 0; j < resolutions.length; j++) {
+            const cell = resolutions[j].cellOrRow
+            const value = resolutions[j].value
+
+            // Set cell value on personal Branch
+            const cellRangePersonal = personalWorksheet.getRange(cell);
+            cellRangePersonal.values = [[value]];
+            await context.sync();
+            
+            // Set cell value on master Branch
+            const cellRangeMaster = masterWorksheet.getRange(cell);
+            console.log(`Resolving ${cell} to ${value}`)
+            cellRangeMaster.values = [[value]];
+            await context.sync();
+        } 
+    }
+
+    await commit(context, "resolved merge conflicts", "resolved merge conflicts", "master")
+
+    return {status: mergeState.MERGE_SUCCESS, conflicts: null};
+} 
 
 const getCommitSheets = (sheets, commitID) => {
     return sheets.filter(sheet => {
@@ -285,7 +328,7 @@ const doMerge = async (context, formattingEvents) => {
     console.log("Copied over personal sheets to ", newCommitPrefix);
 
     const renamedPersonalSheets = personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName});
-    var mergedData = {};
+    var mergedData = [];
     console.log("Renamed personal sheets", renamedPersonalSheets);
     for (let i = 0; i < renamedPersonalSheets.length; i++) {
         const personalSheetName = personalSheetsNames[i];
@@ -296,7 +339,11 @@ const doMerge = async (context, formattingEvents) => {
         // If the sheet is inserted, it's an easy merge
         if (insertedSheetsNames.includes(personalSheetName)) {
             const personalFormulas = await getFormulas(context, renamedPersonalSheetName);
-            mergedData[personalSheetName] = personalFormulas;
+            mergedData.push({
+                sheet: personalSheetName,
+                result: personalFormulas,
+                conflicts: []
+            });
             continue;
         }
 
@@ -316,9 +363,10 @@ const doMerge = async (context, formattingEvents) => {
         const originFormulas = await getFormulas(context, originSheetName);
 
         // Merge the formulas
-        const mergeFormulas = simpleMerge2D(originFormulas, masterFormulas, personalFormulas);
+        const mergeFormulas = simpleMerge2D(originFormulas, masterFormulas, personalFormulas, personalSheetName);
+
         // And save them
-        mergedData[personalSheetName] = mergeFormulas;
+        mergedData.push(mergeFormulas);
     }
 
     console.log("Saved merged data", mergedData);
@@ -362,11 +410,13 @@ const doMerge = async (context, formattingEvents) => {
 
     console.log("Copied over inserted", insertedSheetsNames);
     
-    for (const sheetName in mergedData) {
+    console.log(mergedData)
+    mergedData.forEach(async function(sheetMergeResult) {
         // TODO: we have to not copy over the sheets that were deleted on master
-        console.log("Trying to write to ", sheetName, "with", mergedData[sheetName]);
-        await writeDataToSheet(context, newCommitPrefix + sheetName, mergedData[sheetName]["result"]);
-    }
+        console.log(sheetMergeResult)
+        console.log("Trying to write to ", sheetMergeResult.sheet, "with", sheetMergeResult.result);
+        await writeDataToSheet(context, newCommitPrefix + sheetMergeResult.sheet, sheetMergeResult.result);
+    })
 
     console.log("Wrote data to all sheets");
 
@@ -416,7 +466,7 @@ const doMerge = async (context, formattingEvents) => {
     await project.updateBranchCommitID(`master`, newCommitID);
     await project.updateBranchCommitID(personalBranch, newCommitID); // we commit on both of these branches
     await project.addCommitID(newCommitID, masterCommitID, `Merged in ${personalBranch}`, "");
-    console.log(mergedData)
+    return mergedData
 }
 
 /*
@@ -433,7 +483,7 @@ export async function merge(context, formattingEvents) {
     const updated = await updateShared(context);
 
     if (updated !== branchState.BRANCH_STATE_HEAD) {
-        return updated === branchState.BRANCH_STATE_FORKED ? mergeState.MERGE_FORKED : mergeState.MERGE_ERROR;
+        return updated === branchState.BRANCH_STATE_FORKED ? {status: mergeState.MERGE_FORKED, mergeConflictData: null} : {status: mergeState.MERGE_ERROR, mergeConflictData: null};
     }
 
     const project = new Project(context);
@@ -443,24 +493,39 @@ export async function merge(context, formattingEvents) {
 
     if (headBranch !== personalBranch) {
         console.error("Please check out your personal branch before checking in.");
-        return mergeState.MERGE_ERROR;
+        return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
     }
 
     // Make a commit on the personal branch    
     await commit(context, `check in of ${personalBranch}`, "", personalBranch);
+
     // Merge this commit into the shared branch
-    await doMerge(context, formattingEvents);
+    const mergeData = await doMerge(context, formattingEvents);
 
     // Try and update the server with this newly merged sheets
     const updatedWithMerge = await updateShared(context);
 
     if (updatedWithMerge !== branchState.BRANCH_STATE_HEAD) {
-        return updatedWithMerge === branchState.BRANCH_STATE_FORKED ? mergeState.MERGE_FORKED : mergeState.MERGE_ERROR;
+        return updatedWithMerge === branchState.BRANCH_STATE_FORKED ? {status: mergeState.MERGE_FORKED, mergeConflictData: null} : {status: mergeState.MERGE_ERROR, mergeConflictData: null};
     }
 
-    return mergeState.MERGE_SUCCESS;
+    // Check for merge conflicts
+    const mergedSheets = Object.entries(mergeData);
+    let mergeConflict = false
+    mergedSheets.forEach((sheet) => {
+        if (sheet[1].conflicts.length !== 0) {
+            mergeConflict = true
+        }
+    });
+
+    return mergeConflict ? {status: mergeState.MERGE_CONFLICT, mergeConflictData: mergeData} : {status: mergeState.MERGE_SUCCESS, mergeConflictData: null};
 }
 
 export async function runMerge(formattingEvents) {
+    console.log("INSIDE Run MERGE")
     return runOperation(merge, formattingEvents);
+}
+
+export async function runResolveMergeConflicts(resolutions) {
+    return runOperation(resolveMergeConflicts, resolutions)
 }

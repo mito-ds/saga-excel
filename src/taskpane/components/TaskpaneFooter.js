@@ -2,6 +2,8 @@ import * as React from "react";
 import { StatusContext } from "./StatusContext";
 import { taskpaneStatus } from "../../constants";
 
+import './TaskpaneFooter.css';
+
 
 /* global */
 

@@ -4,6 +4,7 @@ import MergeErrorScreen from "./MergeComponents/MergeErrorScreen";
 import MergeProgressScreen from "./MergeComponents/MergeProgressScreen";
 import MergeForkedScreen from "./MergeComponents/MergeForkedScreen";
 import MergeSuccessScreen from "./MergeComponents/MergeSuccessScreen";
+import MergeConflictScreen from "./MergeComponents/MergeConflictScreen";
 
 /* global  */
 
@@ -28,7 +29,7 @@ export default class MergeScreen extends React.Component {
     super(props); 
     this.state = {
         processingStep: 0,
-        firstRender: true
+        firstRender: true, 
     };
   }
 
@@ -37,6 +38,7 @@ export default class MergeScreen extends React.Component {
 
     // TODO: put this in a proper screen form
     console.log("Merge state", this.props.mergeState);
+    console.log("mergeData", this.props.mergeConflictData)
 
     switch(this.props.mergeState) {
       case mergeState.MERGE_IN_PROGRESS:
@@ -45,6 +47,9 @@ export default class MergeScreen extends React.Component {
       
       case mergeState.MERGE_SUCCESS:
         return (<MergeSuccessScreen/>)
+
+      case mergeState.MERGE_CONFLICT:
+        return (<MergeConflictScreen mergeConflictData={this.props.mergeConflictData}></MergeConflictScreen>)
 
       case mergeState.MERGE_ERROR:
         return (<MergeErrorScreen/>)
