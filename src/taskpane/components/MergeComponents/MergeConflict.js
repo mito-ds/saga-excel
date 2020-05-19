@@ -11,7 +11,7 @@ async function selectCell(e, sheet, cell) {
     runSelectCell(sheet, cell)
 }
 
-export default class MergeConflict extends React.Component {
+export default class MergeConflict extends React.PureComponent {
 
     constructor(props) {
         super(props); 
