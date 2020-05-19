@@ -1,5 +1,4 @@
 import { conflictType } from "../constants";
-import { ContextualMenu } from "office-ui-fabric-react";
 
 function numToChar (number) {
     var numeric = (number - 1) % 26;
@@ -28,6 +27,9 @@ function checkEmpty(row) {
 }
 
 function handleOriginUndefinedRow(aRow, bRow, sheetName, possibleConflictType, rowIndex) {
+    //TODO: This functionality can be integrated into the original functionality relativly cleanly,
+    // for now it is not to preserve ease of understanding. 
+
 
     // If only one version made edits to the row, then no conflict exists
     if (aRow === undefined || checkEmpty(aRow)) {
@@ -84,18 +86,18 @@ function handleOriginUndefinedRow(aRow, bRow, sheetName, possibleConflictType, r
     return {result: row, conflicts: conflicts}
 }
 
-function handleOriginUndefinedElement(a, b, sheetName, possibleConflictType, cell) {
+function handleOriginUndefinedElement(aElement, bElement, sheetName, possibleConflictType, cell) {
 
-    if (a === undefined) {
-        return {result: b, conflicts: []};
+    if (aElement === undefined) {
+        return {result: bElement, conflicts: []};
     }
 
-    if (b === undefined) {
-        return {result: a, conflicts: []};
+    if (bElement === undefined) {
+        return {result: aElement, conflicts: []};
     }
 
-    if (a === b) {
-        return {result: a, conflicts: []};
+    if (aElement === bElement) {
+        return {result: aElement, conflicts: []};
     }
 
     /*
@@ -104,14 +106,14 @@ function handleOriginUndefinedElement(a, b, sheetName, possibleConflictType, cel
     */
 
     return {
-        result: a, 
+        result: aElement, 
         conflicts: [
             {
                 conflictType: possibleConflictType,
                 sheet: sheetName,
                 cellOrRow: cell,
-                a: a,
-                b: b,
+                a: aElement,
+                b: bElement,
                 o: ""
             }
         ]
@@ -127,89 +129,70 @@ function simpleMerge(oRow, aRow, bRow, sheetName, rowIndex) {
         If the origin row is undefined, then we can take aRow or bRow if only one of them
         was inserted.
     */
-
     if (oRow === undefined) {
-        const maxLength = 0;
-        if (aRow !== undefined && bRow !== undefined) {
-            const maxLength = 0;
+        return handleOriginUndefinedRow(aRow, bRow, sheetName, conflictType.ROW, rowIndex);
+    } else {
+        // This is the case where the origin is defined, so we can do more intelligent merging
+
+        const maxLength = Math.max(oRow.length, aRow.length, bRow.length);
+
+        var row = [];
+        var conflicts = [];
+
+        for (let i = 0; i < maxLength; i++) {
+            const oElement = oRow[i];
+            const aElement = aRow[i];
+            const bElement = bRow[i];
+
+            const columnName = numToChar(i + 1);
+            const excelRow = rowIndex + 1
+            const cell = columnName + excelRow;
+
+            if (oElement === undefined) {
+                const cellMergeResult = handleOriginUndefinedElement(aElement, bElement, sheetName, conflictType.CELL, cell);
+
+                row.push(cellMergeResult.result);
+                conflicts.push(...cellMergeResult.conflicts);
+            } else {
+                if (aElement === bElement) {
+                    row.push(aElement)
+                    continue;
+                }
+
+                // No changes were made
+                if (oElement === aElement && oElement === bElement) {
+                    row.push(oElement);
+                }
+
+                // Only a was changed
+                if (oElement !== aElement && aElement === bElement) {
+                    row.push(aElement);
+                }
+
+                // Only b was changed
+                if (oElement === aElement && aElement !== bElement) {
+                    row.push(bElement);
+                }
+
+                // Both were changed, we have a conflict
+                if (oElement !== aElement && aElement !== bElement) {
+                    // We arbitrarily choose to take the aElement
+                    row.push(aElement);
+                    conflicts.push({
+                        conflictType: conflictType.CELL,
+                        sheet: sheetName,
+                        cellOrRow: cell,
+                        a: aElement,
+                        b: bElement,
+                        o: oElement
+                    })
+                }
+            }            
         }
-        const maxLength = Math.max(aRow.length, bRow.length);
-        var newORow = []
-        for (var i = 0; i < maxLength; i++) {
-            newORow[i] = ""
-        }
-        oRow = newORow
-    } 
-    
-    // This is the case where the origin is defined, so we can do more intelligent merging
-
-    var row = [];
-    var conflicts = [];
-
-    console.log(oRow)
-    const maxLength = Math.max(oRow.length, aRow.length, bRow.length);
-
-    for (let i = 0; i < maxLength; i++) {
-        const oElement = oRow[i];
-        const aElement = aRow[i];
-        const bElement = bRow[i];
-
-        console.log(oElement)
-        console.log(aElement)
-        console.log(bElement)
-
-        const columnName = numToChar(i + 1);
-        const excelRow = rowIndex + 1
-        const cell = columnName + excelRow;
-
-        if (oElement === undefined) {
-            const cellMergeResult = handleOriginUndefinedElement(aElement, bElement, sheetName, conflictType.CELL, cell);
-
-            row.push(cellMergeResult.result);
-            conflicts.push(...cellMergeResult.conflicts);
-        } else {
-            // aElement and bElement are the same
-            console.log(aElement === bElement)
-            if (aElement === bElement) {
-                row.push(aElement);
-                continue;
-            }
-
-            // No changes were made
-            if (oElement === aElement && oElement === bElement) {
-                row.push(oElement);
-                continue;
-            }
-
-            // Only a was changed
-            if (oElement !== aElement && aElement === bElement) {
-                row.push(aElement);
-                continue;
-            }
-
-            // Only b was changed
-            if (oElement === aElement && aElement !== bElement) {
-                row.push(bElement);
-                continue;
-            }
-
-            // Both were changed, we have a conflict
-            if (oElement !== aElement && aElement !== bElement) {
-                // We arbitrarily choose to take the aElement
-                row.push(aElement);
-                conflicts.push({
-                    conflictType: conflictType.CELL,
-                    sheet: sheetName,
-                    cellOrRow: cell,
-                    a: aElement,
-                    b: bElement,
-                    o: oElement
-                })
-            }
-        }              
+        return {result: row, conflicts: conflicts};
     }
-    return {result: row, conflicts: conflicts};
 }
+
 
 /*
     This does a simple cell-address based merge. It doesn't handle inserts/deletions of rows, 
@@ -242,6 +225,6 @@ export function simpleMerge2D(origin, aValues, bValues, sheetName) {
         result.push(rowMerge.result);
         conflicts.push(...rowMerge.conflicts);
     }
-    console.log({sheet: sheetName, result: result, conflicts: conflicts})
+
     return {sheet: sheetName, result: result, conflicts: conflicts};
 }
