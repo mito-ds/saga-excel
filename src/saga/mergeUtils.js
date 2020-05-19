@@ -1,11 +1,32 @@
 import { conflictType } from "../constants";
 
+function numToChar (number) {
+    var numeric = (number - 1) % 26;
+    var letter = chr(65 + numeric);
+    var number2 = parseInt((number - 1) / 26);
+    if (number2 > 0) {
+        return numToChar(number2) + letter;
+    } else {
+        return letter;
+    }
+}
+
+function chr(codePt) {
+    if (codePt > 0xFFFF) { 
+        codePt -= 0x10000;
+        return String.fromCharCode(0xD800 + (codePt >> 10), 0xDC00 + (codePt & 0x3FF));
+    }
+    return String.fromCharCode(codePt);
+}
+
+// Taken from https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
+
 function checkEmpty(row) {
     const filteredRow = row.filter(element => element != "");
     return filteredRow.length === 0; 
 }
 
-function handleOriginUndefinedRow(a, b, possibleConflictType, rowIndex) {
+function handleOriginUndefinedRow(a, b, sheetName, possibleConflictType, rowIndex) {
     if (a === undefined || checkEmpty(a)) {
         return {result: b, conflicts: []};
     }
@@ -14,10 +35,10 @@ function handleOriginUndefinedRow(a, b, possibleConflictType, rowIndex) {
         return {result: a, conflicts: []};
     }
 
-    return createOriginUndefinedConflict(a, b, possibleConflictType, rowIndex, null)
+    return createOriginUndefinedConflict(a, b, sheetName, possibleConflictType, rowIndex + 1)
 }
 
-function handleOriginUndefinedElement(a, b, possibleConflictType, rowIndex, colIndex) {
+function handleOriginUndefinedElement(a, b, sheetName, possibleConflictType, cell) {
 
     if (a === undefined) {
         return {result: b, conflicts: []};
@@ -27,21 +48,21 @@ function handleOriginUndefinedElement(a, b, possibleConflictType, rowIndex, colI
         return {result: a, conflicts: []};
     }
 
-    return createOriginUndefinedConflict(a, b, possibleConflictType, rowIndex, colIndex)
+    return createOriginUndefinedConflict(a, b, sheetName, possibleConflictType, cell)
 }
 
 /*
  Returns a conflict which occurs when both a and b were editted with an undefined origin. 
  Arbitrarily choose a as the result
 */
-function createOriginUndefinedConflict(a, b, possibleConflictType, rowIndex, colIndex) {
+function createOriginUndefinedConflict(a, b, sheetName, possibleConflictType, cellOrRow) {
     return {
         result: a, 
         conflicts: [
             {
                 conflictType: possibleConflictType,
-                rowIndex: rowIndex,
-                colIndex: colIndex,
+                sheet: sheetName,
+                cellOrRow: cellOrRow,
                 a: a,
                 b: b,
                 o: ""
@@ -53,14 +74,14 @@ function createOriginUndefinedConflict(a, b, possibleConflictType, rowIndex, col
 /*
     This does a simple cell-address based merge. It just handles one row at a time.
 */
-function simpleMerge(oRow, aRow, bRow, rowIndex) {
+function simpleMerge(oRow, aRow, bRow, sheetName, rowIndex) {
 
     /*
         If the origin row is undefined, then we can take aRow or bRow if only one of them
         was inserted.
     */
     if (oRow === undefined) {
-        return handleOriginUndefinedRow(aRow, bRow, conflictType.ROW, rowIndex, null);
+        return handleOriginUndefinedRow(aRow, bRow, sheetName, conflictType.ROW, rowIndex);
     } else {
         // This is the case where the origin is defined, so we can do more intelligent merging
 
@@ -74,8 +95,12 @@ function simpleMerge(oRow, aRow, bRow, rowIndex) {
             const aElement = aRow[i];
             const bElement = bRow[i];
 
+            const columnName = numToChar(i + 1);
+            const excelRow = rowIndex + 1
+            const cell = columnName + excelRow;
+
             if (oElement === undefined) {
-                const cellMergeResult = handleOriginUndefinedElement(aElement, bElement, conflictType.CELL, rowIndex, i);
+                const cellMergeResult = handleOriginUndefinedElement(aElement, bElement, sheetName, conflictType.CELL, cell);
 
                 row.push(cellMergeResult.result);
                 conflicts.push(...cellMergeResult.conflicts);
@@ -101,8 +126,8 @@ function simpleMerge(oRow, aRow, bRow, rowIndex) {
                     row.push(aElement);
                     conflicts.push({
                         conflictType: conflictType.CELL,
-                        rowIndex: rowIndex, 
-                        colIndex: i,
+                        sheet: sheetName,
+                        cellOrRow: cell,
                         a: aElement,
                         b: bElement,
                         o: oElement
@@ -129,7 +154,7 @@ function simpleMerge(oRow, aRow, bRow, rowIndex) {
     In both cases, "a" and "b" each contain the two options for the conflict.
 
 */
-export function simpleMerge2D(origin, aValues, bValues) {
+export function simpleMerge2D(origin, aValues, bValues, sheetName) {
 
     const maxLength = Math.max(origin.length, aValues.length, bValues.length);
 
@@ -141,7 +166,7 @@ export function simpleMerge2D(origin, aValues, bValues) {
         const aRow = aValues[i];
         const bRow = bValues[i];
 
-        const rowMerge = simpleMerge(oRow, aRow, bRow, i);
+        const rowMerge = simpleMerge(oRow, aRow, bRow, sheetName, i);
 
         result.push(rowMerge.result);
         conflicts.push(...rowMerge.conflicts);
@@ -149,5 +174,5 @@ export function simpleMerge2D(origin, aValues, bValues) {
 
     console.log("RETURNING FROM SIMPLE MERGE")
     console.log(conflicts)
-    return {result: result, conflicts: conflicts};
+    return {sheet: sheetName, result: result, conflicts: conflicts};
 }

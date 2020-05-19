@@ -46,6 +46,7 @@ async function merge(event) {
   // update UI and execute merge
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
   var mergeResult = await runMerge(events);
+  console.log(mergeResult)
   window.app.setMergeState(mergeResult);
 
   // If this function was called by clicking the button, let Excel know it's done

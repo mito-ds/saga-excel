@@ -52,7 +52,7 @@ export default class App extends React.Component {
   setMergeState = (mergeState) => {
     this.setState({
       mergeState: mergeState.status, 
-      mergeConflicts: mergeState.conflicts
+      mergeConflictData: mergeState.mergeConflictData
     })
   }
 
@@ -86,7 +86,7 @@ export default class App extends React.Component {
         break;
 
       case taskpaneStatus.MERGE:
-        toReturn = (<MergeScreen mergeState={this.state.mergeState} conflicts={this.state.mergeConflicts}/>);
+        toReturn = (<MergeScreen mergeState={this.state.mergeState} mergeConflictData={this.state.mergeConflictData}/>);
         break;
 
       case taskpaneStatus.SHARE:

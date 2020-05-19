@@ -28,7 +28,10 @@ export default class MergeConflict extends React.Component {
     }
 
     render() {
-        const cellID = this.state.conflict.sheet + ":" + this.state.conflict.cell
+        console.log(this.props)
+        console.log(this.props.conflict)
+
+        const cellID = this.state.conflict.sheet + ":" + this.state.conflict.cellOrRow
         const idA = cellID + "a"
         const idB = cellID + "b"
         const idO = cellID + "o"
@@ -36,12 +39,12 @@ export default class MergeConflict extends React.Component {
         return (
             <div className="card">
                 <div className="card-cols">
-                    <div className="cell-div" onClick={(e)=> {selectCell(e, this.state.conflict.sheet, this.state.conflict.cell)}}>
+                    <div className="cell-div" onClick={(e)=> {selectCell(e, this.state.conflict.sheet, this.state.conflict.cellOrRow)}}>
                         <div>
                             {this.state.conflict.sheet}
                         </div>
                         <div>
-                            {this.state.conflict.cell}
+                            {this.state.conflict.cellOrRow}
                         </div>
                     </div>
                     <div className="options-div">

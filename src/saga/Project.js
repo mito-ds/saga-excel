@@ -18,7 +18,10 @@ export default class Project {
     
     getBranchRangeWithValues = async () => {
         const branchRange = await this.getBranchRange(this.context);
+        console.log("got branch range")
+
         branchRange.load("values");
+        console.log("loaded branch range")
         await this.context.sync();
         return branchRange;
     }
@@ -151,6 +154,7 @@ export default class Project {
     and "" if the branch has no previous commits on it
     */
     getCommitIDFromBranch = async (branch) => {
+
         const branchRange = await this.getBranchRangeWithValues(this.context);
         
         const row = branchRange.values.find(row => {
@@ -160,6 +164,7 @@ export default class Project {
         if (!row) {
             return null;
         }
+
         return row[1];
     }
 

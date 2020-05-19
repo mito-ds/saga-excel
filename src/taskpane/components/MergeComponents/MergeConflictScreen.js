@@ -9,52 +9,13 @@ import './MergeConflictScreen.css';
 
 /* global  */
 
-function numToChar (number) {
-    var numeric = (number - 1) % 26;
-    var letter = chr(65 + numeric);
-    var number2 = parseInt((number - 1) / 26);
-    if (number2 > 0) {
-        return numToChar(number2) + letter;
-    } else {
-        return letter;
-    }
-}
-
-function chr(codePt) {
-    if (codePt > 0xFFFF) { 
-        codePt -= 0x10000;
-        return String.fromCharCode(0xD800 + (codePt >> 10), 0xDC00 + (codePt & 0x3FF));
-    }
-    return String.fromCharCode(codePt);
-}
-
-// Taken from https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
-
 export default class MergeErrorScreen extends React.Component {
 
   constructor(props) {
     super(props); 
 
-    // Format Conflict Data
-    const mergeData = Object.entries(this.props.conflicts);
-
-    let conflictsArray = []
-    mergeData.forEach((conflictData) => {
-        console.log(conflictData)
-        const sheet = conflictData[0];
-        const column = numToChar(conflictData[1].conflicts[0].colIndex + 1);
-        const row = conflictData[1].conflicts[0].rowIndex + 1;
-        const cell = column + row;
-        const a = conflictData[1].conflicts[0].a;
-        const b = conflictData[1].conflicts[0].b;
-        const o = conflictData[1].conflicts[0].o;
-        
-        const conflict = {sheet: sheet, cell: cell, a: a, b: b, o: o}
-        conflictsArray.push(conflict)
-    });
-
     this.state = {
-        conflicts: conflictsArray,
+        mergeConflictData: this.props.mergeConflictData,
         resolutions: {}
     }
 
@@ -68,34 +29,36 @@ export default class MergeErrorScreen extends React.Component {
     var collectedResolutions = {}
     let usingDefault = false
     
-    this.state.conflicts.forEach(function(conflict) {
+    this.state.mergeConflictData.forEach(function(sheetResults) {
+        sheetResults.conflicts.forEach(function(conflict) {
+            console.log(conflict)
 
-        // Get user's selection from the conflict component
-        const cellID = conflict.sheet + ":" + conflict.cell
-        const selectedButton = document.querySelector('input[name="' + cellID + '"]:checked');
+            // Get user's selection from the conflict component
+            const cellID = conflict.sheet + ":" + conflict.cellOrRow
+            const selectedButton = document.querySelector('input[name="' + cellID + '"]:checked');
 
-        // If the user selected an option, use that. Otherwise, default to option a
-        let selection = ""
-        if (selectedButton !== null) {
-            selection = selectedButton.value;
-        } else {
-            selection = conflict.a
-            usingDefault = true
-        }
+            // If the user selected an option, use that. Otherwise, default to option a
+            let selection = ""
+            if (selectedButton !== null) {
+                selection = selectedButton.value;
+            } else {
+                selection = conflict.a
+                usingDefault = true
+            }
 
-        // create the resolution object
-        const resolution = {
-            cell: conflict.cell, 
-            value: selection
-        }
+            // create the resolution object
+            const resolution = {
+                cellOrRow: conflict.cellOrRow, 
+                value: selection
+            }
 
-        // Add resolution to resolutions list in the correct sheet entry 
-        if (conflict.sheet in collectedResolutions) {
-            collectedResolutions.sheetName.push(resolution)
-        } else {
-            collectedResolutions[conflict.sheet] = [resolution]
-        }
-        
+            // Add resolution to resolutions list in the correct sheet entry 
+            if (conflict.sheet in collectedResolutions) {
+                collectedResolutions.sheetName.push(resolution)
+            } else {
+                collectedResolutions[conflict.sheet] = [resolution]
+            }
+        });
     });
 
     // save the resolutions
@@ -134,8 +97,11 @@ export default class MergeErrorScreen extends React.Component {
   render() {
     
     let mergeConflictComponentsArray = []
-    this.state.conflicts.forEach(function(conflict) {
-        mergeConflictComponentsArray.push(<MergeConflict conflict={conflict}></MergeConflict>)
+    console.log(this.state.mergeConflictData)
+    this.state.mergeConflictData.forEach(function(sheetResults) {
+        sheetResults.conflicts.forEach(function(conflict) {
+            mergeConflictComponentsArray.push(<MergeConflict conflict={conflict}></MergeConflict>)
+        });
     });
 
     return (
