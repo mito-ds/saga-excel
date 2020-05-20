@@ -3,20 +3,14 @@ import Taskpane from "./Taskpane";
 
 /* global Office */
 
-export class OutOfDateErrorScreen extends React.Component {
-    constructor(props) {
-        super(props); 
-    }
-
-    render () {
-        return (
-            <Taskpane title="Sorry, your Excel isn't up to date.">
-                <div className="card-div">
-                    Some of Saga's features need a more recent Excel version to work. Please reach out to nate@sagacollab.com if you think this is a mistake, or have any questions.
-                </div>
-            </Taskpane>
-        );  
-    }
+export function OutOfDateErrorScreen(props){
+    return (
+        <Taskpane title="Sorry, your Excel isn't up to date.">
+            <div className="card-div">
+                Some of Saga's features need a more recent Excel version to work. Please reach out to nate@sagacollab.com with any questions.
+            </div>
+        </Taskpane>
+    );  
 }
 
 export function logOutOfDate() {
