@@ -2,6 +2,9 @@ import * as tests from "./testFile";
 import { runCleanup } from "../saga/cleanup";
 
 export async function runTests() {
+    // First, we cleanup everything
+    await runCleanup();
+
     const testNames = Object.keys(tests);
 
     console.log(`Make sure you run these tests from an empty workbook`);

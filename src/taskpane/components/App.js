@@ -36,6 +36,20 @@ export default class App extends React.Component {
 
   }
 
+    /*
+    If there is a saga project already, we load it into the taskpane
+    */
+    async componentDidUpdate(prevProps) {
+      if (!prevProps.isOfficeInitialized && this.props.isOfficeInitialized) {
+        const projectObj = await sagaProjectJSON();
+        if (("remoteURL" in projectObj)) {
+          this.setURL(projectObj["remoteURL"]);
+          this.setEmail(projectObj["email"]);
+          this.setTaskpaneStatus(taskpaneStatus.SHARE);
+        }
+      }
+    }
+
   getTaskpaneStatus = () => {
     return this.state.taskpaneStatus;
   }

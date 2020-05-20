@@ -47,7 +47,7 @@ export default function DevScreen(props) {
 
     let scenarioArray = []
     Object.keys(scenarios).forEach(function(scenario) {
-        scenarioArray.push(<option value={scenario}>{scenario}</option>)
+        scenarioArray.push(<option key={scenario} value={scenario}>{scenario}</option>)
     })
 
     return (

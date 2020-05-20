@@ -1,5 +1,4 @@
 import { updateMetadataItem } from "./sagaUtils";
-import axios from 'axios';
 import { item } from "../constants";
 
 
@@ -18,10 +17,7 @@ export default class Project {
     
     getBranchRangeWithValues = async () => {
         const branchRange = await this.getBranchRange(this.context);
-        console.log("got branch range")
-
         branchRange.load("values");
-        console.log("loaded branch range")
         await this.context.sync();
         return branchRange;
     }
@@ -125,19 +121,6 @@ export default class Project {
         const remoteRange = await this.getRemoteRangeWithValues(this.context);
         return remoteRange.values[0][0];
     }
-
-    /*
-    An instance for interacting with the remote branch
-    */
-    getAxios = async () => {
-        // TODO: we probably wanna replace this with a "remote" object!
-        const remoteURL = await this.getRemoteURL();
-        const instance = axios.create({
-            baseURL: remoteURL
-        });
-        return instance;
-    }
-
 
     /*
     Returns the branch in the HEAD variable
