@@ -1,8 +1,9 @@
 import * as React from "react";
 import Taskpane from "./Taskpane";
 
-// Login Form Component
-export default class OutOfDateErrorScreen extends React.Component {
+/* global Office */
+
+export class OutOfDateErrorScreen extends React.Component {
     constructor(props) {
         super(props); 
     }
@@ -11,9 +12,23 @@ export default class OutOfDateErrorScreen extends React.Component {
         return (
             <Taskpane title="Sorry, your Excel isn't up to date.">
                 <div className="card-div">
-                    Some of Saga's features need a more recent Excel version to work. Please reach out if you think this is a mistake.
+                    Some of Saga's features need a more recent Excel version to work. Please reach out to nate@sagacollab.com if you think this is a mistake, or have any questions.
                 </div>
             </Taskpane>
         );  
+    }
+}
+
+export function logOutOfDate() {
+    // Loops over the requirment sets until it finds one it supports
+
+    console.error("This version of office is out of date.");
+
+    for (let i = 0; i < reqSets.length; i++) {
+        const reqSet = reqSets[i];
+        if (Office.context.requirements.isSetSupported("ExcelApi", reqSet) {
+            console.log(`Supports at most requirement set: ${reqSet}`);
+            break;
+        }
     }
 }

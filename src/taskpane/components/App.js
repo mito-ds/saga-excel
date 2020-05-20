@@ -93,6 +93,8 @@ export default class App extends React.Component {
       out how to check this programmatically.
     */
     if (!Office.context.requirements.isSetSupported("ExcelApi", "1.11")) {
+      // We then log what their current version of the UI is
+      logOutOfDate();
       return (<OutOfDateErrorScreen/>);
     }
 
