@@ -3,7 +3,7 @@ import Progress from "./Progress";
 import LinkScreen from "./LinkScreen"
 import LoginScreen from "./LoginScreen"
 import ProjectSourceScreen from "./ProjectSourceScreen"
-import OutOfDateErrorScreen from "./OutOfDateErrorScreen"
+import { OutOfDateErrorScreen, logOutOfDate } from "./OutOfDateErrorScreen"
 import DevScreen from "./DevScreen";
 import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
