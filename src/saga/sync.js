@@ -1,7 +1,7 @@
 import Project from "./Project";
 import axios from "axios";
 import { getFileContents } from "./fileUtils";
-import { branchState } from "../constants";
+import { branchState, TEST_URL } from "../constants";
 
 /* global Excel, OfficeExtension */
 
@@ -88,6 +88,11 @@ export async function updateShared(context) {
     const headCommitID = await project.getCommitIDFromBranch(`master`);
     const parentCommitID = await project.getParentCommitID(headCommitID);
     const remoteURL = await project.getRemoteURL();
+
+    if (remoteURL === TEST_URL) {
+      console.log("using test url, done syncing");
+      return branchState.BRANCH_STATE_HEAD;
+    }
 
     const response = await axios.get(`${remoteURL}/checkhead`, {
       params: {

@@ -5,6 +5,11 @@ import { strict as assert } from 'assert';
 import { item, mergeState, taskpaneStatus } from '../constants';
 import { runCleanup } from "../saga/cleanup";
 import { getGlobal } from "../commands/commands";
+import { TEST_URL } from "../constants";
+import * as scenarios from "../../scenarios";
+import { runReplaceFromBase64 } from "../saga/create";
+import { runResolveMergeConflicts }  from "../saga/merge";
+
 
 /* global Excel */
 
@@ -40,8 +45,7 @@ async function getFormulas(context, sheetName, rangeAddr) {
 export async function testCreateSaga() {
     
     // First, we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Then, we check that the sheets were created correctly
     const sheets = await runOperation(getSheetsWithNames);
@@ -50,7 +54,7 @@ export async function testCreateSaga() {
 
     // and also that the url and email are stored correctly
     const storedURL = (await runOperation(getItemRangeValues, item.REMOTE_URL))[0][0]; 
-    assert.equal(remoteURL, storedURL, "Wrong remote URL stored");
+    assert.equal(TEST_URL, storedURL, "Wrong remote URL stored");
 
     const storedEmail = (await runOperation(getItemRangeValues, item.PERSONAL_BRANCH))[0][0]; 
     assert.equal("email", storedEmail, "Wrong remote URL stored");
@@ -62,8 +66,7 @@ export async function testCreateSaga() {
 export async function testCleanup() {
     
     // First, we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Then, we cleanup the project
     await runCleanup();
@@ -78,14 +81,13 @@ export async function testCleanup() {
 export async function testEmptyMerge() {
     
     // First, we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Then, we call the merge function
     const g = getGlobal();
     const mergeResult = await g.merge();
 
-    assert.equal(mergeResult, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
+    assert.equal(mergeResult.status, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
     const sheets = await runOperation(getSheetsWithNames);
     assert.equal(sheets.length, 5, "Should have created 3 commit sheets, 1 checked out sheet, and one saga sheet");
 
@@ -99,8 +101,7 @@ export async function testEmptyMerge() {
 export async function testSwitchVersions() {
     
     // First, we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Then, we make sure the personal branch is checked out
     const head = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
@@ -125,14 +126,13 @@ export async function testSwitchVersions() {
 export async function testMergeThenSwitchVersions() {
     
     // First, we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Do a merge and make sure it works
     const g = getGlobal();
     const mergeResult = await g.merge();
 
-    assert.equal(mergeResult, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
+    assert.equal(mergeResult.status, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
 
     // Then, we make sure the personal branch is checked out
     const head = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
@@ -169,13 +169,12 @@ export async function testMergePreservesCrossSheetReferences() {
 
 
     // Then we create the project
-    const remoteURL = await createRemoteURL();
-    await runCreateSaga(remoteURL, "email");
+    await runCreateSaga(TEST_URL, "email");
 
     // Do a merge and make sure it works
     const g = getGlobal();
     const mergeResult = await g.merge();
-    assert.equal(mergeResult, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
+    assert.equal(mergeResult.status, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
 
     // Then, we check to make sure that the values are correctly set
     const sheet1A1 = (await runOperation(getValues, "Sheet1", "A1"))[0][0];
@@ -185,6 +184,66 @@ export async function testMergePreservesCrossSheetReferences() {
     assert.equal(sheet2A1, "=Sheet1!A1", "Wrong formula in Sheet2!A1");
 
     return true;
+}
+
+export async function testMergeConflict() {
+    
+    // Load scenario
+    const fileContents = scenarios["twoPageUnmergedConflict"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Perform a merge
+    const g = getGlobal();
+    const mergeResult = await g.merge();
+    console.log(mergeResult)
+    assert.equal(mergeResult.status, mergeState.MERGE_CONFLICT, "Should be a merge conflict");
+
+
+    // Check that the conflict is correct
+    console.log("passed")
+    const mergeConflictData = mergeResult.mergeConflictData;
+    
+    assert.equal(mergeConflictData[0].sheet, "Sheet2", "should contain conflicts on Sheet 2")
+    assert.equal(mergeConflictData[0].result[0][0], "M-S2-A1", "should have evaluated to M-S2-A1")
+    assert.equal(mergeConflictData[0].conflicts[0].conflictType, "cell", "should have identified a cell conflict")
+    assert.equal(mergeConflictData[0].conflicts[0].cellOrRow, "A1", "should have found merge conflict on A1")
+    assert.equal(mergeConflictData[0].conflicts[0].a, "M-S2-A1", "should have returned M-S2-A1 as the a value")
+    assert.equal(mergeConflictData[0].conflicts[0].b, "P-S2-A1", "should have returned P-S2-A1 as the b value")
+    assert.equal(mergeConflictData[0].conflicts[0].o, "O-S2-A1", "should have returned O-S2-A1 as the o value")
+
+    assert.equal(mergeConflictData[1].sheet, "Sheet1", "should contain conflicts on Sheet 1")
+    assert.equal(mergeConflictData[1].result[0][0], "M-S1-A1", "should have evaluated to M-S1-A1")
+    assert.equal(mergeConflictData[1].conflicts[0].conflictType, "cell", "should have identified a cell conflict")
+    assert.equal(mergeConflictData[1].conflicts[0].cellOrRow, "A1", "should have found merge conflict on A1")
+    assert.equal(mergeConflictData[1].conflicts[0].a, "M-S1-A1", "should have returned M-S1-A1 as the a value")
+    assert.equal(mergeConflictData[1].conflicts[0].b, "P-S1-A1", "should have returned P-S1-A1 as the b value")
+    assert.equal(mergeConflictData[1].conflicts[0].o, "O-S1-A1", "should have returned O-S1-A1 as the o value")
+
+    // Then resolve merge conflicts
+    const resolutions = {"Sheet2": [{cellOrRow: "A1", value: "O-S2-A1"}], "Sheet1": [{cellOrRow: "A1", value: "O-S1-A1"}]}
+    await runResolveMergeConflicts(resolutions)
+
+    // Check that merge conflicts are resolved correctly
+    const personalSheet1A1 = (await runOperation(getValues, "Sheet1", "A1"))[0][0];
+    const personalSheet2A1 = (await runOperation(getFormulas, "Sheet2", "A1"))[0][0];
+
+    const masterCommitID = (await runOperation(getFormulas, "saga", "C1"))
+    const masterSheet1A1 = (await runOperation(getValues, `saga-${masterCommitID}-Sheet1`, "A1"))[0][0];
+    const masterSheet2A1 = (await runOperation(getFormulas, `saga-${masterCommitID}-Sheet2`, "A1"))[0][0];
+
+    assert.equal(personalSheet1A1, "O-S1-A1", "should have correctly updated the personal sheet1 A1")
+    assert.equal(personalSheet2A1, "O-S2-A1", "should have correctly updated the personal sheet2 A1")
+    assert.equal(masterSheet1A1, "O-S1-A1", "should have correctly updated the master sheet1 A1")
+    assert.equal(masterSheet2A1, "O-S2-A1", "should have correctly updated the master sheet2 A1")
+
+    //TODO: Ensure that a new commit is made on master so that sync works
+
+    
+    return true;
+
 }
 
 /*
