@@ -1,27 +1,5 @@
 import { conflictType } from "../constants";
-
-// numToChar and chr are taken from https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
-
-function numToChar (number) {
-    var numeric = (number - 1) % 26;
-    var letter = chr(65 + numeric);
-    var number2 = parseInt((number - 1) / 26);
-    if (number2 > 0) {
-        return numToChar(number2) + letter;
-    } else {
-        return letter;
-    }
-}
-
-// helper function to numToChar
-function chr(codePt) {
-    if (codePt > 0xFFFF) { 
-        codePt -= 0x10000;
-        return String.fromCharCode(0xD800 + (codePt >> 10), 0xDC00 + (codePt & 0x3FF));
-    }
-    return String.fromCharCode(codePt);
-}
-
+import { numToChar } from "./sagaUtils";
 
 function checkEmpty(row) {
     const filteredRow = row.filter(element => element != "");

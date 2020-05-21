@@ -1,5 +1,5 @@
 import { commit } from './commit';
-import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets } from "./sagaUtils";
+import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets, getCommitSheets } from "./sagaUtils";
 import { simpleMerge2D } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
@@ -65,12 +65,6 @@ async function resolveMergeConflicts(context, resolutions) {
 
     return {status: mergeState.MERGE_SUCCESS, conflicts: null};
 } 
-
-const getCommitSheets = (sheets, commitID) => {
-    return sheets.filter(sheet => {
-        return sheet.name.startsWith(`saga-${commitID}`);
-    })
-}
 
 const getNonsagaSheets = (sheets) => {
     return sheets.filter(sheet => {

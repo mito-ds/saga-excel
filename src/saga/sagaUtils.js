@@ -132,11 +132,39 @@ export function getRandomID() {
     return Math.random().toString(36).substring(2, 15);
 }
 
+// Taken https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
+
 function fromColumnName(col){
     return col.split('').reduce((r, a) => r * 26 + parseInt(a, 36) - 9, 0);
 }
-// Taken https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
 
+// numToChar and chr are taken from https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
+
+export function numToChar (number) {
+    var numeric = (number - 1) % 26;
+    var letter = chr(65 + numeric);
+    var number2 = parseInt((number - 1) / 26);
+    if (number2 > 0) {
+        return numToChar(number2) + letter;
+    } else {
+        return letter;
+    }
+}
+
+// helper function to numToChar
+function chr(codePt) {
+    if (codePt > 0xFFFF) { 
+        codePt -= 0x10000;
+        return String.fromCharCode(0xD800 + (codePt >> 10), 0xDC00 + (codePt & 0x3FF));
+    }
+    return String.fromCharCode(codePt);
+}
+
+export async function getCommitSheets (sheets, commitID) {
+    return sheets.filter(sheet => {
+        return sheet.name.startsWith(`saga-${commitID}`);
+    })
+}
 
 export async function getFormulas(context, sheetName) {
     // Get's the defined range and prints it
