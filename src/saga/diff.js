@@ -1,6 +1,7 @@
 import { runOperation } from './runOperation';
 import { getCommitSheets, getFormulas, numToChar } from "./sagaUtils";
 import Project from "./Project";
+import { removePrefix } from "./diffUtils";
 
 // handle diff detection when a row does not exist on one of the sheets
 function handleUndefinedRow(row, sheetName, rowIndex, isInitial) {
@@ -102,7 +103,7 @@ export function simpleDiff2D(initialValue, finalValues, sheetName) {
 
 
 
-//export async function diff(context, initialCommit, finalCommit) {
+export async function diff(context, initialCommit, finalCommit) {
     /*
     - create a project
     - get sheets from each commit 
@@ -112,17 +113,24 @@ export function simpleDiff2D(initialValue, finalValues, sheetName) {
 
     TODO: Handle the case where a sheet is renamed. check if event handle exists
     */
-/*
+
     const project = new Project(context);
 
     // Get sheets on commits
-    
     const sheets = await project.getSheetsWithNames();
     const initialCommitSheets = getCommitSheets(sheets, initialCommit);
     const finalCommitSheets = getCommitSheets(sheets, finalCommit);
 
+    // remove commit prefixes
     const initialCommitPrefix = `saga-${initialCommit}-`;
     const finalCommitPrefix = `saga-${finalCommit}-`;
+    const initialSheets = removePrefix(initialCommitSheets, initialCommitPrefix);
+    const finalSheets = removePrefix(finalCommitSheets, finalCommitPrefix);
+
+
+
+
+    // r
 
     // Calculate the diff between the sheets
 
@@ -134,4 +142,3 @@ export function simpleDiff2D(initialValue, finalValues, sheetName) {
 export async function runDiff(initialCommit, finalCommit) {
     return runOperation(diff, initialCommit, finalCommit);
 }
-*/
