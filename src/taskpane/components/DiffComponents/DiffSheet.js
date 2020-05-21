@@ -4,6 +4,13 @@ import "./DiffSheet.css"
 
 /* global  */
 
+export const changeType = {
+    NONE: 'None',
+    MODIFIED: 'Modified',
+    INSERTED: 'Inserted',
+    DELETED: 'Deleted'
+}
+
 
 export default class DiffSheet extends React.Component {
 
@@ -31,21 +38,24 @@ export default class DiffSheet extends React.Component {
     })
 
     // TODO: let us make this a constant
-    if (this.props.sheetDiff.changeType === "none") {
+    if (this.props.sheetDiff.changeType === changeType.NONE) {
         return null;
     }
 
     const changeColor = {
-        "modified": "normal",
-        "inserted": "green",
-        "deleted": "red",
+        "Modified": "normal",
+        "Inserted": "green",
+        "Deleted": "red",
     }
 
     const cardClass = "card " + changeColor[this.props.sheetDiff.changeType];
 
+    // We then display the operation performed on top of the sheet name
+    const sheetName = `${this.props.sheetDiff.sheet} : ${this.props.sheetDiff.changeType}`
+
     return (
         <div className={cardClass}>
-            <div className="card-title" onClick={this.togglePanel}>{this.props.sheetDiff.sheet}</div>
+            <div className="card-title" onClick={this.togglePanel}>{sheetName}</div>
             {this.state.isExpanded ? diffArray : null}
         </div>
     );

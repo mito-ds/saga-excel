@@ -10,7 +10,7 @@ function getDiff() {
     return [
         {
             sheet: "Sheet1", 
-            changeType: "modified", 
+            changeType: "Modified", 
             changes: [
                 {
                     sheet: "Sheet1",
@@ -28,17 +28,17 @@ function getDiff() {
         },
         {
             sheet: "Sheet2", 
-            changeType: "inserted", 
+            changeType: "Inserted", 
             changes: []
         },
         {
             sheet: "Sheet3", 
-            changeType: "none", 
+            changeType: "None", 
             changes: []
         },
         {
             sheet: "Sheet4", 
-            changeType: "deleted", 
+            changeType: "Deleted", 
             changes: []
         },
     ]
