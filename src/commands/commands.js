@@ -61,7 +61,8 @@ async function merge(event) {
 
 async function catchUp(event) {
   console.log("catching up in commands")
-  await runCatchUp()
+  const changes = await runCatchUp()
+  console.log(changes)
   event.completed();
 }
 

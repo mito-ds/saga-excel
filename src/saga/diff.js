@@ -112,8 +112,8 @@ async function diff(context, initialCommit, finalCommit) {
     - compile results
 
     TODO: Handle the case where a sheet is renamed. check if event handle exists
+    TODO: Maintain some sheet ordering
     */
-
     const project = new Project(context);
 
     // Get sheets on commits
@@ -121,7 +121,6 @@ async function diff(context, initialCommit, finalCommit) {
     const initialCommitSheets =  await getCommitSheets(sheets, initialCommit);
     const finalCommitSheets =  await getCommitSheets(sheets, finalCommit);
 
-    // TODO: Find inserted and deleted shirts without sheet name manipulation
     // remove commit prefixes
     const initialCommitPrefix = `saga-${initialCommit}-`;
     const finalCommitPrefix = `saga-${finalCommit}-`;
@@ -189,6 +188,7 @@ async function catchUp(context) {
     const changes = await diff(context, initialCommit, finalCommit);
 
     // TODO: Update last time user caught up to now
+    return changes
 }
 
 
