@@ -70,9 +70,9 @@
                     <Description resid="CatchUpButton.Tooltip"/>
                   </Supertip>
                   <Icon>
-                    <bt:Image size="16" resid="MergeButtonIcon.16x16"/>
-                    <bt:Image size="32" resid="MergeButtonIcon.32x32"/>
-                    <bt:Image size="80" resid="MergeButtonIcon.80x80"/>
+                    <bt:Image size="16" resid="CatchUpButtonIcon.16x16"/>
+                    <bt:Image size="32" resid="CatchUpButtonIcon.32x32"/>
+                    <bt:Image size="80" resid="CatchUpButtonIcon.80x80"/>
                   </Icon>
                   <Action xsi:type="ExecuteFunction">
                     <FunctionName>catchUp</FunctionName>
@@ -162,6 +162,9 @@
         <bt:Image id="MergeButtonIcon.16x16" DefaultValue="https://localhost:3000/assets/merge-icon/merge-icon-16.png"/>
         <bt:Image id="MergeButtonIcon.32x32" DefaultValue="https://localhost:3000/assets/merge-icon/merge-icon-32.png"/>
         <bt:Image id="MergeButtonIcon.80x80" DefaultValue="https://localhost:3000/assets/merge-icon/merge-icon-80.png"/>
+        <bt:Image id="CatchUpButtonIcon.16x16" DefaultValue="https://localhost:3000/assets/catch-up-icon/catch-up-icon-16.png"/>
+        <bt:Image id="CatchUpButtonIcon.32x32" DefaultValue="https://localhost:3000/assets/catch-up-icon/catch-up-icon-32.png"/>
+        <bt:Image id="CatchUpButtonIcon.80x80" DefaultValue="https://localhost:3000/assets/catch-up-icon/catch-up-icon-80.png"/>
         <bt:Image id="VersionButtonIcon.16x16" DefaultValue="https://localhost:3000/assets/version-icon/version-icon-16.png"/>
         <bt:Image id="VersionButtonIcon.32x32" DefaultValue="https://localhost:3000/assets/version-icon/version-icon-32.png"/>
         <bt:Image id="VersionButtonIcon.80x80" DefaultValue="https://localhost:3000/assets/version-icon/version-icon-80.png"/>
