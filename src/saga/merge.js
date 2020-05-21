@@ -458,7 +458,11 @@ const doMerge = async (context, formattingEvents) => {
     await project.updateBranchCommitID(`master`, newCommitID);
     await project.updateBranchCommitID(personalBranch, newCommitID); // we commit on both of these branches
     await project.addCommitID(newCommitID, masterCommitID, `Merged in ${personalBranch}`, "");
-    return mergedData
+
+    // And we update the last commit you caught up till
+    await project.setLastCatchUpCommitID(newCommitID);
+
+    return mergedData;
 }
 
 /*

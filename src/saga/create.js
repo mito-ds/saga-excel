@@ -26,12 +26,12 @@ async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
 
     // Setup, name range for branch name => commit mapping
     const branchRange = worksheet.getRange("B1:C2");
-    worksheet.names.add(item.BRANCHES, branchRange)
+    worksheet.names.add(item.BRANCHES, branchRange);
     branchRange.values = [["master", "firstcommit"], [email, firstCommitID]];
 
     // Setup, name range for commit id => (parent commit id, name, message) mapping
     const commitRange = worksheet.getRange("D1:G1");
-    worksheet.names.add(item.COMMITS, commitRange)
+    worksheet.names.add(item.COMMITS, commitRange);
     commitRange.values = [["firstcommit", "", "", ""]];
 
     //Setup, name range for personal branch identifier
@@ -41,8 +41,13 @@ async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
 
     // Setup, name range for remote url
     const remoteRange = worksheet.getRange("A2");
-    worksheet.names.add(item.REMOTE_URL, remoteRange)
-    remoteRange.values = [[remoteURL]]
+    worksheet.names.add(item.REMOTE_URL, remoteRange);
+    remoteRange.values = [[remoteURL]];
+
+    // Setup, name range for last catch up commit
+    const lastCatchUpRange = worksheet.getRange("A4");
+    worksheet.names.add(item.LAST_CATCH_UP, lastCatchUpRange);
+    lastCatchUpRange.values = [["firstcommit"]];
 
     return context.sync();
 }

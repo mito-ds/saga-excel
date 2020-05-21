@@ -9,8 +9,7 @@ import { TEST_URL, changeType } from "../constants";
 import * as scenarios from "../../scenarios";
 import { runReplaceFromBase64 } from "../saga/create";
 import { runResolveMergeConflicts }  from "../saga/merge";
-
-
+import Project from "../saga/Project";
 /* global Excel */
 
 
@@ -267,6 +266,118 @@ export async function testDiff() {
     assert.equal(catchUpResult[1].sheetName, "Sheet2", "should return changes on sheet2")
     assert.equal(catchUpResult[1].changeType, changeType.INSERTED, "should have inserted sheet2")
     assert.equal(catchUpResult[1].changes.length, 0, "should have no changes on sheet2")
+
+    return true;
+}
+
+
+export async function testGetSetLastCatchUp() {
+
+    // First, we create the project
+    await runCreateSaga(TEST_URL, "email");
+
+    // Then, we check that the last catch up is the first commit.
+    let originalLastCatchUp;
+    let newLastCatchUp;
+    await runOperation(async (context) => {
+        const project = new Project(context);
+        originalLastCatchUp = await project.getLastCatchUpCommitID()
+        
+        // And we try and update it
+        await project.setLastCatchUpCommitID("secondcommit")
+        newLastCatchUp = await project.getLastCatchUpCommitID();
+
+    });
+
+    assert.equal(originalLastCatchUp, "firstcommit");
+    assert.equal(newLastCatchUp, "secondcommit");
+    return true;
+}
+
+export async function testResetPersonalChangesLastCaughtUp() {
+
+    // Load scenario
+    const fileContents = scenarios["unmergedNoConflict"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Then, we check that the last catch up is the first commit.
+    let originalLastCatchUp;
+    await runOperation(async (context) => {
+        const project = new Project(context);
+        originalLastCatchUp = await project.getLastCatchUpCommitID();
+    });
+    assert.equal(originalLastCatchUp, "firstcommit");
+
+    const g = getGlobal();
+    await g.resetPersonalVersion();
+
+    // Then, we check that the last catch up is the first commit.
+    let masterHeadCommitID;
+    let newLastCatchUp;
+    await runOperation(async (context) => {
+        const project = new Project(context);
+        masterHeadCommitID = await project.getCommitIDFromBranch("master");
+        newLastCatchUp = await project.getLastCatchUpCommitID();
+    });
+    assert.equal(masterHeadCommitID, newLastCatchUp)
+
+    return true;
+}
+
+export async function testMergeChangesLastCaughtUp() {
+
+    // Load scenario
+    const fileContents = scenarios["unmergedNoConflict"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Then, we check that the last catch up is the first commit.
+    let originalLastCatchUp;
+    await runOperation(async (context) => {
+        const project = new Project(context);
+        originalLastCatchUp = await project.getLastCatchUpCommitID();
+    });
+    assert.equal(originalLastCatchUp, "firstcommit");
+
+    const g = getGlobal();
+    await g.merge();
+
+    // Then, we check that the last catch up is the first commit.
+    let masterHeadCommitID;
+    let newLastCatchUp;
+    await runOperation(async (context) => {
+        const project = new Project(context);
+        masterHeadCommitID = await project.getCommitIDFromBranch("master");
+        newLastCatchUp = await project.getLastCatchUpCommitID();
+    });
+    assert.equal(masterHeadCommitID, newLastCatchUp)
+
+    return true;
+}
+
+export async function testNoDiffAfterMerge() {
+    
+    // Load scenario
+    const fileContents = scenarios["unmergedNoConflict"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Perform a merge
+    const g = getGlobal();
+    const catchUpResult = await g.catchUp();
+    assert.equal(catchUpResult.length, 1, "There should be changes on the one sheet");
+
+    await g.merge();
+
+    const newDiffs = await g.catchUp();
+    assert.equal(newDiffs.length, 0, "There should be no diffs to catch up on after a merge");
 
     return true;
 }

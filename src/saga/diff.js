@@ -174,18 +174,15 @@ async function catchUp(context) {
     const project = new Project(context);
 
     // For now, use the first commit in the project
-    const worksheets = context.workbook.worksheets;
-    const sagaWorksheet = worksheets.getItem('saga');
-    const firstCommitRange = sagaWorksheet.getRange("D2");
-    firstCommitRange.load("values");
-    await context.sync();
-
-    const initialCommit = firstCommitRange.values;
+    const lastCaughtUpCommitID = await project.getLastCatchUpCommitID();
     const finalCommit = await project.getCommitIDFromBranch("master");
 
-    const changes = await diff(context, initialCommit, finalCommit);
+    const changes = await diff(context, lastCaughtUpCommitID, finalCommit);
 
-    // TODO: Update last time user caught up to now
+    // We also update the alst time they caught up to now
+    // TODO: we might wanna do this after they approve the diff
+    await project.setLastCatchUpCommitID(finalCommit);
+
     return changes;
 }
 

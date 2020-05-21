@@ -84,8 +84,10 @@ async function switchVersion(event) {
 
 async function resetPersonalVersion(event) {
   // Todo: If on master, tell them they can't
-  await runResetPersonalVersion(); 
-  event.completed();
+  await runResetPersonalVersion();
+  if (event) {
+    event.completed();
+  }
 }
 
 export function getGlobal() {

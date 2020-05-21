@@ -50,7 +50,8 @@ export const item = {
     BRANCHES: 'branches',
     COMMITS: 'commits',
     PERSONAL_BRANCH: 'personalBranchName',
-    REMOTE_URL: 'remote'
+    REMOTE_URL: 'remote',
+    LAST_CATCH_UP: "lastCatchUp"
 }
 
 /*
