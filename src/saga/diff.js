@@ -1,7 +1,9 @@
 import { runOperation } from './runOperation';
 import { getCommitSheets, getFormulas, numToChar } from "./sagaUtils";
 import Project from "./Project";
-import { addPrefix, removePrefix, findInsertedSheets, findDeletedSheets, findModifiedSheets } from "./diffUtils";
+import { getSheetNamePairs, removePrefix, findInsertedSheets, findDeletedSheets, findModifiedSheets } from "./diffUtils";
+import { changeType } from '../constants'
+
 
 // handle diff detection when a row does not exist on one of the sheets
 function handleUndefinedRow(row, sheetName, rowIndex, isInitial) {
@@ -98,7 +100,7 @@ export function simpleDiff2D(initialValue, finalValues, sheetName) {
     }
     console.log(changes)
 
-    return {sheet: sheetName, changes: changes}
+    return {sheet: sheetName, changeType: changeType.MODIFIED, changes: changes}
 }
 
 async function diff(context, initialCommit, finalCommit) {
@@ -114,9 +116,6 @@ async function diff(context, initialCommit, finalCommit) {
 
     const project = new Project(context);
 
-    console.log(initialCommit)
-    console.log(finalCommit)
-
     // Get sheets on commits
     const sheets = await project.getSheetsWithNames();
     const initialCommitSheets =  await getCommitSheets(sheets, initialCommit);
@@ -127,26 +126,50 @@ async function diff(context, initialCommit, finalCommit) {
     const initialCommitPrefix = `saga-${initialCommit}-`;
     const finalCommitPrefix = `saga-${finalCommit}-`;
 
-    console.log(initialCommitPrefix)
-    console.log(finalCommitPrefix)
-
-
     const initialSheetNames = removePrefix(initialCommitSheets, initialCommitPrefix);
     const finalSheetNames = removePrefix(finalCommitSheets, finalCommitPrefix);
 
-    console.log(`initialSheetNames: ${initialSheetNames}`)
-    console.log(`finalSheetsNames: ${finalSheetNames}`)
+    const insertedSheetNames = findInsertedSheets(initialSheetNames, finalSheetNames)
+    const deletedSheetNames = findDeletedSheets(initialSheetNames, finalSheetNames)
+    const modifiedSheetNames = findModifiedSheets(initialSheetNames, finalSheetNames)
 
-    const insertedSheetsNames = findInsertedSheets(initialSheetNames, finalSheetNames)
-    const deletedSheetsNames = findDeletedSheets(initialSheetNames, finalSheetNames)
-    const modifiedSheetsNames = findModifiedSheets(initialSheetNames, finalSheetNames)
+    console.log("inserted sheets", insertedSheetNames)
+    console.log("deleted sheets", deletedSheetNames)
+    console.log("modified sheets", modifiedSheetNames)
 
-    const modifiedSheetPairs = addPrefix(modifiedSheetsNames, initialCommitPrefix, finalCommitPrefix)
-    console.log(modifiedSheetPairs)
+    const modifiedSheetNamePairs = getSheetNamePairs(modifiedSheetNames, initialCommitPrefix, finalCommitPrefix)
 
+    let sheetChanges = []
 
-    console.log("End of Diff")
+    // Calculate changes on modified sheets
+    for (var i = 0; i < modifiedSheetNamePairs.length; i++) {
+        const initialFormulas = await getFormulas(context, modifiedSheetNamePairs[i].initialSheet);
+        const finalFormulas = await getFormulas(context, modifiedSheetNamePairs[i].finalSheet);
 
+        const result = simpleDiff2D(initialFormulas, finalFormulas, modifiedSheetNamePairs[i].sheetName)
+        sheetChanges.push(result)
+    }
+
+    // Add change object for inserted sheets
+    for (var j = 0; j < insertedSheetNames.length; j++) {
+        sheetChanges.push({
+            sheet: insertedSheetNames[j], 
+            changeType: changeType.INSERTED, 
+            changes: []
+        })
+    }
+
+    // Add change object for deleted sheets
+    for (var h = 0; h < deletedSheetNames.length; h++) {
+        sheetChanges.push({
+            sheet: deletedSheetNames[h], 
+            changeType: changeType.DELETED, 
+            changes: []
+        })
+    }
+
+    console.log("found the following changes", sheetChanges)
+    return sheetChanges
 }
 
 async function catchUp(context) {

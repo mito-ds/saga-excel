@@ -68,4 +68,13 @@ export const headerSize = {
     LARGE: "large"
 }
 
+/*
+    The type of change to a sheet
+*/
+export const changeType = {
+    MODIFIED: "modified",
+    INSERTED: "inserted",
+    DELETED: "deleted"
+}
+
 export const TEST_URL = "test_url";

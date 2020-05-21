@@ -1,81 +1,43 @@
-//TODO: Redo this using filters, find out why below approach did not work
-
 // Find sheets that are in the final Sheet set, but not the initial Sheet set
-export function findInsertedSheets(initialSheets, finalSheets) {
-    let insertedSheets = []
-    for (var i = 0; i < finalSheets.length; i++) {
-        let found = false
-        for (var j = 0; j < initialSheets.length; j++) {
-            if (finalSheets[i] === initialSheets[j]) {
-                found = true;
-            }
-        }
-        if (!found) {
-            insertedSheets.push(finalSheets[i])
-        }
-    }
-    return insertedSheets
+export function findInsertedSheets(initialSheetNames, finalSheetNames) {
+    const insertedSheetNames = finalSheetNames.filter(sheetName => {
+        return !(initialSheetNames.includes(sheetName))
+    });
+    return insertedSheetNames
 } 
 
-// Find sheets that are in the initial Sheet set, but not the final Sheet set
-export function findDeletedSheets(initialSheets, finalSheets) {
-    let deletedSheets = []
-    for (var i = 0; i < initialSheets.length; i++) {
-        let found = false
-        for (var j = 0; j < finalSheets.length; j++) {
-            if (initialSheets[i] === finalSheets[j]) {
-                found = true;
-            }
-        }
-        if (!found) {
-            deletedSheets.push(initialSheets[i])
-        }
-    }
-    return deletedSheets
-} 
-
-export function findModifiedSheets(initialSheets, finalSheets) {
-    let modifiedSheets = []
-    for (var i = 0; i < initialSheets.length; i++) {
-        let found = false
-        for (var j = 0; j < finalSheets.length; j++) {
-            if (initialSheets[i] === finalSheets[j]) {
-                found = true;
-                continue;
-            }
-        }
-        if (found) {
-            modifiedSheets.push(initialSheets[i])
-        }
-    }
-    return modifiedSheets
-}
-
-/*
 // Find sheets in initial sheets and not in final sheets
-// TODO: Find out why this approach does not work
-export function findDeletedSheets(initialSheets, finalSheets) {
-    const deletedSheets = initialSheets.filter(sheet => {
-        return !(sheet in finalSheets)
-    })
-    return deletedSheets
+export function findDeletedSheets(initialSheetNames, finalSheetNames) {
+    const deletedSheetNames = initialSheetNames.filter(sheetName => {
+        return !(finalSheetNames.includes(sheetName))
+    });
+    return deletedSheetNames
 } 
-*/
-export function removePrefix(initialCommitSheets, initialCommitPrefix) {
-    // TODO: Update to a map function
-    for (var i = 0; i < initialCommitSheets.length; i++) {
-        initialCommitSheets[i] = initialCommitSheets[i].name.replace(initialCommitPrefix, "")
-    }
-    return initialCommitSheets
+
+// Find sheets in both initial sheet and final sheets
+export function findModifiedSheets(initialSheetNames, finalSheetNames) {
+    var modifiedSheetNames = initialSheetNames.filter(function(sheetName) {
+        if(finalSheetNames.indexOf(sheetName) != -1)
+            return true;
+    });
+    return modifiedSheetNames
 }
 
-export function addPrefix(sheetNames, initialPrefix, finalPrefix) {
+export function removePrefix(initialCommitSheets, initialCommitPrefix) {
+    const sheetNames = initialCommitSheets.map(function(sheet){ 
+        return sheet.name.replace(initialCommitPrefix, ""); 
+    });
+    return sheetNames
+}
+
+export function getSheetNamePairs(sheetNames, initialPrefix, finalPrefix) {
     var sheetPairs = []
     for (var i = 0; i < sheetNames.length; i++) {
         sheetPairs.push({
-            initialSheet: initialPrefix + sheetNames[i],
+            sheetName: sheetNames[i],
+            initialSheet: initialPrefix + sheetNames[i], 
             finalSheet: finalPrefix + sheetNames[i]
-        })
+        });
     }
     return sheetPairs
 }
