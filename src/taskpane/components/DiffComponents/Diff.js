@@ -12,7 +12,7 @@ export default function Diff(props) {
 
     console.log(props.diff)
     return (
-        <div className="card">
+        <div className="sub-card">
             <div className="card-cols">
                 <div className="cell-div">
                     <div>
@@ -20,11 +20,13 @@ export default function Diff(props) {
                     </div>
                 </div>
                 <div className="options-div">
-                    <div className="boxed">
+                    <div className="boxed old">
                         {initialElement}
+                    </div>       
+                    <div className="boxed new">
                         {finalElement}
-                    </div>         
-                </div>
+                    </div>     
+                </div>   
             </div>
         </div>
     )

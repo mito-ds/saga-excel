@@ -11,19 +11,36 @@ function getDiff() {
         {
             sheet: "Sheet1", 
             changeType: "modified", 
-            changes: [{
-                sheet: "sheet1",
-                cell: "A1",
-                initialElement: "55",
-                finalElement: "60"
-            }]
+            changes: [
+                {
+                    sheet: "Sheet1",
+                    cell: "A1",
+                    initialElement: "55",
+                    finalElement: "60"
+                },
+                {
+                    sheet: "Sheet1",
+                    cell: "B1",
+                    initialElement: "10",
+                    finalElement: "100"
+                }
+            ]
         },
         {
             sheet: "Sheet2", 
             changeType: "inserted", 
             changes: []
         },
-
+        {
+            sheet: "Sheet3", 
+            changeType: "none", 
+            changes: []
+        },
+        {
+            sheet: "Sheet4", 
+            changeType: "deleted", 
+            changes: []
+        },
     ]
 }
 

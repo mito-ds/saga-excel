@@ -1,6 +1,5 @@
-.card {
+.sub-card {
     background: #F3F3F3;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     margin-bottom: 1vh;
 }
 
@@ -30,24 +29,25 @@
     justify-content: space-evenly;
     flex-grow: 1;
     margin-left: 3vw;
+    padding: 1vh;
     margin-right: 3vw;
 }
 
-.boxed label {
+.boxed {
     display: block;
-    padding: 5px;
-    margin-bottom: 1vh;
-    margin-top: 1vh;
+    padding: 2px;
     border: solid 2px #ccc;
     background-color: #F3F3F3;
     transition: all 0.3s;
     overflow-x: scroll;
 }
-  
-.boxed input[type="radio"] {
-  display: none; 
+
+
+.old {
+  background-color: #FFD7D7;
 }
-  
-.boxed input[type="radio"]:checked + label {
-  background-color: #adebad;
+
+
+.new {
+  background-color: #DCFFD0;
 }
