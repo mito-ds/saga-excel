@@ -26,8 +26,6 @@ function toColumnName(num) {
 async function resolveMergeConflicts(context, resolutions) {
     const worksheets = context.workbook.worksheets;
 
-    console.log(resolutions)
-
     const sheetsResolutionsArray = Object.entries(resolutions);
     
     for (var i=0; i < sheetsResolutionsArray.length; i++) {
@@ -230,9 +228,9 @@ const doMerge = async (context, formattingEvents) => {
     
     const sheets = await project.getSheetsWithNames();
 
-    const masterSheets = getCommitSheets(sheets, masterCommitID);
+    const masterSheets = await getCommitSheets(sheets, masterCommitID);
     const personalSheets = getNonsagaSheets(sheets);
-    const originSheets = getCommitSheets(sheets, originCommitID);
+    const originSheets = await getCommitSheets(sheets, originCommitID);
 
     console.log("MASTER SHEETS", masterSheets);
     console.log("PERSONAL SHEETS", personalSheets);

@@ -1,7 +1,7 @@
 import { runOperation } from './runOperation';
 import { getCommitSheets, getFormulas, numToChar } from "./sagaUtils";
 import Project from "./Project";
-import { removePrefix } from "./diffUtils";
+import { addPrefix, removePrefix, findInsertedSheets, findDeletedSheets, findModifiedSheets } from "./diffUtils";
 
 // handle diff detection when a row does not exist on one of the sheets
 function handleUndefinedRow(row, sheetName, rowIndex, isInitial) {
@@ -114,21 +114,58 @@ async function diff(context, initialCommit, finalCommit) {
 
     const project = new Project(context);
 
+    console.log(initialCommit)
+    console.log(finalCommit)
+
     // Get sheets on commits
     const sheets = await project.getSheetsWithNames();
-    const initialCommitSheets = getCommitSheets(sheets, initialCommit);
-    const finalCommitSheets = getCommitSheets(sheets, finalCommit);
+    const initialCommitSheets =  await getCommitSheets(sheets, initialCommit);
+    const finalCommitSheets =  await getCommitSheets(sheets, finalCommit);
 
+    // TODO: Find inserted and deleted shirts without sheet name manipulation
     // remove commit prefixes
     const initialCommitPrefix = `saga-${initialCommit}-`;
     const finalCommitPrefix = `saga-${finalCommit}-`;
-    const initialSheets = removePrefix(initialCommitSheets, initialCommitPrefix);
-    const finalSheets = removePrefix(finalCommitSheets, finalCommitPrefix);
+
+    console.log(initialCommitPrefix)
+    console.log(finalCommitPrefix)
+
+
+    const initialSheetNames = removePrefix(initialCommitSheets, initialCommitPrefix);
+    const finalSheetNames = removePrefix(finalCommitSheets, finalCommitPrefix);
+
+    console.log(`initialSheetNames: ${initialSheetNames}`)
+    console.log(`finalSheetsNames: ${finalSheetNames}`)
+
+    const insertedSheetsNames = findInsertedSheets(initialSheetNames, finalSheetNames)
+    const deletedSheetsNames = findDeletedSheets(initialSheetNames, finalSheetNames)
+    const modifiedSheetsNames = findModifiedSheets(initialSheetNames, finalSheetNames)
+
+    const modifiedSheetPairs = addPrefix(modifiedSheetsNames, initialCommitPrefix, finalCommitPrefix)
+    console.log(modifiedSheetPairs)
+
+
+    console.log("End of Diff")
 
 }
 
 async function catchUp(context) {
-    console.log("here")
+    // TODO: Find last time use caught up
+    const project = new Project(context)
+
+    // For now, use the first commit in the project
+    const worksheets = context.workbook.worksheets;
+    const sagaWorksheet = worksheets.getItem('saga')
+    const firstCommitRange = sagaWorksheet.getRange("D2");
+    firstCommitRange.load("values")
+    await context.sync();
+
+    const initialCommit = firstCommitRange.values
+    const finalCommit = await project.getCommitIDFromBranch("master");
+
+    const changes = await diff(context, initialCommit, finalCommit);
+
+    // TODO: Update last time user caught up to now
 }
 
 
