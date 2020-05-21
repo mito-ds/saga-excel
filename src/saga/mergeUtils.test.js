@@ -69,6 +69,10 @@ test('simple merge add in different spaces in new row', () => {
     expect(simpleMerge2D([[1]], [[1, ""], [2, ""]], [[1, ""], ["", 3]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, ""], [2, 3]], conflicts: []});
 })
 
+test('simple merge delete row one branch', () => {
+    expect(simpleMerge2D([[1], [2]], [[1], [2]], [[1]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1]], conflicts: []});
+})
+
 test('simple merge add to same row after end of origin different elements', () => {
     const conflicts = [
         {

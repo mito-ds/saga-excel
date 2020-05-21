@@ -50,7 +50,7 @@ export default class DiffScreen extends React.Component {
     super(props); 
 
     this.state = {
-        diffs: getDiff()
+        diffs: props.changes || []
     }
   }
     

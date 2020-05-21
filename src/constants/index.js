@@ -4,7 +4,8 @@ export const taskpaneStatus = {
     SHARE: 'share',
     MERGE: 'merge',
     OFFLINE: 'offline',
-    DEVELOPMENT: 'development'
+    DEVELOPMENT: 'development',
+    DIFF: 'diff'
 }
 
 /*
@@ -72,9 +73,10 @@ export const headerSize = {
     The type of change to a sheet
 */
 export const changeType = {
-    MODIFIED: "modified",
-    INSERTED: "inserted",
-    DELETED: "deleted"
+    NONE: "None",
+    MODIFIED: "Modified",
+    INSERTED: "Inserted",
+    DELETED: "Deleted"
 }
 
 export const TEST_URL = "test_url";

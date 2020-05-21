@@ -106,7 +106,7 @@ function simpleMerge(oRow, aRow, bRow, rowIndex, sheetName) {
     } else {
         // This is the case where the origin is defined, so we can do more intelligent merging
 
-        const maxLength = Math.max(oRow.length, aRow.length, bRow.length);
+        const maxLength = Math.max(oRow.length, aRow ? aRow.length : 0, bRow ? bRow.length : 0);
 
         var row = [];
         var conflicts = [];

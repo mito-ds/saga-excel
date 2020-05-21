@@ -61,7 +61,11 @@ async function merge(event) {
 
 async function catchUp(event) {
   console.log("catching up in commands")
+  window.app.setTaskpaneStatus(taskpaneStatus.DIFF);
   const changes = await runCatchUp()
+  console.log(changes);
+  // We set the diff state as well
+  window.app.setChanges(changes);
   console.log(changes)
   event.completed();
 }

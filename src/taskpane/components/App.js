@@ -23,7 +23,8 @@ export default class App extends React.Component {
       offline: false,
       taskpaneStatus: taskpaneStatus.CREATE,
       mergeState: mergeState.MERGE_SUCCESS,
-      mergeConflicts: null
+      mergeConflicts: null,
+      changes: null
     };
 
     this.getTaskpaneStatus = this.getTaskpaneStatus.bind(this);
@@ -65,6 +66,10 @@ export default class App extends React.Component {
     this.setState({remoteURL: remoteURL})
   }
 
+  setChanges = (changes) => {
+    this.setState({changes: changes})
+  }
+
   offline = () => {
     this.setState({offline: true})
   }
@@ -95,6 +100,11 @@ export default class App extends React.Component {
         toReturn = (<LinkScreen remoteURL={this.state.remoteURL}/>);
         break;
 
+      case taskpaneStatus.DIFF:
+        toReturn = (<DiffScreen changes={this.state.changes}/>);
+        break;
+
+
       case taskpaneStatus.CREATE:
         const step = this.state.step;
         // If a saga project exists, we shouldn't do any of this
@@ -121,7 +131,6 @@ export default class App extends React.Component {
         }
     }
 
-    toReturn = (<DiffScreen/>)
     
     return (
       <StatusContext.Provider value={{status: this.state.taskpaneStatus, setStatus: this.setTaskpaneStatus}}>
