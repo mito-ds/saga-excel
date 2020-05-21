@@ -60,10 +60,12 @@ async function merge(event) {
 }
 
 async function catchUp(event) {
-  console.log("catching up in commands")
   const changes = await runCatchUp()
   console.log(changes)
-  event.completed();
+  if (event) {
+    event.completed();
+  }
+  return changes
 }
 
 async function switchVersion(event) {

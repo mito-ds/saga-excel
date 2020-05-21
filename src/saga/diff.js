@@ -21,14 +21,14 @@ function handleUndefinedRow(row, sheetName, rowIndex, isInitial) {
                 changes.push({
                     sheetName: sheetName,
                     cell: cell,
-                    initalValue: value, 
+                    initialValue: value, 
                     finalValue: ""
                 });
             } else {
                 changes.push({
                     sheetName: sheetName,
                     cell: cell,
-                    initalValue: "", 
+                    initialValue: "", 
                     finalValue: value
                 });
             }   
@@ -80,7 +80,7 @@ function rowDiff (initialRow, finalRow, sheetName, rowIndex) {
             changes.push({
                 sheetName: sheetName,
                 cell: cell,
-                initalValue: initialValue, 
+                initialValue: initialValue, 
                 finalValue: finalValue
             });
         }
@@ -95,10 +95,10 @@ export function simpleDiff2D(initialValue, finalValues, sheetName) {
     var changes = [];
 
     for (let i = 0; i < maxLength; i++) {
-        const initalRow = initialValue[i];
+        const initialRow = initialValue[i];
         const finalRow = finalValues[i];
 
-        const differences = rowDiff(initalRow, finalRow, sheetName, i);
+        const differences = rowDiff(initialRow, finalRow, sheetName, i);
         changes.push(...differences);
     }
 
