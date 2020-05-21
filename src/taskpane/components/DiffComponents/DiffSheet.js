@@ -55,7 +55,17 @@ export default class DiffSheet extends React.Component {
 
     return (
         <div className={cardClass}>
-            <div className="card-title" onClick={this.togglePanel}>{sheetName}</div>
+            <div className="card-title" onClick={this.togglePanel}>
+                <div>
+                    {sheetName}
+                </div>
+                {this.props.sheetDiff.changeType === changeType.MODIFIED ? 
+                    <div>
+                        <input className={"clipboard " + (this.state.isExpanded ? "flip" : "")} type="image" src="assets/dropdown.png" width="30vw" border="0" alt="Copy" />
+                    </div> 
+                    : null
+                }
+            </div>
             {this.state.isExpanded ? diffArray : null}
         </div>
     );

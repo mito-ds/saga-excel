@@ -21,14 +21,14 @@ function handleUndefinedRow(row, sheetName, rowIndex, isInitial) {
                 changes.push({
                     sheet: sheetName,
                     cell: cell,
-                    initalElement: element, 
+                    initialElement: element, 
                     finalElement: ""
                 });
             } else {
                 changes.push({
                     sheet: sheetName,
                     cell: cell,
-                    initalElement: "", 
+                    initialElement: "", 
                     finalElement: element
                 });
             }   
@@ -75,7 +75,7 @@ function rowDiff (initialRow, finalRow, sheetName, rowIndex) {
             changes.push({
                 sheet: sheetName,
                 cell: cell,
-                initalElement: initialElement, 
+                initialElement: initialElement, 
                 finalElement: finalElement
             });
         }

@@ -18,7 +18,7 @@ test('simple diff2D one change', () => {
     const change = [{
         sheet: "Sheet1",
         cell: "A1",
-        initalElement: 1, 
+        initialElement: 1, 
         finalElement: 2
     }]
     expect(simpleDiff2D([[1]], [[2]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
@@ -29,13 +29,13 @@ test('simple diff2D multiple changes', () => {
     {
         sheet: "Sheet1",
         cell: "A1",
-        initalElement: 1, 
+        initialElement: 1, 
         finalElement: 2
     },
     {
         sheet: "Sheet1",
         cell: "B1",
-        initalElement: 3, 
+        initialElement: 3, 
         finalElement: 4
     }]
     expect(simpleDiff2D([[1, 3]], [[2, 4]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
@@ -46,25 +46,25 @@ test('simple diff2D multiple changes in multiple rows', () => {
     {
         sheet: "Sheet1",
         cell: "A1",
-        initalElement: 1, 
+        initialElement: 1, 
         finalElement: 5
     },
     {
         sheet: "Sheet1",
         cell: "B1",
-        initalElement: 2, 
+        initialElement: 2, 
         finalElement: 6
     }, 
     {
         sheet: "Sheet1",
         cell: "A2",
-        initalElement: 3, 
+        initialElement: 3, 
         finalElement: 7
     },
     {
         sheet: "Sheet1",
         cell: "B2",
-        initalElement: 4, 
+        initialElement: 4, 
         finalElement: 8
     }]
     expect(simpleDiff2D([[1, 2], [3, 4]], [[5, 6], [7, 8]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
@@ -75,13 +75,13 @@ test('simple diff2D multiple changes with deleted values', () => {
     {
         sheet: "Sheet1",
         cell: "A1",
-        initalElement: 1, 
+        initialElement: 1, 
         finalElement: 5
     },
     {
         sheet: "Sheet1",
         cell: "B2",
-        initalElement: 4, 
+        initialElement: 4, 
         finalElement: ""
     }]
     expect(simpleDiff2D([[1, 2], [3, 4]], [[5, 2], [3, ""]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
@@ -92,13 +92,13 @@ test('simple diff2D added row', () => {
     {
         sheet: "Sheet1",
         cell: "A2",
-        initalElement: "", 
+        initialElement: "", 
         finalElement: 3
     },
     {
         sheet: "Sheet1",
         cell: "B2",
-        initalElement: "", 
+        initialElement: "", 
         finalElement: 4
     }]
     expect(simpleDiff2D([[1, 2]], [[1, 2], [3, 4]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
@@ -109,13 +109,13 @@ test('simple diff2D deleted added row', () => {
     {
         sheet: "Sheet1",
         cell: "A2",
-        initalElement: 3, 
+        initialElement: 3, 
         finalElement: ""
     },
     {
         sheet: "Sheet1",
         cell: "B2",
-        initalElement: 4, 
+        initialElement: 4, 
         finalElement: ""
     }]
     expect(simpleDiff2D([[1, 2], [3, 4]], [[1, 2]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
@@ -126,7 +126,7 @@ test('simple diff2D deleted sheet', () => {
     {
         sheet: "Sheet1",
         cell: "A1",
-        initalElement: 1, 
+        initialElement: 1, 
         finalElement: ""
     }]
     expect(simpleDiff2D([[1]], [], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
@@ -137,7 +137,7 @@ test('simple diff2D added sheet', () => {
     {
         sheet: "Sheet1",
         cell: "A1",
-        initalElement: "", 
+        initialElement: "", 
         finalElement: 1
     }]
     expect(simpleDiff2D([], [[1]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});

@@ -11,9 +11,24 @@ export default function Diff(props) {
     const initialElement = props.diff.initialElement;
     const finalElement = props.diff.finalElement;
 
-    console.log(`Sheetname: ${sheetName}`)
+    console.log(`Sheetname: ${props.diff}`)
 
     console.log(props.diff)
+
+    const oldBox = (
+        <div className="boxed old">
+            {initialElement}
+        </div>   
+    )
+
+    const newBox = (
+        <div className="boxed new">
+            {finalElement}
+        </div>  
+    )
+
+    console.log("initialElement", initialElement);
+
     return (
         <div className="sub-card">
             <div className="card-cols">
@@ -23,12 +38,8 @@ export default function Diff(props) {
                     </div>
                 </div>
                 <div className="options-div">
-                    <div className="boxed old">
-                        {initialElement}
-                    </div>       
-                    <div className="boxed new">
-                        {finalElement}
-                    </div>     
+                    {initialElement !== "" ? oldBox : null }
+                    {finalElement !== "" ? newBox : null }
                 </div>   
             </div>
         </div>
