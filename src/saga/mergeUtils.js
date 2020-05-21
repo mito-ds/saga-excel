@@ -191,10 +191,10 @@ export function simpleMerge2D(origin, aValues, bValues, sheetName) {
         const aRow = aValues[i];
         const bRow = bValues[i];
 
-        console.log("Merging row", oRow, aRow, bRow);
+        //console.log("Merging row", oRow, aRow, bRow);
 
         const rowMerge = simpleMerge(oRow, aRow, bRow, i, sheetName);
-        console.log(rowMerge.result)
+        //console.log(rowMerge.result)
 
         result.push(rowMerge.result);
         conflicts.push(...rowMerge.conflicts);
