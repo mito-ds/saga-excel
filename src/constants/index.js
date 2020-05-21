@@ -69,7 +69,7 @@ export const headerSize = {
 }
 
 /*
-    The type of change to a sheet
+    The type of change identified through the diff algorithm
 */
 export const changeType = {
     MODIFIED: "modified",
