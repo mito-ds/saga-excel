@@ -6,68 +6,19 @@ import "./DiffScreen.css";
 
 /* global  */
 
-function getDiff() {
-    return [
-        {
-            sheet: "Sheet1", 
-            changeType: "Modified", 
-            changes: [
-                {
-                    sheet: "Sheet1",
-                    cell: "A1",
-                    initialValue: "55",
-                    finalValue: "60"
-                },
-                {
-                    sheet: "Sheet1",
-                    cell: "B1",
-                    initialValue: "10",
-                    finalValue: "100"
-                }
-            ]
-        },
-        {
-            sheet: "Sheet2", 
-            changeType: "Inserted", 
-            changes: []
-        },
-        {
-            sheet: "Sheet3", 
-            changeType: "None", 
-            changes: []
-        },
-        {
-            sheet: "Sheet4", 
-            changeType: "Deleted", 
-            changes: []
-        },
-    ]
-}
+export default function DiffScreen(props) {
+    const sheetDiffs = props.sheetDiffs;
 
-export default class DiffScreen extends React.Component {
-
-  constructor(props) {
-    super(props); 
-
-    this.state = {
-        diffs: props.changes || []
-    }
-  }
-    
-  render() {
-
-    const diffs = this.state.diffs;
-
+    // Make a list of diffs for each sheet
     let sheetComponents = [];
-    diffs.forEach((sheetDiff) => {
+    sheetDiffs.forEach((sheetDiff) => {
         sheetComponents.push(
             <DiffSheet key={sheetDiff.sheetName} sheetDiff={sheetDiff}/>
         )  
     })
 
-
     return (
-      <Taskpane header={headerSize.SMALL} title="Recent Changes">
+        <Taskpane header={headerSize.SMALL} title="Recent Changes">
         <div className="title-subtext-div">
             <div className="title-subtext">Everything that has changed in the shared version since you last looked.</div>
         </div>
@@ -76,7 +27,6 @@ export default class DiffScreen extends React.Component {
                 {sheetComponents}
             </div>
         </div>
-      </Taskpane>
+        </Taskpane>
     )
-  }
 }

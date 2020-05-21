@@ -24,7 +24,7 @@ export default class App extends React.Component {
       taskpaneStatus: taskpaneStatus.CREATE,
       mergeState: mergeState.MERGE_SUCCESS,
       mergeConflicts: null,
-      changes: null
+      sheetDiffs: null
     };
 
     this.getTaskpaneStatus = this.getTaskpaneStatus.bind(this);
@@ -35,7 +35,7 @@ export default class App extends React.Component {
     this.offline = this.offline.bind(this);
     this.getMergeState = this.getMergeState.bind(this);
     this.setMergeState = this.setMergeState.bind(this);
-
+    this.setSheetDiffs = this.setSheetDiffs.bind(this);
   }
 
   getTaskpaneStatus = () => {
@@ -66,8 +66,8 @@ export default class App extends React.Component {
     this.setState({remoteURL: remoteURL})
   }
 
-  setChanges = (changes) => {
-    this.setState({changes: changes})
+  setSheetDiffs = (sheetDiffs) => {
+    this.setState({sheetDiffs: sheetDiffs})
   }
 
   offline = () => {
@@ -101,7 +101,7 @@ export default class App extends React.Component {
         break;
 
       case taskpaneStatus.DIFF:
-        toReturn = (<DiffScreen changes={this.state.changes}/>);
+        toReturn = (<DiffScreen sheetDiffs={this.state.sheetDiffs}/>);
         break;
 
 

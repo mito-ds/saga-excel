@@ -60,17 +60,17 @@ async function merge(event) {
 }
 
 async function catchUp(event) {
-  const changes = await runCatchUp()
-  console.log(changes);
+  const sheetDiffs = await runCatchUp()
+  console.log("Sheetdiffs", sheetDiffs);
   // We set the diff state as well
-  window.app.setChanges(changes);
+  window.app.setSheetDiffs(sheetDiffs);
   console.log("catching up in commands")
   window.app.setTaskpaneStatus(taskpaneStatus.DIFF);
   
   if (event) {
     event.completed();
   }
-  return changes;
+  return sheetDiffs;
 }
 
 async function switchVersion(event) {

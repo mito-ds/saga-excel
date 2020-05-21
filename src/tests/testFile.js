@@ -13,7 +13,7 @@ import { runResolveMergeConflicts }  from "../saga/merge";
 
 /* global Excel */
 
-/*
+
 async function getItemRangeValues(context, itemName) {
     const worksheet = context.workbook.worksheets.getItem(`saga`);
     const storedItem = worksheet.names.getItem(itemName);
@@ -241,7 +241,7 @@ export async function testMergeConflict() {
     //TODO: Ensure that a new commit is made on master so that sync works
     return true;
 }
-*/
+
 export async function testDiff() {
     
     // Load scenario
