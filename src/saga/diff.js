@@ -101,9 +101,7 @@ export function simpleDiff2D(initialValue, finalValues, sheetName) {
     return {sheet: sheetName, changes: changes}
 }
 
-
-
-export async function diff(context, initialCommit, finalCommit) {
+async function diff(context, initialCommit, finalCommit) {
     /*
     - create a project
     - get sheets from each commit 
@@ -127,18 +125,17 @@ export async function diff(context, initialCommit, finalCommit) {
     const initialSheets = removePrefix(initialCommitSheets, initialCommitPrefix);
     const finalSheets = removePrefix(finalCommitSheets, finalCommitPrefix);
 
-
-
-
-    // r
-
-    // Calculate the diff between the sheets
-
-
 }
 
+async function catchUp(context) {
+    console.log("here")
+}
 
 
 export async function runDiff(initialCommit, finalCommit) {
     return runOperation(diff, initialCommit, finalCommit);
+}
+
+export async function runCatchUp() {
+    return runOperation(catchUp);
 }

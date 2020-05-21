@@ -62,6 +62,23 @@
                   </Action>
                   <Enabled>true</Enabled>
                 </Control>
+                <!--Catch Up Buttion-->
+                <Control xsi:type="Button" id="CatchUpButton">
+                  <Label resid="CatchUpButton.Label"/>
+                  <Supertip>
+                    <Title resid="CatchUpButton.Label"/>
+                    <Description resid="CatchUpButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="MergeButtonIcon.16x16"/>
+                    <bt:Image size="32" resid="MergeButtonIcon.32x32"/>
+                    <bt:Image size="80" resid="MergeButtonIcon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>catchUp</FunctionName>
+                  </Action>
+                  <Enabled>true</Enabled>
+                </Control>
                 <!--Switch Version Button-->
                 <Control xsi:type="Button" id="VersionButton">
                   <Label resid="VersionButton.Label"/>
@@ -165,6 +182,7 @@
         <bt:String id="CommandsGroup.Label" DefaultValue="Commands Group"/>
         <bt:String id="TaskpaneButton.Label" DefaultValue="Create Saga Project"/>
         <bt:String id="MergeButton.Label" DefaultValue="Merge Versions"/>
+        <bt:String id="CatchUpButton.Label" DefaultValue="Catch Up"/>
         <bt:String id="VersionButton.Label" DefaultValue="Switch Versions"/>
         <bt:String id="ResetPersonalButton.Label" DefaultValue="Reset Personal"/>
         <bt:String id="ShareProjectButton.Label" DefaultValue="Share Project"/>
@@ -173,6 +191,7 @@
         <bt:String id="GetStarted.Description" DefaultValue="Saga has loaded succesfully. Go to the HOME tab and click the 'Saga VCS' button to get started."/>
         <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Click to create a Saga project"/>
         <bt:String id="MergeButton.Tooltip" DefaultValue="Click to Merge your personal version into master"/>
+        <bt:String id="CatchUpButton.Tooltip" DefaultValue="Click to catch up on changes made to master"/>
         <bt:String id="VersionButton.Tooltip" DefaultValue="Click to switch to a different version"/>
         <bt:String id="ResetPersonalButton.Tooltip" DefaultValue="Click to reset your personal branch to master"/>
         <bt:String id="ShareProjectButton.Tooltip" DefaultValue="Click to see project sharing link"/>
