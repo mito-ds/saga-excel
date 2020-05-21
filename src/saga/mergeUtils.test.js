@@ -1,5 +1,7 @@
 import { simpleMerge2D } from "./mergeUtils";
 import { conflictType } from "../constants";
+import { simpleDiff2D } from "./diff";
+
 
 /* global test, expect */
 
@@ -104,6 +106,7 @@ test('simple merge add one row conflicting with non coflicting elements', () => 
 test('simple merge add one element conflicting', () => {
     expect(simpleMerge2D([[1]], [[1, 2]], [[1, 2]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, 2]], conflicts: []});
 })
+
 
 
 
