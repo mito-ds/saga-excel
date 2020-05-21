@@ -68,4 +68,13 @@ export const headerSize = {
     LARGE: "large"
 }
 
+/*
+    The type of change identified through the diff algorithm
+*/
+export const changeType = {
+    MODIFIED: "modified",
+    INSERTED: "inserted",
+    DELETED: "deleted"
+}
+
 export const TEST_URL = "test_url";

@@ -6,6 +6,8 @@
 import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
 import { runResetPersonalVersion } from "../saga/resetPersonal.js"
 import { runMerge } from "../saga/merge.js"
+import { runCatchUp } from "../saga/diff.js"
+
 import { taskpaneStatus, mergeState } from "../constants";
 
 /* global global, Office, Excel */
@@ -57,6 +59,15 @@ async function merge(event) {
   return mergeResult;
 }
 
+async function catchUp(event) {
+  const changes = await runCatchUp()
+  console.log(changes)
+  if (event) {
+    event.completed();
+  }
+  return changes
+}
+
 async function switchVersion(event) {
   // Todo: render message saying which branch they are on
   await runSwitchVersionFromRibbon();
@@ -89,3 +100,4 @@ g.merge = merge;
 g.switchVersion = switchVersion;
 g.resetPersonalVersion = resetPersonalVersion;
 g.openShareTaskpane = openShareTaskpane;
+g.catchUp = catchUp;

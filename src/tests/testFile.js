@@ -5,7 +5,7 @@ import { strict as assert } from 'assert';
 import { item, mergeState, taskpaneStatus } from '../constants';
 import { runCleanup } from "../saga/cleanup";
 import { getGlobal } from "../commands/commands";
-import { TEST_URL } from "../constants";
+import { TEST_URL, changeType } from "../constants";
 import * as scenarios from "../../scenarios";
 import { runReplaceFromBase64 } from "../saga/create";
 import { runResolveMergeConflicts }  from "../saga/merge";
@@ -13,7 +13,7 @@ import { runResolveMergeConflicts }  from "../saga/merge";
 
 /* global Excel */
 
-
+/*
 async function getItemRangeValues(context, itemName) {
     const worksheet = context.workbook.worksheets.getItem(`saga`);
     const storedItem = worksheet.names.getItem(itemName);
@@ -203,7 +203,6 @@ export async function testMergeConflict() {
 
 
     // Check that the conflict is correct
-    console.log("passed")
     const mergeConflictData = mergeResult.mergeConflictData;
     
     assert.equal(mergeConflictData[0].sheet, "Sheet2", "should contain conflicts on Sheet 2")
@@ -240,10 +239,36 @@ export async function testMergeConflict() {
     assert.equal(masterSheet2A1, "O-S2-A1", "should have correctly updated the master sheet2 A1")
 
     //TODO: Ensure that a new commit is made on master so that sync works
-
-    
     return true;
+}
+*/
+export async function testDiff() {
+    
+    // Load scenario
+    const fileContents = scenarios["twoPageUnmergedConflict"].fileContents;
+    await runReplaceFromBase64(fileContents)
 
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Perform a merge
+    const g = getGlobal();
+    const catchUpResult = await g.catchUp();
+    console.log(catchUpResult)
+
+    // Check that the changes are correct
+    assert.equal(catchUpResult[0].sheetName, "Sheet1", "should return changes on sheet1")
+    assert.equal(catchUpResult[0].changeType, changeType.MODIFIED, "should have changes on sheet1")
+    assert.equal(catchUpResult[0].changes[0].sheetName, "Sheet1", "change should be on sheet1")
+    assert.equal(catchUpResult[0].changes[0].cell, "A1", "change should be at A1")
+    assert.equal(catchUpResult[0].changes[0].initialValue, "", "initial value should be empty")
+    assert.equal(catchUpResult[0].changes[0].finalValue, "M-S1-A1", "final value should be M-S1-A1")
+
+    assert.equal(catchUpResult[1].sheetName, "Sheet2", "should return changes on sheet2")
+    assert.equal(catchUpResult[1].changeType, changeType.INSERTED, "should have inserted sheet2")
+    assert.equal(catchUpResult[1].changes.length, 0, "should have no changes on sheet2")
+
+    return true;
 }
 
 /*

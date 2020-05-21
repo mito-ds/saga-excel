@@ -1,5 +1,5 @@
 import { commit } from './commit';
-import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets } from "./sagaUtils";
+import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets, getCommitSheets } from "./sagaUtils";
 import { simpleMerge2D } from "./mergeUtils";
 import { updateShared } from "./sync";
 import Project from "./Project";
@@ -25,8 +25,6 @@ function toColumnName(num) {
 // Resolve merge conflicts by updating the given cells with their given values
 async function resolveMergeConflicts(context, resolutions) {
     const worksheets = context.workbook.worksheets;
-
-    console.log(resolutions)
 
     const sheetsResolutionsArray = Object.entries(resolutions);
     
@@ -65,12 +63,6 @@ async function resolveMergeConflicts(context, resolutions) {
 
     return {status: mergeState.MERGE_SUCCESS, conflicts: null};
 } 
-
-const getCommitSheets = (sheets, commitID) => {
-    return sheets.filter(sheet => {
-        return sheet.name.startsWith(`saga-${commitID}`);
-    })
-}
 
 const getNonsagaSheets = (sheets) => {
     return sheets.filter(sheet => {
@@ -236,9 +228,9 @@ const doMerge = async (context, formattingEvents) => {
     
     const sheets = await project.getSheetsWithNames();
 
-    const masterSheets = getCommitSheets(sheets, masterCommitID);
+    const masterSheets = await getCommitSheets(sheets, masterCommitID);
     const personalSheets = getNonsagaSheets(sheets);
-    const originSheets = getCommitSheets(sheets, originCommitID);
+    const originSheets = await getCommitSheets(sheets, originCommitID);
 
     console.log("MASTER SHEETS", masterSheets);
     console.log("PERSONAL SHEETS", personalSheets);
