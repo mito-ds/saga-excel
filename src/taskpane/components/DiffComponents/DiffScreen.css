@@ -1,0 +1,14 @@
+.title-subtext-div {
+  position: relative;
+  text-align: center;
+}
+
+.title-subtext {
+  position: relative;
+  font-size: 14px;
+}
+
+.diff-card-div {
+  position: relative;
+  margin-top: 5vh;
+}

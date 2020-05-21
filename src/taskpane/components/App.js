@@ -9,6 +9,7 @@ import { StatusContext } from "./StatusContext";
 import { taskpaneStatus, mergeState } from "../../constants";
 
 import './App.css';
+import DiffScreen from "./DiffComponents/DiffScreen";
 
 /* global */
 
@@ -79,6 +80,7 @@ export default class App extends React.Component {
 
     // TODO: check if office is initialized, and that we are online
     var toReturn;
+    
 
     switch(this.state.taskpaneStatus) {
       case taskpaneStatus.DEVELOPMENT:
@@ -118,6 +120,8 @@ export default class App extends React.Component {
           );
         }
     }
+
+    toReturn = (<DiffScreen/>)
     
     return (
       <StatusContext.Provider value={{status: this.state.taskpaneStatus, setStatus: this.setTaskpaneStatus}}>
