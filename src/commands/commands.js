@@ -67,7 +67,10 @@ async function catchUp(event) {
   console.log("catching up in commands")
   window.app.setTaskpaneStatus(taskpaneStatus.DIFF);
   
-  event.completed();
+  if (event) {
+    event.completed();
+  }
+  return changes;
 }
 
 async function switchVersion(event) {

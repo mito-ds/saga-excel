@@ -15,14 +15,14 @@ function getDiff() {
                 {
                     sheet: "Sheet1",
                     cell: "A1",
-                    initialElement: "55",
-                    finalElement: "60"
+                    initialValue: "55",
+                    finalValue: "60"
                 },
                 {
                     sheet: "Sheet1",
                     cell: "B1",
-                    initialElement: "10",
-                    finalElement: "100"
+                    initialValue: "10",
+                    finalValue: "100"
                 }
             ]
         },
@@ -61,7 +61,7 @@ export default class DiffScreen extends React.Component {
     let sheetComponents = [];
     diffs.forEach((sheetDiff) => {
         sheetComponents.push(
-            <DiffSheet key={sheetDiff.sheet} sheetDiff={sheetDiff}/>
+            <DiffSheet key={sheetDiff.sheetName} sheetDiff={sheetDiff}/>
         )  
     })
 

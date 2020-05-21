@@ -6,10 +6,10 @@ import { runSelectCell }  from "../../../saga/sagaUtils.js";
 
 export default function Diff(props) {
 
-    const sheetName = props.diff.sheet;
+    const sheetName = props.diff.sheetName;
     const cell = props.diff.cell;
-    const initialElement = props.diff.initialElement;
-    const finalElement = props.diff.finalElement;
+    const initialValue = props.diff.initialValue;
+    const finalValue = props.diff.finalValue;
 
     console.log(`Sheetname: ${props.diff}`)
 
@@ -17,17 +17,17 @@ export default function Diff(props) {
 
     const oldBox = (
         <div className="boxed old">
-            {initialElement}
+            {initialValue}
         </div>   
     )
 
     const newBox = (
         <div className="boxed new">
-            {finalElement}
+            {finalValue}
         </div>  
     )
 
-    console.log("initialElement", initialElement);
+    console.log("initialValue", initialValue);
 
     return (
         <div className="sub-card">
@@ -38,8 +38,8 @@ export default function Diff(props) {
                     </div>
                 </div>
                 <div className="options-div">
-                    {initialElement !== "" ? oldBox : null }
-                    {finalElement !== "" ? newBox : null }
+                    {initialValue !== "" ? oldBox : null }
+                    {finalValue !== "" ? newBox : null }
                 </div>   
             </div>
         </div>

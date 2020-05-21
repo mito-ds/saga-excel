@@ -1,4 +1,5 @@
 import { simpleDiff2D } from "./diff";
+import { changeType } from '../constants'
 
 /* global test, expect */
 
@@ -7,139 +8,128 @@ import { simpleDiff2D } from "./diff";
 */
 
 test('simple diff2D all empty', () => {
-    expect(simpleDiff2D([[]], [[]], "Sheet1")).toEqual({sheet: "Sheet1", changes: []});
+    expect(simpleDiff2D([[]], [[]], "Sheet1")).toEqual({sheetName: "Sheet1", changeType: changeType.MODIFIED, changes: []});
 })
 
 test('simple diff2D no changes', () => {
-    expect(simpleDiff2D([[1]], [[1]], "Sheet1")).toEqual({sheet: "Sheet1", changes: []});
+    expect(simpleDiff2D([[1]], [[1]], "Sheet1")).toEqual({sheetName: "Sheet1", changeType: changeType.MODIFIED, changes: []});
 })
 
 test('simple diff2D one change', () => {
     const change = [{
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "A1",
-        initialElement: 1, 
-        finalElement: 2
+        initialValue: 1, 
+        finalValue: 2
     }]
-    expect(simpleDiff2D([[1]], [[2]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
+    expect(simpleDiff2D([[1]], [[2]], "Sheet1")).toEqual({sheetName: "Sheet1", changeType: changeType.MODIFIED, changes: change});
 })
 
 test('simple diff2D multiple changes', () => {
     const change = [
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "A1",
-        initialElement: 1, 
-        finalElement: 2
+        initialValue: 1, 
+        finalValue: 2
     },
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "B1",
-        initialElement: 3, 
-        finalElement: 4
+        initialValue: 3, 
+        finalValue: 4
     }]
-    expect(simpleDiff2D([[1, 3]], [[2, 4]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
+    expect(simpleDiff2D([[1, 3]], [[2, 4]], "Sheet1")).toEqual({sheetName: "Sheet1", changeType: changeType.MODIFIED, changes: change});
 })
 
 test('simple diff2D multiple changes in multiple rows', () => {
     const change = [
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "A1",
-        initialElement: 1, 
-        finalElement: 5
+        initialValue: 1, 
+        finalValue: 5
     },
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "B1",
-        initialElement: 2, 
-        finalElement: 6
+        initialValue: 2, 
+        finalValue: 6
     }, 
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "A2",
-        initialElement: 3, 
-        finalElement: 7
+        initialValue: 3, 
+        finalValue: 7
     },
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "B2",
-        initialElement: 4, 
-        finalElement: 8
+        initialValue: 4, 
+        finalValue: 8
     }]
-    expect(simpleDiff2D([[1, 2], [3, 4]], [[5, 6], [7, 8]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
+    expect(simpleDiff2D([[1, 2], [3, 4]], [[5, 6], [7, 8]], "Sheet1")).toEqual({sheetName: "Sheet1", changeType: changeType.MODIFIED, changes: change});
 })
 
 test('simple diff2D multiple changes with deleted values', () => {
     const change = [
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "A1",
-        initialElement: 1, 
-        finalElement: 5
+        initialValue: 1, 
+        finalValue: 5
     },
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "B2",
-        initialElement: 4, 
-        finalElement: ""
+        initialValue: 4, 
+        finalValue: ""
     }]
-    expect(simpleDiff2D([[1, 2], [3, 4]], [[5, 2], [3, ""]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
+    expect(simpleDiff2D([[1, 2], [3, 4]], [[5, 2], [3, ""]], "Sheet1")).toEqual({sheetName: "Sheet1", changeType: changeType.MODIFIED, changes: change});
 })
 
 test('simple diff2D added row', () => {
     const change = [
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "A2",
-        initialElement: "", 
-        finalElement: 3
+        initialValue: "", 
+        finalValue: 3
     },
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "B2",
-        initialElement: "", 
-        finalElement: 4
+        initialValue: "", 
+        finalValue: 4
     }]
-    expect(simpleDiff2D([[1, 2]], [[1, 2], [3, 4]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
+    expect(simpleDiff2D([[1, 2]], [[1, 2], [3, 4]], "Sheet1")).toEqual({sheetName: "Sheet1", changeType: changeType.MODIFIED, changes: change});
 })
 
 test('simple diff2D deleted added row', () => {
     const change = [
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "A2",
-        initialElement: 3, 
-        finalElement: ""
+        initialValue: 3, 
+        finalValue: ""
     },
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "B2",
-        initialElement: 4, 
-        finalElement: ""
+        initialValue: 4, 
+        finalValue: ""
     }]
-    expect(simpleDiff2D([[1, 2], [3, 4]], [[1, 2]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
+    expect(simpleDiff2D([[1, 2], [3, 4]], [[1, 2]], "Sheet1")).toEqual({sheetName: "Sheet1", changeType: changeType.MODIFIED, changes: change});
 })
 
 test('simple diff2D deleted sheet', () => {
     const change = [
     {
-        sheet: "Sheet1",
+        sheetName: "Sheet1",
         cell: "A1",
-        initialElement: 1, 
-        finalElement: ""
+        initialValue: 1, 
+        finalValue: ""
     }]
-    expect(simpleDiff2D([[1]], [], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
-})
-
-test('simple diff2D added sheet', () => {
-    const change = [
-    {
-        sheet: "Sheet1",
-        cell: "A1",
-        initialElement: "", 
-        finalElement: 1
-    }]
-    expect(simpleDiff2D([], [[1]], "Sheet1")).toEqual({sheet: "Sheet1", changes: change});
+    expect(simpleDiff2D([[1]], [], "Sheet1")).toEqual({sheetName: "Sheet1", changeType: changeType.MODIFIED, changes: change});
 })
 

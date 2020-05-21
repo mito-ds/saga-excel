@@ -30,7 +30,7 @@ export default class DiffSheet extends React.Component {
     let diffArray = [];
 
     this.props.sheetDiff.changes.forEach((change, idx) => {
-        const key = change.sheet + idx;
+        const key = change.sheetName + idx;
         diffArray.push(
             (
             <Diff key={key} diff={change}/>)
@@ -51,7 +51,7 @@ export default class DiffSheet extends React.Component {
     const cardClass = "card " + changeColor[this.props.sheetDiff.changeType];
 
     // We then display the operation performed on top of the sheet name
-    const sheetName = `${this.props.sheetDiff.sheet} : ${this.props.sheetDiff.changeType}`
+    const sheetName = `${this.props.sheetDiff.sheetName} : ${this.props.sheetDiff.changeType}`
 
     return (
         <div className={cardClass}>
