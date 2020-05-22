@@ -10,7 +10,7 @@ import { headerSize } from "../../constants";
 */
 export default function Taskpane(props) {
     console.log(props)
-    if (props.header == headerSize.SMALL) {
+    if (props.header === headerSize.SMALL) {
         return (
             <div className="taskpane">
                 <TaskpaneHeaderSmall title={props.title}/>
@@ -22,15 +22,14 @@ export default function Taskpane(props) {
         );
     }
 
-    if (props.header == headerSize.LARGE) {
-        return (
-            <div className="taskpane">
-                <TaskpaneHeaderLarge title={props.title}/>
-                <div className="content">
-                    {props.children}
-                </div>
-                <TaskpaneFooter/>
+    // We default to large
+    return (
+        <div className="taskpane">
+            <TaskpaneHeaderLarge title={props.title}/>
+            <div className="content">
+                {props.children}
             </div>
-        );
-    } 
+            <TaskpaneFooter/>
+        </div>
+    );
 }
