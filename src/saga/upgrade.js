@@ -10,7 +10,7 @@ import { getFileContents } from "./fileUtils";
 async function upgrade(context) {
     const sagaSheet = context.workbook.worksheets.getItem("saga");
     
-    //Setup, name range for personal branch identifier
+    //Setup, name range for the version
     const versionRange = sagaSheet.getRange("A5");
     sagaSheet.names.add(item.VERSION, versionRange);
     versionRange.values = [["0.0.1"]];

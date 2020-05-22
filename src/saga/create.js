@@ -49,6 +49,11 @@ async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
     worksheet.names.add(item.LAST_CATCH_UP, lastCatchUpRange);
     lastCatchUpRange.values = [[firstCommitID]];
 
+    //Setup, name range for the version id
+    const versionRange = worksheet.getRange("A5");
+    worksheet.names.add(item.VERSION, versionRange);
+    versionRange.values = [["0.0.1"]];
+
     return context.sync();
 }
 
