@@ -9,7 +9,7 @@ import diffMedium from "./diffMedium.json"
 import diffSimple from "./diffSimple.json"
 import diffCrossSheet from "./diffCrossSheet.json"
 import addingColumnUnmerged from "./addingColumnUnmerged.json"
-
+import acrossSheetsDiff from "./acrossSheetsDiff.json"
 
 export {
     empty, 
@@ -22,5 +22,6 @@ export {
     diffMedium,
     diffSimple,
     diffCrossSheet,
-    addingColumnUnmerged
+    addingColumnUnmerged,
+    acrossSheetsDiff
 };
