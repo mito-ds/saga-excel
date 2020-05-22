@@ -8,11 +8,11 @@ import { getGlobal } from "../commands/commands";
 import { TEST_URL, changeType } from "../constants";
 import * as scenarios from "../../scenarios";
 import { runReplaceFromBase64 } from "../saga/create";
-import { runResolveMergeConflicts }  from "../saga/merge";
+import { runResolveMergeConflicts }  from "../saga/merge"; 
 import Project from "../saga/Project";
 /* global Excel */
 
-/*
+
 async function getItemRangeValues(context, itemName) {
     const worksheet = context.workbook.worksheets.getItem(`saga`);
     const storedItem = worksheet.names.getItem(itemName);
@@ -181,6 +181,64 @@ export async function testMergePreservesCrossSheetReferences() {
 
     assert.equal(sheet1A1, 10, "Wrong value in Sheet1!A1");
     assert.equal(sheet2A1, "=Sheet1!A1", "Wrong formula in Sheet2!A1");
+
+    return true;
+}
+
+export async function testOriginalEmptyMergeConflict() {
+    // Load scenario
+    const fileContents = scenarios["mergeConflictSimpleEmptyOrigin"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Perform a merge
+    const g = getGlobal();
+    const mergeResult = await g.merge();
+
+    const expected = 
+        {
+            mergeConflictData: [
+                {sheet: "Sheet1", result: [[5]], conflicts: 
+                    [
+                        {sheet: "Sheet1", cellOrRow: "A1", conflictType: "cell", a: 5, b: 10, o: ""}
+                    ]
+                }
+            ],
+            status: "merge_conflict"
+        }
+
+    // Check that the conflict is correct
+    assert.deepEqual(mergeResult, expected, "merge conflict did not return correct value")
+
+    // Then resolve merge conflicts
+    const resolutions = {"Sheet1": [{cellOrRow: "A1", value: "10"}]}
+    await runResolveMergeConflicts(resolutions)
+
+    // Check that merge conflicts are resolved correctly
+    const updatedValue= (await runOperation(getFormulas, "Sheet1", "A1"))[0][0];
+    assert.equal(updatedValue, 10, "updated to the wrong value")
+
+    return true;
+}
+
+export async function testAddingColumnMergeConflict() {
+    // Load scenario
+    const fileContents = scenarios["addingColumnUnmerged"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Perform a merge
+    const g = getGlobal();
+    const mergeResult = await g.merge();
+
+    console.log(mergeResult)
+
+    // Check that there is no merge conflict
+    assert.deepEqual(mergeResult, {}, "there was a merge conflict")
 
     return true;
 }
@@ -354,7 +412,7 @@ export async function testNoDiffAfterMerge() {
 
     return true;
 }
-*/
+
 export async function testDiffSimple() {
     // Load scenario
     const fileContents = scenarios["diffSimple"].fileContents;
@@ -407,6 +465,62 @@ export async function testDiffCrossSheet() {
     return true
 }
 
+export async function testDiffMedium() {
+    // Load scenario
+    const fileContents = scenarios["diffMedium"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Perform a merge
+    const g = getGlobal();
+    const catchUpResult = await g.catchUp();
+
+    const expected = [
+        {sheetName: "Model", changeType: "Modified", changes: 
+            [
+                {sheetName: "Model", cell: "B2", initialValue: 1, finalValue: 1.3},
+                {sheetName: "Model", cell: "A3", initialValue: 2, finalValue: "= A2 + 1"},
+                {sheetName: "Model", cell: "A4", initialValue: 3, finalValue: "= A3 + 1"},
+                {sheetName: "Model", cell: "A5", initialValue: 4, finalValue: "= A4 + 1"},
+                {sheetName: "Model", cell: "A6", initialValue: 5, finalValue: "= A5 + 1"},
+                {sheetName: "Model", cell: "A7", initialValue: 6, finalValue: "= A6 + 1"},
+                {sheetName: "Model", cell: "B7", initialValue: 1.95, finalValue: 2.5},
+                {sheetName: "Model", cell: "A8", initialValue: 7, finalValue: "= A7 + 1"},
+                {sheetName: "Model", cell: "A9", initialValue: 8, finalValue: "= A8 + 1"},
+                {sheetName: "Model", cell: "A10", initialValue: 9, finalValue: "= A9 + 1"},
+                {sheetName: "Model", cell: "A11", initialValue: 10, finalValue: "= A10 + 1"},
+                {sheetName: "Model", cell: "A12", initialValue: 11, finalValue: "= A11 + 1"},
+                {sheetName: "Model", cell: "A13", initialValue: 12, finalValue: "= A12 + 1"},
+                {sheetName: "Model", cell: "A14", initialValue: 13, finalValue: "= A13 + 1"},
+                {sheetName: "Model", cell: "A15", initialValue: 14, finalValue: "= A14 + 1"},
+                {sheetName: "Model", cell: "A16", initialValue: 15, finalValue: "= A15 + 1"},
+                {sheetName: "Model", cell: "A17", initialValue: 16, finalValue: "= A16 + 1"},
+                {sheetName: "Model", cell: "A18", initialValue: 17, finalValue: "= A17 + 1"},
+                {sheetName: "Model", cell: "A19", initialValue: 18, finalValue: "= A18 + 1"},
+                {sheetName: "Model", cell: "A20", initialValue: 19, finalValue: "= A19 + 1"},
+                {sheetName: "Model", cell: "A21", initialValue: 20, finalValue: "= A20 + 1"},
+                {sheetName: "Model", cell: "A22", initialValue: "", finalValue: "= A21 + 1"},
+                {sheetName: "Model", cell: "B22", initialValue: "", finalValue: 7},
+                {sheetName: "Model", cell: "C22", initialValue: "", finalValue: "=(B22-B21) / B21"}
+            ]
+        },
+        {sheetName: "Outputs", changeType: "Modified", changes: 
+            [
+                {sheetName: "Outputs", cell: "A1", initialValue: "Average Yearly Growth ", finalValue: "Avg. Yearly Growth "},
+                {sheetName: "Outputs", cell: "B1", initialValue: "= AVERAGE(Model!C3:C21)", finalValue: "= AVERAGE(Model!C3:C22)"},
+                {sheetName: "Outputs", cell: "B2", initialValue: "= MAX(Model!C3:C21)", finalValue: "= MAX(Model!C3:C21)"},
+                {sheetName: "Outputs", cell: "B3", initialValue: "= MIN(Model!C3:C21)", finalValue: "= MIN(Model!C3:C21)"}
+            ]
+        },
+        {sheetName: "Title", changeType: "Inserted", changes: []} 
+    ]
+
+    // Check that the changes are correct
+    assert.deepEqual(catchUpResult, expected, "catch up medium test failed");
+    return true
+}
 
 
 /*
