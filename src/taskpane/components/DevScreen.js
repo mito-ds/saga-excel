@@ -2,7 +2,7 @@ import * as React from "react";
 import Taskpane from "./Taskpane";
 import { StatusContext } from "./StatusContext";
 import { runCleanup } from "../../saga/cleanup";
-import { runTests } from "../../tests/runTests";
+import { runAllTests } from "../../tests/runTests";
 import { headerSize, TEST_URL } from "../../constants";
 import { runUpgradeAllScenarios } from "../../saga/upgrade";
 
@@ -53,7 +53,7 @@ export default function DevScreen(props) {
 
     return (
         <Taskpane header={headerSize.LARGE} title="Development Mode. NOTE: Run from an empty Excel workbook with no saga project">
-            <button onClick={runTests}> Run Tests </button>
+            <button onClick={runAllTests}> Run Tests </button>
             <button onClick={runCleanup}> Cleanup </button>
             <button onClick={runUpgradeAllScenarios}> Upgrade All Scenarios </button>
             <button onClick={createScenario}> Create Scenario from Current Workbook (check console) </button>
