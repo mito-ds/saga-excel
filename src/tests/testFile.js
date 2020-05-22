@@ -248,10 +248,12 @@ export async function testGetSetLastCatchUp() {
 
     // Then, we check that the last catch up is the first commit.
     let originalLastCatchUp;
+    let masterCommit;
     let newLastCatchUp;
     await runOperation(async (context) => {
         const project = new Project(context);
-        originalLastCatchUp = await project.getLastCatchUpCommitID()
+        originalLastCatchUp = await project.getLastCatchUpCommitID();
+        masterCommit = await project.getCommitIDFromBranch("master")
         
         // And we try and update it
         await project.setLastCatchUpCommitID("secondcommit")
@@ -259,7 +261,7 @@ export async function testGetSetLastCatchUp() {
 
     });
 
-    assert.equal(originalLastCatchUp, "firstcommit");
+    assert.equal(originalLastCatchUp, masterCommit);
     assert.equal(newLastCatchUp, "secondcommit");
     return true;
 }
