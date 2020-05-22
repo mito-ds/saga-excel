@@ -3,108 +3,58 @@ import { getCommitSheets, getFormulas, numToChar } from "./sagaUtils";
 import Project from "./Project";
 import { getSheetNamePairs, removePrefix, findInsertedSheets, findDeletedSheets, findModifiedSheets } from "./diffUtils";
 import { changeType } from '../constants'
-
-
-// handle diff detection when a row does not exist on one of the sheets
-function handleUndefinedRow(row, sheetName, rowIndex, isInitial) {
-    let changes = [];
-
-    for (var i = 0; i < row.length; i++) {
-        const value = row[i];
-
-        if (value !== "") {
-            const columnName = numToChar(i + 1);
-            const excelRow = rowIndex + 1;
-            const cell = columnName + excelRow;
-
-            if (isInitial) {
-                changes.push({
-                    sheetName: sheetName,
-                    cell: cell,
-                    initialValue: value, 
-                    finalValue: ""
-                });
-            } else {
-                changes.push({
-                    sheetName: sheetName,
-                    cell: cell,
-                    initialValue: "", 
-                    finalValue: value
-                });
-            }   
-        }
-    }
-    return changes;
-}
-
-// Find all of the differences between two lists
-function rowDiff (initialRow, finalRow, sheetName, rowIndex) {
-    let changes = [];
-
-    // if neither row exists, return
-    if (initialRow === undefined && finalRow === undefined) {
-        return changes;
-    }
-
-    // if initial row is undefined
-    if (initialRow === undefined) {
-        return handleUndefinedRow(finalRow, sheetName, rowIndex, false);
-    } 
-
-    // if final row is undefined
-    if (finalRow === undefined) {
-        return handleUndefinedRow(initialRow, sheetName, rowIndex, true);
-    }
-    
-    // iterate through the rows to find changes
-    const maxLength = Math.max(initialRow.length, finalRow.length);
-    for (var i = 0; i < maxLength; i++) {
-        var initialValue = initialRow[i];
-        var finalValue = finalRow[i];
-
-        // handle if the value is undefined
-        if (initialValue === undefined) {
-            initialValue = "";
-        }
-
-        if (finalValue === undefined) {
-            finalValue = "";
-        }
-        
-        // if the value changed, capture the change
-        if (initialValue !== finalValue) {
-            const columnName = numToChar(i + 1);
-            const excelRow = rowIndex + 1;
-            const cell = columnName + excelRow;
-
-            changes.push({
-                sheetName: sheetName,
-                cell: cell,
-                initialValue: initialValue, 
-                finalValue: finalValue
-            });
-        }
-    }
-    return changes;
-}
+import {ValueWrapper} from "./mergeUtils";
+import { commit } from './commit';
 
 // find all of the changes between two 2D array representations of a sheets
-export function simpleDiff2D(initialValue, finalValues, sheetName) {
-    const maxLength = Math.max(initialValue.length, finalValues.length);
+export function simpleDiff2D(initialValue, finalValues) {
 
-    var changes = [];
+    const maxNumRows = Math.max(initialValue.length, finalValues.length);
+    const maxNumCols = Math.max(initialValue[0] ? initialValue[0].length : 0, finalValues[0] ? finalValues[0].length : 0);
 
-    for (let i = 0; i < maxLength; i++) {
-        const initialRow = initialValue[i];
-        const finalRow = finalValues[i];
+    const initialValueWrapper = new ValueWrapper(initialValue);
+    const finalValueWrapper = new ValueWrapper(finalValues);
 
-        const differences = rowDiff(initialRow, finalRow, sheetName, i);
-        changes.push(...differences);
+
+    const changes = [];
+    for (let i = 0; i < maxNumRows; i++) {
+        for (let j = 0; j < maxNumCols; j++) {
+            const initialValue = initialValueWrapper.getCell(i, j);
+            const finalValue = finalValueWrapper.getCell(i, j);
+
+            const columnName = numToChar(j + 1);
+            const excelRow = i + 1;
+            const cell = columnName + excelRow;
+
+            if (initialValue !== finalValue) {
+                changes.push({
+                    cell: cell,
+                    initialValue: initialValue, 
+                    finalValue: finalValue
+                });
+            }
+
+        }
     }
 
-    console.log(`found changes: ${changes}`);
-    return {sheetName: sheetName, changeType: changeType.MODIFIED, changes: changes};
+    return changes;
 }
+
+function replaceFormulas(formulas, sheetName, commitSheetPrefix) {
+    for (let i = 0; i < formulas.length; i++) {
+        for (let j = 0; j < formulas[i].length; j++) {
+            let formula = formulas[i][j];
+            if (formula[0] === "=") {
+                // Then, it's a formula, and we try and replace
+                formula = formula.replaceAll("'" + commitSheetPrefix, "'");
+                // TODO: handle the case where there is no ' at the start of the formula
+            }
+            formulas[i][j] = formula;
+        }
+    }
+    return formulas;
+}
+
 
 // Finds cell level changes across two commits
 async function diff(context, initialCommit, finalCommit) {
@@ -130,9 +80,6 @@ async function diff(context, initialCommit, finalCommit) {
     const deletedSheetNames = findDeletedSheets(initialSheetNames, finalSheetNames);
     const modifiedSheetNames = findModifiedSheets(initialSheetNames, finalSheetNames);
 
-    console.log("inserted sheets", insertedSheetNames);
-    console.log("deleted sheets", deletedSheetNames);
-    console.log("modified sheets", modifiedSheetNames);
 
     const modifiedSheetNamePairs = getSheetNamePairs(modifiedSheetNames, initialCommitPrefix, finalCommitPrefix);
 
@@ -140,11 +87,34 @@ async function diff(context, initialCommit, finalCommit) {
 
     // Calculate changes on modified sheets
     for (var i = 0; i < modifiedSheetNamePairs.length; i++) {
-        const initialFormulas = await getFormulas(context, modifiedSheetNamePairs[i].initialSheet);
-        const finalFormulas = await getFormulas(context, modifiedSheetNamePairs[i].finalSheet);
+        let initialFormulas = await getFormulas(context, modifiedSheetNamePairs[i].initialSheetName);
+        let finalFormulas = await getFormulas(context, modifiedSheetNamePairs[i].finalSheetName);
 
-        const result = simpleDiff2D(initialFormulas, finalFormulas, modifiedSheetNamePairs[i].sheetName);
-        sheetChanges.push(result);
+        // We then normalize the formulas, so that they don't have references to saga commit sheets
+        initialFormulas = replaceFormulas(
+            initialFormulas, 
+            modifiedSheetNamePairs[i].sheetName, 
+            initialCommitPrefix
+        );
+
+        finalFormulas = replaceFormulas(
+            finalFormulas, 
+            modifiedSheetNamePairs[i].sheetName, 
+            finalCommitPrefix
+        );
+
+
+        const changes = simpleDiff2D(initialFormulas, finalFormulas);
+
+        // TODO: we can save if there are no changes, and just mark it as such
+        if (changes.length !== 0) {
+            sheetChanges.push({
+                sheetName: modifiedSheetNamePairs[i].sheetName,
+                changeType: changeType.MODIFIED, 
+                changes: changes
+            });
+
+        }
     }
 
     // Add change object for inserted sheets
@@ -174,18 +144,15 @@ async function catchUp(context) {
     const project = new Project(context);
 
     // For now, use the first commit in the project
-    const worksheets = context.workbook.worksheets;
-    const sagaWorksheet = worksheets.getItem('saga');
-    const firstCommitRange = sagaWorksheet.getRange("D2");
-    firstCommitRange.load("values");
-    await context.sync();
-
-    const initialCommit = firstCommitRange.values;
+    const lastCaughtUpCommitID = await project.getLastCatchUpCommitID();
     const finalCommit = await project.getCommitIDFromBranch("master");
 
-    const changes = await diff(context, initialCommit, finalCommit);
+    const changes = await diff(context, lastCaughtUpCommitID, finalCommit);
 
-    // TODO: Update last time user caught up to now
+    // We also update the alst time they caught up to now
+    // TODO: we might wanna do this after they approve the diff
+    await project.setLastCatchUpCommitID(finalCommit);
+
     return changes;
 }
 
