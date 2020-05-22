@@ -12,7 +12,7 @@ import { runResolveMergeConflicts }  from "../saga/merge";
 import Project from "../saga/Project";
 /* global Excel */
 
-
+/*
 async function getItemRangeValues(context, itemName) {
     const worksheet = context.workbook.worksheets.getItem(`saga`);
     const storedItem = worksheet.names.getItem(itemName);
@@ -332,8 +332,6 @@ export async function testMergeChangesLastCaughtUp() {
     return true;
 }
 
-
-
 export async function testNoDiffAfterMerge() {
     
     // Load scenario
@@ -356,6 +354,59 @@ export async function testNoDiffAfterMerge() {
 
     return true;
 }
+*/
+export async function testDiffSimple() {
+    // Load scenario
+    const fileContents = scenarios["diffSimple"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Perform a merge
+    const g = getGlobal();
+    const catchUpResult = await g.catchUp();
+
+    const expected = [
+        {sheetName: "Sheet1", changeType: "Modified", changes: 
+            [
+                {sheetName: "Sheet1", cell: "C1", initialValue: "", finalValue: "new-value"},
+                {sheetName: "Sheet1", cell: "A3", initialValue: 3, finalValue: "changed-value"}
+            ]
+        }, 
+        {sheetName: "Sheet2", changeType: "Inserted", changes: []}
+    ]
+
+    // Check that the changes are correct
+    assert.deepEqual(catchUpResult, expected, "diffs were different (haha) than expected");
+    return true
+}
+
+export async function testDiffCrossSheet() {
+    // Load scenario
+    const fileContents = scenarios["diffCrossSheet"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Perform a merge
+    const g = getGlobal();
+    const catchUpResult = await g.catchUp();
+
+    const expected = [
+        {sheetName: "Sheet2", changeType: "Modified", changes: 
+            [
+                {sheetName: "Sheet2", cell: "A1", initialValue: "= Sheet1!A1", finalValue: "= Sheet1!A1 + 1"},
+            ]
+        } 
+    ]
+
+    // Check that the changes are correct
+    assert.deepEqual(catchUpResult, expected, "cross sheet differences did not return correct result");
+    return true
+}
+
 
 
 /*
