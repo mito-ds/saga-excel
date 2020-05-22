@@ -79,16 +79,10 @@ async function diff(context, initialCommit, finalCommit) {
 
         const changes = simpleDiff2D(initialFormulas, finalFormulas, modifiedSheetNamePairs[i].sheetName);
 
-        // No changes, mark it as such
-        if (changes.length === 0) {
+        // TODO: we can save if there are no changes, and just mark it as such
+        if (changes.length !== 0) {
             sheetChanges.push({
-                sheetName: modifiedSheetNamePairs[i].initialSheet, 
-                changeType: changeType.NONE, 
-                changes: []
-            });
-        } else {
-            sheetChanges.push({
-                sheetName: modifiedSheetNamePairs[i].initialSheet, 
+                sheetName: modifiedSheetNamePairs[i].sheetName, 
                 changeType: changeType.MODIFIED, 
                 changes: changes
             });

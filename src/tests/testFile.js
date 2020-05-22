@@ -13,8 +13,6 @@ import Project from "../saga/Project";
 /* global Excel */
 
 
-/*
-
 async function getItemRangeValues(context, itemName) {
     const worksheet = context.workbook.worksheets.getItem(`saga`);
     const storedItem = worksheet.names.getItem(itemName);
@@ -332,7 +330,7 @@ export async function testMergeChangesLastCaughtUp() {
     return true;
 }
 
-*/
+
 
 export async function testNoDiffAfterMerge() {
     
