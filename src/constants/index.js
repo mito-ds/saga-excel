@@ -4,7 +4,8 @@ export const taskpaneStatus = {
     SHARE: 'share',
     MERGE: 'merge',
     OFFLINE: 'offline',
-    DEVELOPMENT: 'development'
+    DEVELOPMENT: 'development',
+    DIFF: 'diff'
 }
 
 /*
@@ -49,7 +50,9 @@ export const item = {
     BRANCHES: 'branches',
     COMMITS: 'commits',
     PERSONAL_BRANCH: 'personalBranchName',
-    REMOTE_URL: 'remote'
+    REMOTE_URL: 'remote',
+    LAST_CATCH_UP: "lastCatchUp",
+    VERSION: "version"
 }
 
 /*
@@ -72,9 +75,10 @@ export const headerSize = {
     The type of change identified through the diff algorithm
 */
 export const changeType = {
-    MODIFIED: "modified",
-    INSERTED: "inserted",
-    DELETED: "deleted"
+    NONE: "None",
+    MODIFIED: "Modified",
+    INSERTED: "Inserted",
+    DELETED: "Deleted"
 }
 
 export const TEST_URL = "test_url";

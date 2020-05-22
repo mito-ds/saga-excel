@@ -23,6 +23,9 @@ export async function resetPersonalVersion(context) {
     const masterCommitID = await project.getCommitIDFromBranch('master')
     await checkoutCommitID(context, masterCommitID);
 
+    // Update the last checked out value
+    await project.setLastCatchUpCommitID(masterCommitID);
+
     //Commit to personal branch
     await commit(context, "Automatic reset commit", `Reset personal branch from ${masterCommitID}`, personalBranchName);
     return context.sync();

@@ -11,6 +11,7 @@ import { taskpaneStatus, mergeState } from "../../constants";
 
 
 import './App.css';
+import DiffScreen from "./DiffComponents/DiffScreen";
 
 /* global Office */
 
@@ -24,7 +25,8 @@ export default class App extends React.Component {
       offline: false,
       taskpaneStatus: taskpaneStatus.CREATE,
       mergeState: mergeState.MERGE_SUCCESS,
-      mergeConflicts: null
+      mergeConflicts: null,
+      sheetDiffs: null
     };
 
     this.getTaskpaneStatus = this.getTaskpaneStatus.bind(this);
@@ -35,7 +37,7 @@ export default class App extends React.Component {
     this.offline = this.offline.bind(this);
     this.getMergeState = this.getMergeState.bind(this);
     this.setMergeState = this.setMergeState.bind(this);
-
+    this.setSheetDiffs = this.setSheetDiffs.bind(this);
   }
 
   getTaskpaneStatus = () => {
@@ -64,6 +66,10 @@ export default class App extends React.Component {
     
   setURL = (remoteURL) => {
     this.setState({remoteURL: remoteURL})
+  }
+
+  setSheetDiffs = (sheetDiffs) => {
+    this.setState({sheetDiffs: sheetDiffs})
   }
 
   offline = () => {
@@ -99,6 +105,7 @@ export default class App extends React.Component {
     }
 
     var toReturn;
+    
 
 
     switch(this.state.taskpaneStatus) {
@@ -113,6 +120,11 @@ export default class App extends React.Component {
       case taskpaneStatus.SHARE:
         toReturn = (<LinkScreen remoteURL={this.state.remoteURL}/>);
         break;
+
+      case taskpaneStatus.DIFF:
+        toReturn = (<DiffScreen sheetDiffs={this.state.sheetDiffs}/>);
+        break;
+
 
       case taskpaneStatus.CREATE:
         const step = this.state.step;
@@ -139,6 +151,7 @@ export default class App extends React.Component {
           );
         }
     }
+
     
     return (
       <StatusContext.Provider value={{status: this.state.taskpaneStatus, setStatus: this.setTaskpaneStatus}}>

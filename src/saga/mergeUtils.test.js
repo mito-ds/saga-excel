@@ -46,7 +46,7 @@ test('simple merge add row in b', () => {
 })
 
 test('simple merge add element and row non conflicting in b', () => {
-    expect(simpleMerge2D([[1]], [[1, 2]], [[1], [2]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, 2], [2]], conflicts: []});
+    expect(simpleMerge2D([[1]], [[1, 2]], [[1], [2]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, 2], [2, ""]], conflicts: []});
 })
 
 test('simple merge origin undefined and add element in a', () => {
@@ -67,6 +67,14 @@ test('simple merge add to same row after end of origin the same element', () => 
 
 test('simple merge add in different spaces in new row', () => {
     expect(simpleMerge2D([[1]], [[1, ""], [2, ""]], [[1, ""], ["", 3]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1, ""], [2, 3]], conflicts: []});
+})
+
+test('simple merge delete row second branch', () => {
+    expect(simpleMerge2D([[1], [2]], [[1], [2]], [[1]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [""]], conflicts: []});
+})
+
+test('simple merge delete row first branch', () => {
+    expect(simpleMerge2D([[1], [2]], [[1]], [[1], [2]], "Sheet1")).toEqual({sheet: "Sheet1", result: [[1], [""]], conflicts: []});
 })
 
 test('simple merge add to same row after end of origin different elements', () => {
