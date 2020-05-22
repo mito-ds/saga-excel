@@ -47,7 +47,7 @@ async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
     // Setup, name range for last catch up commit
     const lastCatchUpRange = worksheet.getRange("A4");
     worksheet.names.add(item.LAST_CATCH_UP, lastCatchUpRange);
-    lastCatchUpRange.values = [["firstcommit"]];
+    lastCatchUpRange.values = [[firstCommitID]];
 
     return context.sync();
 }
@@ -112,7 +112,7 @@ export async function setPersonalBranchName(personalBranchName) {
 /*
   Replaces the current workbook with the given base 64 string
 */
-async function replaceFromBase64(context, fileContents) {
+export async function replaceFromBase64(context, fileContents) {
 
   const project = new Project(context);
   const sheets = await project.getSheetsWithNames();

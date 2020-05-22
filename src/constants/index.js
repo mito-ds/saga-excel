@@ -51,7 +51,8 @@ export const item = {
     COMMITS: 'commits',
     PERSONAL_BRANCH: 'personalBranchName',
     REMOTE_URL: 'remote',
-    LAST_CATCH_UP: "lastCatchUp"
+    LAST_CATCH_UP: "lastCatchUp",
+    VERSION: "version"
 }
 
 /*
