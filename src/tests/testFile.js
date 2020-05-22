@@ -13,6 +13,8 @@ import Project from "../saga/Project";
 /* global Excel */
 
 
+/*
+
 async function getItemRangeValues(context, itemName) {
     const worksheet = context.workbook.worksheets.getItem(`saga`);
     const storedItem = worksheet.names.getItem(itemName);
@@ -241,36 +243,6 @@ export async function testMergeConflict() {
     return true;
 }
 
-export async function testDiff() {
-    
-    // Load scenario
-    const fileContents = scenarios["twoPageUnmergedConflict"].fileContents;
-    await runReplaceFromBase64(fileContents)
-
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
-    // Perform a merge
-    const g = getGlobal();
-    const catchUpResult = await g.catchUp();
-    console.log(catchUpResult)
-
-    // Check that the changes are correct
-    assert.equal(catchUpResult[0].sheetName, "Sheet1", "should return changes on sheet1")
-    assert.equal(catchUpResult[0].changeType, changeType.MODIFIED, "should have changes on sheet1")
-    assert.equal(catchUpResult[0].changes[0].sheetName, "Sheet1", "change should be on sheet1")
-    assert.equal(catchUpResult[0].changes[0].cell, "A1", "change should be at A1")
-    assert.equal(catchUpResult[0].changes[0].initialValue, "", "initial value should be empty")
-    assert.equal(catchUpResult[0].changes[0].finalValue, "M-S1-A1", "final value should be M-S1-A1")
-
-    assert.equal(catchUpResult[1].sheetName, "Sheet2", "should return changes on sheet2")
-    assert.equal(catchUpResult[1].changeType, changeType.INSERTED, "should have inserted sheet2")
-    assert.equal(catchUpResult[1].changes.length, 0, "should have no changes on sheet2")
-
-    return true;
-}
-
-
 export async function testGetSetLastCatchUp() {
 
     // First, we create the project
@@ -360,6 +332,8 @@ export async function testMergeChangesLastCaughtUp() {
     return true;
 }
 
+*/
+
 export async function testNoDiffAfterMerge() {
     
     // Load scenario
@@ -377,10 +351,12 @@ export async function testNoDiffAfterMerge() {
     await g.merge();
 
     const newDiffs = await g.catchUp();
+    console.log("NEW DIFFS", newDiffs);
     assert.equal(newDiffs.length, 0, "There should be no diffs to catch up on after a merge");
 
     return true;
 }
+
 
 /*
     TODO:
