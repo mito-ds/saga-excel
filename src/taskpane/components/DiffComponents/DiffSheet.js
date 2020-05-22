@@ -26,7 +26,9 @@ export default class DiffSheet extends React.Component {
       
         let diffArray = [];
         this.props.sheetDiff.changes.forEach((change, idx) => {
-            diffArray.push((<Diff key={change.sheetName + idx} diff={change}/>))
+            diffArray.push((
+            <Diff key={change.sheetName + idx} sheetName={this.props.sheetDiff.sheetName} diff={change}/>
+            ))
         })
 
         // Color the sheet card differently, depending on how it was edited
