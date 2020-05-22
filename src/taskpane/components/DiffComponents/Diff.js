@@ -16,13 +16,13 @@ export default function Diff(props) {
     console.log(props.diff)
 
     const oldBox = (
-        <div className="boxed old">
+        <div className="diff-boxed old">
             {initialValue}
         </div>   
     )
 
     const newBox = (
-        <div className="boxed new">
+        <div className="diff-boxed new">
             {finalValue}
         </div>  
     )

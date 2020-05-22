@@ -33,7 +33,7 @@
     margin-right: 3vw;
 }
 
-.boxed {
+.diff-boxed {
     display: block;
     padding: 2px;
     border: solid 2px #ccc;
