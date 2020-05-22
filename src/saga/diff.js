@@ -2,7 +2,7 @@ import { runOperation } from './runOperation';
 import { getCommitSheets, getFormulas, numToChar } from "./sagaUtils";
 import Project from "./Project";
 import { getSheetNamePairs, removePrefix, findInsertedSheets, findDeletedSheets, findModifiedSheets } from "./diffUtils";
-import { changeType } from '../constants'
+import { changeType } from '../constants';
 import {ValueWrapper} from "./mergeUtils";
 
 // find all of the changes between two 2D array representations of a sheets
@@ -70,7 +70,7 @@ async function diff(context, initialCommit, finalCommit) {
 
     const modifiedSheetNamePairs = getSheetNamePairs(modifiedSheetNames, initialCommitPrefix, finalCommitPrefix);
 
-    let sheetChanges = []
+    let sheetChanges = [];
 
     // Calculate changes on modified sheets
     for (var i = 0; i < modifiedSheetNamePairs.length; i++) {

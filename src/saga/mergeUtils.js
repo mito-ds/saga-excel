@@ -29,7 +29,7 @@ export class ValueWrapper {
 export function simpleMerge2D(origin, aValues, bValues, sheetName) {
 
     const maxNumRows = Math.max(origin.length, aValues.length, bValues.length);
-    const maxNumCols = Math.max(origin[0] ? origin[0].length : 0, aValues[0] ? aValues[0].length : 0, bValues[0] ? bValues[0].length : 0)
+    const maxNumCols = Math.max(origin[0] ? origin[0].length : 0, aValues[0] ? aValues[0].length : 0, bValues[0] ? bValues[0].length : 0);
 
     const oValueWrapper = new ValueWrapper(origin);
     const aValueWrapper = new ValueWrapper(aValues);
@@ -48,7 +48,7 @@ export function simpleMerge2D(origin, aValues, bValues, sheetName) {
             if (aElement === bElement) {
                 row.push(aElement);
             } else if (oElement === aElement) {
-                row.push(bElement)
+                row.push(bElement);
             } else if (oElement === bElement) {
                 row.push(aElement);
             } else {
@@ -66,7 +66,7 @@ export function simpleMerge2D(origin, aValues, bValues, sheetName) {
                     a: aElement,
                     b: bElement,
                     o: oElement
-                })
+                });
             }
         }
         result.push(row);

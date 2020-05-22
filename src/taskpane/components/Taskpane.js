@@ -9,7 +9,7 @@ import { headerSize } from "../../constants";
     This component wraps a single screen. Takes a title and a single screen as a child.
 */
 export default function Taskpane(props) {
-    console.log(props)
+    console.log(props);
     if (props.header == headerSize.SMALL) {
         return (
             <div className="taskpane">

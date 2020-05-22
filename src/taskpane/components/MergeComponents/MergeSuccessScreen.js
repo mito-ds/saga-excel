@@ -14,6 +14,6 @@ export default class MergeSuccessScreen extends React.Component {
   render() {
     return (
       <Taskpane header={headerSize.LARGE} title="Your merge was successful."/>
-    )
+    );
   }
 }

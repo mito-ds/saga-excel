@@ -22,9 +22,9 @@ export async function runTests() {
         }
 
         if (success) {
-            results += "."
+            results += ".";
         } else {
-            results += "F"
+            results += "F";
             numFailed++;
             if (!(testNames[i] in failed)) {
                 failed[testNames[i]] = false;

@@ -11,6 +11,6 @@ export default class TaskpaneHeaderLarge extends React.Component {
                 <img className="saga-logo-small" src="assets/saga-logo/saga-logo-80.png"/>
                 <p className="title-text-small" id="title-text" >{this.props.title}</p>
             </div>
-        )
+        );
     }
 }
