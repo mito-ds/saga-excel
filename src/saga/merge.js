@@ -2,8 +2,9 @@ import { commit } from './commit';
 import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets, getCommitSheets } from "./sagaUtils";
 import { simpleMerge2D } from "./mergeUtils";
 import { updateShared } from "./sync";
+import { checkoutCommitID } from "./checkout";
 import Project from "./Project";
-import { runOperation } from './runOperation';
+import { runOperation, runOperationHandleError } from './runOperation';
 import { makeClique } from "./commit";
 import { mergeState, branchState } from '../constants';
 
@@ -517,9 +518,33 @@ export async function merge(context, formattingEvents) {
     return mergeConflict ? {status: mergeState.MERGE_CONFLICT, mergeConflictData: mergeData} : {status: mergeState.MERGE_SUCCESS, mergeConflictData: null};
 }
 
+/*
+    If there is an error during the execution of a merge, we hope it is after
+    the check in of the personal branch, and try to roll back to that commit. 
+
+    If that fails, we give up... TODO?
+*/
+async function handleMergeError(error) {
+    try {
+        await Excel.run(async (context) => {
+            const project = new Project(context);
+            const personalBranch = await project.getPersonalBranch();
+            const personalHeadCommit = await project.getCommitIDFromBranch(personalBranch);
+
+            await checkoutCommitID(context, personalHeadCommit);
+        });
+        return {status: mergeState.MERGE_ERROR, mergeConflictData: null};;
+    } catch (error) {
+        // TODO: we should change so it returns a "critical error here", or something
+
+        console.log(error);
+    }
+    return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
+}
+
+
 export async function runMerge(formattingEvents) {
-    console.log("INSIDE Run MERGE")
-    return runOperation(merge, formattingEvents);
+    return runOperationHandleError(merge, handleMergeError, formattingEvents);
 }
 
 export async function runResolveMergeConflicts(resolutions) {
