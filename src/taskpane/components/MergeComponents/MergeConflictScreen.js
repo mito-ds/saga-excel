@@ -4,6 +4,8 @@ import Taskpane from "../Taskpane";
 import { headerSize, mergeState } from "../../../constants";
 import MergeConflict from "./MergeConflict";
 import { runResolveMergeConflicts }  from "../../../saga/merge";
+import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
+
 
 import './MergeConflictScreen.css';
 
@@ -75,11 +77,24 @@ export default class MergeConflictScreen extends React.Component {
   }
 
   async executeResolutions (resolutions) {
+    const checked = document.getElementById("default-toggle").getAttribute('aria-checked').toString()
+
+    //TODO: Fix bad practice
+    console.log(checked === "true")
+
     // Send resolution data to update the sheets
     document.getElementById("warning-div").style.display = "none";
 
     // display merge in progress
     window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
+
+    console.log(this.state.resolutions)
+
+    this.state.mergeConflictData.forEach(function(sheetResults) {
+        sheetResults.conflicts.forEach(function(conflict) {
+            console.log(conflict)
+        })
+    });
 
     console.log(resolutions)
     // resolve merge conflicts
@@ -107,7 +122,9 @@ export default class MergeConflictScreen extends React.Component {
     return (
       <Taskpane header={headerSize.SMALL} title="You need to resolve merge conflicts before your merge can finish">
         <div className="title-subtext-div">
-            <div className="title-subtext">Pick which version of the cell you want to keep. They are ordered: <b>yours, collaborator’s, original</b>.</div>
+            <div className="title-subtext">There are to ways to resolve merge conflicts. </div>
+            <div className="title-subtext">1. Pick which version of the cell you want to keep. They are ordered: <b>yours, collaborator’s, original</b>.</div>
+            <div className="title-subtext">2. Click the submit button and batch accept either the personal version or the main verion.</div>
         </div>
         <div className="warning-div" id="warning-div">
             <p><b>Warning</b>: You didn't resolve all of the merge conflicts. Either continue resolving them or use the values in the main version of the project to resolve the remaining conflicts </p>
@@ -120,6 +137,9 @@ export default class MergeConflictScreen extends React.Component {
             <form onSubmit={this.collectResolutions}>
                 <div className="scrollable-div">
                     {mergeConflictComponentsArray}
+                </div>
+                <div className="batch-toggle-div">
+                    <Toggle className="toggle" id="default-toggle" label="Select default changes" inlineLabel onText="Your Changes" offText="Main Version" />
                 </div>
                 <div className="submit-button-div"> 
                     <PrimaryButton className="submit-button" type="submit">Submit</PrimaryButton>

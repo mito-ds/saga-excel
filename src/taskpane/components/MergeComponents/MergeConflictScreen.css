@@ -19,6 +19,16 @@
     height: 50vh;
 } 
 
+.batch-toggle-div {
+    width: 100%;
+    text-align: center;
+    align-items: center; 
+}
+
+.toggle {
+    align-self: center;
+}
+
 .submit-button-div {
     width: 100%;
     text-align: center;
