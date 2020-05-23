@@ -437,8 +437,6 @@ const doMerge = async (context, formattingEvents) => {
     // Finially, we have to delete the old personal sheets
     await deleteNonsagaSheets(context);
 
-    throw "Test";
-
     console.log("Deleted non-saga sheets")
     
 
@@ -452,18 +450,20 @@ const doMerge = async (context, formattingEvents) => {
         Excel.SheetVisibility.visible // TODO: change to very hidden, figure out deleting
     )
 
+
     // Then we delete the tmp sheet
     tmpSheet.delete();
     console.log("Copied new commit sheets to personal branch", newCommitSheets);
 
-
     // And then we update the commits and stuff in the proper places
     await project.updateBranchCommitID(`master`, newCommitID);
-    await project.updateBranchCommitID(personalBranch, newCommitID); // we commit on both of these branches
     await project.addCommitID(newCommitID, masterCommitID, `Merged in ${personalBranch}`, "");
-
     // And we update the last commit you caught up till
     await project.setLastCatchUpCommitID(newCommitID);
+
+    // Finially, we update your personal commit id
+    await project.updateBranchCommitID(personalBranch, newCommitID); // we commit on both of these branches
+    
 
     return mergedData;
 }
