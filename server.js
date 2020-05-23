@@ -68,6 +68,12 @@ app.post('/submit-feedback', (req, res) => {
     res.end();
 })
 
+app.post('/logger', (req, res) => {
+    console.log("logger");
+    console.log(req.body);
+    res.end();
+})
+
 app.use('/postemail', async function (req, res) {
     const newEmail = req.body.email;
     const exists = await emailExists(newEmail);
