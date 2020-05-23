@@ -1,3 +1,5 @@
+import log from "loglevel";
+import remote from 'loglevel-plugin-remote';
 import * as React from "react";
 import Progress from "./Progress";
 import LinkScreen from "./LinkScreen"
@@ -36,6 +38,18 @@ export default class App extends React.Component {
     this.getMergeState = this.getMergeState.bind(this);
     this.setMergeState = this.setMergeState.bind(this);
     this.setSheetDiffs = this.setSheetDiffs.bind(this);
+
+    // We also register the logging stuff
+    remote.apply(
+      log, 
+      {
+        url: 'https://sagacollab.com/logger',
+        method: 'POST'
+      }
+    );
+
+    log.info("test")
+
   }
 
   getTaskpaneStatus = () => {
