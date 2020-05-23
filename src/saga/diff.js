@@ -46,7 +46,8 @@ function replaceFormulas(formulas, sheetName, commitSheetPrefix) {
             let formula = formulas[i][j];
             if (formula[0] === "=") {
                 // Then, it's a formula, and we try and replace
-                formula = formula.replaceAll("'" + commitSheetPrefix, "'");
+                // TODOD: remove the ' on both sides of the resulting sheet name
+                formula = formula.replaceAll(commitSheetPrefix, "");
                 // TODO: handle the case where there is no ' at the start of the formula
             }
             formulas[i][j] = formula;

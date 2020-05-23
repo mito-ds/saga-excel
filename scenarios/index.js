@@ -10,6 +10,7 @@ import diffSimple from "./diffSimple.json"
 import diffCrossSheet from "./diffCrossSheet.json"
 import addingColumnUnmerged from "./addingColumnUnmerged.json"
 import acrossSheetsDiff from "./acrossSheetsDiff.json"
+import switchVersionDoesNotDeletePersonal from "./switchVersionDoesNotDeletePersonal.json"
 
 export {
     empty, 
@@ -23,5 +24,6 @@ export {
     diffSimple,
     diffCrossSheet,
     addingColumnUnmerged,
-    acrossSheetsDiff
+    acrossSheetsDiff,
+    switchVersionDoesNotDeletePersonal
 };
