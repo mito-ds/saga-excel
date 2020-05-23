@@ -41,10 +41,6 @@
                   <bt:Image size="32" resid="Icon.32x32"/>
                   <bt:Image size="80" resid="Icon.80x80"/>
                 </Icon>
-                <Action xsi:type="ShowTaskpane">
-                    <TaskpaneId>ButtonId1</TaskpaneId>
-                    <SourceLocation resid="Taskpane.Url"/>
-                </Action>
                 <!--Merge Buttion-->
                 <Control xsi:type="Button" id="MergeButton">
                   <Label resid="MergeButton.Label"/>
@@ -183,7 +179,7 @@
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Get started with you Saga VCS!"/>
         <bt:String id="CommandsGroup.Label" DefaultValue="Commands Group"/>
-        <bt:String id="TaskpaneButton.Label" DefaultValue="Create Saga Project"/>
+        <bt:String id="TaskpaneButton.Label" DefaultValue="Create/Download a Project"/>
         <bt:String id="MergeButton.Label" DefaultValue="Merge Versions"/>
         <bt:String id="CatchUpButton.Label" DefaultValue="Catch Up"/>
         <bt:String id="VersionButton.Label" DefaultValue="Switch Versions"/>
