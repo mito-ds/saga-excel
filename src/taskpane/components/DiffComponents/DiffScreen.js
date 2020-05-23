@@ -14,8 +14,8 @@ export default function DiffScreen(props) {
     sheetDiffs.forEach((sheetDiff) => {
         sheetComponents.push(
             <DiffSheet key={sheetDiff.sheetName} sheetDiff={sheetDiff}/>
-        )  
-    })
+        );  
+    });
 
     return (
         <Taskpane header={headerSize.SMALL} title="Recent Changes">
@@ -28,5 +28,5 @@ export default function DiffScreen(props) {
             </div>
         </div>
         </Taskpane>
-    )
+    );
 }

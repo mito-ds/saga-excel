@@ -1,6 +1,6 @@
 import * as React from "react";
-import Diff from "./Diff"
-import "./DiffSheet.css"
+import Diff from "./Diff";
+import "./DiffSheet.css";
 import { changeType } from "../../../constants";
 
 /* global  */
@@ -15,7 +15,7 @@ export default class DiffSheet extends React.Component {
     }
     
     togglePanel() {
-        this.setState({isExpanded: !this.state.isExpanded})
+        this.setState({isExpanded: !this.state.isExpanded});
     }
     
     render() {  
@@ -27,20 +27,20 @@ export default class DiffSheet extends React.Component {
         let diffArray = [];
         this.props.sheetDiff.changes.forEach((change, idx) => {
             diffArray.push((
-            <Diff key={change.sheetName + idx} sheetName={this.props.sheetDiff.sheetName} diff={change}/>
-            ))
-        })
+                <Diff key={change.sheetName + idx} sheetName={this.props.sheetDiff.sheetName} diff={change}/>
+            ));
+        });
 
         // Color the sheet card differently, depending on how it was edited
         const changeColor = {
             "Modified": "normal",
             "Inserted": "green",
             "Deleted": "red",
-        }
+        };
         const cardClass = "card " + changeColor[this.props.sheetDiff.changeType];
 
         // We then display the operation performed on top of the sheet name
-        const sheetName = `${this.props.sheetDiff.sheetName} : ${this.props.sheetDiff.changeType}`
+        const sheetName = `${this.props.sheetDiff.sheetName} : ${this.props.sheetDiff.changeType}`;
 
         return (
             <div className={cardClass}>

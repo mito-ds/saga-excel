@@ -39,11 +39,11 @@ export async function runTestSuite(testSuiteName) {
         }
 
         if (success) {
-            oldConsoleLog(`%c passed`, "color: green;")
-            results += "."
+            oldConsoleLog(`%c passed`, "color: green;");
+            results += ".";
         } else {
-            oldConsoleLog(`%c failed`, "color: red;")
-            results += "F"
+            oldConsoleLog(`%c failed`, "color: red;");
+            results += "F";
             numFailed++;
             if (!(testNames[i] in failed)) {
                 failed[testNames[i]] = false;

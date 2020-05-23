@@ -131,9 +131,9 @@ export async function updateShared(context) {
 // TODO: move the sync function here
 
 async function sync() {
-  console.log("syncing...", g.syncInt)
+  console.log("syncing...", g.syncInt);
   turnSyncOff();
-  console.log("turned sync off", g.syncInt)
+  console.log("turned sync off", g.syncInt);
   try {
     await Excel.run(async context => {
         // We do not use runOperation here, as sync shouldn't reload itself
@@ -146,7 +146,7 @@ async function sync() {
     }
   }
   turnSyncOn();
-  console.log("turned sync back on", g.syncInt)
+  console.log("turned sync back on", g.syncInt);
 }
 
 function getGlobal() {

@@ -25,6 +25,6 @@ export default class MergeForkedScreen extends React.Component {
           </div>
         </div>
       </Taskpane>
-    )
+    );
   }
 }

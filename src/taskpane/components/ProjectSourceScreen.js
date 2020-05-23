@@ -20,7 +20,7 @@ export default class LoginScreen extends React.Component {
         this.props.nextStep();
         //Create the Saga project
         const remoteURL = await createRemoteURL();
-        console.log(remoteURL)
+        console.log(remoteURL);
 
         if (!remoteURL) {
             this.props.offline();
@@ -35,7 +35,7 @@ export default class LoginScreen extends React.Component {
 
 
         // update the state of react component
-        this.props.setURL(remoteURL)
+        this.props.setURL(remoteURL);
         this.props.nextStep();
     }
 
@@ -44,10 +44,10 @@ export default class LoginScreen extends React.Component {
         // Download the project from the url
         this.props.nextStep();
 
-        const url = document.getElementById('url-input').value
+        const url = document.getElementById('url-input').value;
         await runCreateFromURL(url, this.props.email);
 
-        this.props.setURL(url)
+        this.props.setURL(url);
         this.props.nextStep();
     }
 

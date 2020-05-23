@@ -32,7 +32,7 @@ async function createProject(id) {
     const project = new Projects();
     project.id = id;
     project.headCommitID = "firstcommit";
-    project.contents = {}
+    project.contents = {};
     project.parent = {};
     project.child = {};
     project.contents = {};
@@ -42,7 +42,7 @@ async function createProject(id) {
     return true;
 }
 
-const getBranchState = async (id, headCommitID, parentCommitID) => {
+async function getBranchState(id, headCommitID, parentCommitID) {
 
     const project = await getProject(id);
 
@@ -82,10 +82,10 @@ project.get('/:id/checkhead', async function (req, res) {
     const parentCommitID = req.query.parentCommitID;
     const branchState = await getBranchState(id, headCommitID, parentCommitID);
     res.json({branch_state: branchState});
-})
+});
 
 
-const updateProject = async (id, headCommitID, parentCommitID, fileContents, commitSheets) => {
+async function updateProject(id, headCommitID, parentCommitID, fileContents, commitSheets) {
 
     const branchState = await getBranchState(id, headCommitID, parentCommitID);
     if (branchState !== BRANCH_STATE_AHEAD) {
@@ -115,7 +115,7 @@ project.get('/:id/summary', async function (req, res) {
     }
     const project = await getProject(id);
     res.json(project).end();
-})
+});
 
 
 project.get('/:id', async function (req, res) {
@@ -158,7 +158,7 @@ project.get('/:id', async function (req, res) {
             commitIDs.push(currCommitID);
             project.commitSheets.get(currCommitID).forEach(commitSheet => {
                 commitSheets.push(commitSheet);
-            })
+            });
             currCommitID = project.child.get(currCommitID);
         }
 
@@ -174,7 +174,7 @@ project.get('/:id', async function (req, res) {
             fileContents: fileContents
         }).end();
     }
-})
+});
 
 
 // Route to post an update to a project
@@ -203,6 +203,6 @@ project.post('/:id', async function (req, res) {
 
     // 409 is a conflict, which we have if the project can't be updated!
     res.status(updatedProject ? 200 : 409).end();
-})
+});
 
 module.exports = project;

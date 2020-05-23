@@ -17,7 +17,7 @@
     "build-dev": "webpack --mode development --https false && echo . && echo . && echo . && echo Please use 'build:dev' instead of 'build-dev'.",
     "dev-server": "webpack-dev-server --mode development",
     "lint": "npx eslint ./src/",
-    "lint:fix": "office-addin-lint fix",
+    "lint:fix": "npx eslint ./src/ --fix",
     "prettier": "office-addin-lint prettier",
     "start": "office-addin-debugging start manifest.xml",
     "start:desktop": "office-addin-debugging start manifest.xml desktop",

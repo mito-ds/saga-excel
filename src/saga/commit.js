@@ -29,11 +29,11 @@ export async function makeClique(context, sheetNames, getNewName, worksheetPosit
         // TODO: handle more complex renamings or inserts
         const insertedName = sheetNames[i] + " (2)";
         const newName = getNewName(sheetNames[i]);
-        console.log(`Getting sheet ${insertedName} and changing ${newName}`)
+        console.log(`Getting sheet ${insertedName} and changing ${newName}`);
         const sheet = worksheets.getItem(insertedName);
         sheet.name = newName;
         sheet.visibility = worksheetVisibility;
-        console.log("Setting worksheet visibility to", worksheetVisibility)
+        console.log("Setting worksheet visibility to", worksheetVisibility);
 
         // We can queue at most 50 transaction
         if (i % 40 === 0) {
@@ -57,7 +57,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
         branch = await project.getHeadBranch();
     }
 
-    console.log(`making a commit on branch ${branch}`)
+    console.log(`making a commit on branch ${branch}`);
 
     if (!commitID) {
         commitID = getRandomID();
@@ -74,7 +74,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     await makeClique(
         context, 
         sheetNames, 
-        (name) => {return `saga-${commitID}-${name}`}, 
+        (name) => {return `saga-${commitID}-${name}`;}, 
         Excel.WorksheetPositionType.end, 
         Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
     );

@@ -9,7 +9,7 @@ export default class LinkScreen extends React.Component {
         this.state = {
             remoteURL: props.remoteURL
         };
-        this.copyToClipboard = this.copyToClipboard.bind(this)
+        this.copyToClipboard = this.copyToClipboard.bind(this);
     }
 
     // Copy project link to clipboard
