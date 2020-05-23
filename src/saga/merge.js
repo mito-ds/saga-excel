@@ -524,26 +524,44 @@ export async function merge(context, formattingEvents) {
 
     If that fails, we give up... TODO?
 */
-async function handleMergeError(error) {
-    try {
-        await Excel.run(async (context) => {
-            const project = new Project(context);
-            const personalBranch = await project.getPersonalBranch();
-            const personalHeadCommit = await project.getCommitIDFromBranch(personalBranch);
+function makeHandleMergeError(previousPersonalCommitID) {
+    const handleMergeError = async (error) => {
+        try {
+            await Excel.run(async (context) => {
+                const project = new Project(context);
+                const personalBranch = await project.getPersonalBranch();
+                const personalHeadCommit = await project.getCommitIDFromBranch(personalBranch);
 
-            await checkoutCommitID(context, personalHeadCommit);
-        });
-        return {status: mergeState.MERGE_ERROR, mergeConflictData: null};;
-    } catch (error) {
-        // TODO: we should change so it returns a "critical error here", or something
+                /*
+                    If we got to the checkin of personal, (which is the first thing to occur in the merge)
+                    then we can roll back to it. 
 
-        console.log(error);
+                    Otherwise, if there isn't a new commit on personal, then we must have not have deleted
+                    any of the sheets, and so we don't need to do anything.
+                */
+                if (previousPersonalCommitID !== personalHeadCommit) {
+                    await checkoutCommitID(context, personalHeadCommit);
+                }
+            });
+            return {status: mergeState.MERGE_ERROR, mergeConflictData: null};;
+        } catch (error) {
+            // TODO: we should change so it returns a "critical error here"
+    
+            console.log(error);
+        }
+        return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
     }
-    return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
 }
 
 
+
 export async function runMerge(formattingEvents) {
+    const previousPersonalCommitID = await runOperation(async (context) => {
+        const project = new Project(context);
+        const personalBranch = await project.getPersonalBranch();
+        return await project.getCommitIDFromBranch(personalBranch);
+    });
+    const handleMergeError = makeHandleMergeError(previousPersonalCommitID);
     return runOperationHandleError(merge, handleMergeError, formattingEvents);
 }
 
