@@ -208,7 +208,7 @@ const doMerge = async (context, formattingEvents) => {
         formattingEvents = []
     }
 
-    const personalBranchRange = await project.getPersonalBranchNameWithValues();
+    const personalBranchRange = await project.getPersonalBranchWithValues();
     const personalBranch = personalBranchRange.values[0][0];
 
     if (personalBranch === ``) {
@@ -437,6 +437,8 @@ const doMerge = async (context, formattingEvents) => {
     // Finially, we have to delete the old personal sheets
     await deleteNonsagaSheets(context);
 
+    throw "Test";
+
     console.log("Deleted non-saga sheets")
     
 
@@ -477,6 +479,7 @@ we refuse to checkin (as this might lead to a fork).
 */
 export async function merge(context, formattingEvents) {
 
+
     const updated = await updateShared(context);
 
     if (updated !== branchState.BRANCH_STATE_HEAD) {
@@ -484,7 +487,7 @@ export async function merge(context, formattingEvents) {
     }
 
     const project = new Project(context);
-    const personalBranchRange = await project.getPersonalBranchNameWithValues();
+    const personalBranchRange = await project.getPersonalBranchWithValues();
     const personalBranch = personalBranchRange.values[0][0];
     const headBranch = await project.getHeadBranch();
 
@@ -496,8 +499,10 @@ export async function merge(context, formattingEvents) {
     // Make a commit on the personal branch    
     await commit(context, `check in of ${personalBranch}`, "", personalBranch);
 
+
     // Merge this commit into the shared branch
     const mergeData = await doMerge(context, formattingEvents);
+
 
     // Try and update the server with this newly merged sheets
     const updatedWithMerge = await updateShared(context);
@@ -525,12 +530,14 @@ export async function merge(context, formattingEvents) {
     If that fails, we give up... TODO?
 */
 function makeHandleMergeError(previousPersonalCommitID) {
-    const handleMergeError = async (error) => {
+    return async (error) => {
+        console.log("Handling error")
         try {
             await Excel.run(async (context) => {
                 const project = new Project(context);
                 const personalBranch = await project.getPersonalBranch();
                 const personalHeadCommit = await project.getCommitIDFromBranch(personalBranch);
+                console.log("Commits", previousPersonalCommitID, personalHeadCommit);
 
                 /*
                     If we got to the checkin of personal, (which is the first thing to occur in the merge)
@@ -540,6 +547,7 @@ function makeHandleMergeError(previousPersonalCommitID) {
                     any of the sheets, and so we don't need to do anything.
                 */
                 if (previousPersonalCommitID !== personalHeadCommit) {
+                    console.log("Rolling back to last commit");
                     await checkoutCommitID(context, personalHeadCommit);
                 }
             });

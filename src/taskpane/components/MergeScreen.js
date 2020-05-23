@@ -37,8 +37,6 @@ export default class MergeScreen extends React.Component {
   render() {
 
     // TODO: put this in a proper screen form
-    console.log("Merge state", this.props.mergeState);
-    console.log("mergeData", this.props.mergeConflictData)
 
     switch(this.props.mergeState) {
       case mergeState.MERGE_IN_PROGRESS:

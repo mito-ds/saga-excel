@@ -14,7 +14,7 @@ export async function resetPersonalVersion(context) {
 
     // Checkout personal branch if not already checked out
     const branch = await project.getHeadBranch()
-    const personalBranchName = await project.getPersonalBranchName();
+    const personalBranchName = await project.getPersonalBranch();
     if (branch !== personalBranchName) {
         await checkoutBranch(context, personalBranchName)
     }

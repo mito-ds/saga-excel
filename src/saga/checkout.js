@@ -14,7 +14,7 @@ export async function switchVersionFromRibbon(context) {
 
     // Switch Branches
     if (currentBranch === 'master') {
-        const personalBranchName = await project.getPersonalBranchName();
+        const personalBranchName = await project.getPersonalBranch();
         await checkoutBranch(context, personalBranchName);
     } else {
         await checkoutBranch(context, "master");
@@ -62,6 +62,7 @@ export async function checkoutCommitID(context, commitID) {
 
     // Delete the non-saga sheets
     const tmpSheet = (await getSheetsWithNames(context)).find(sheet => !sheet.name.startsWith("saga"))
+    // TODO: we might fail here, so we should generate a random name
     tmpSheet.name = "saga-tmp";
     await deleteNonsagaSheets(context);
 
