@@ -30,8 +30,6 @@ export async function testEmptyMerge() {
     return true;
 }
 
-
-
 export async function testMergeThenSwitchVersions() {
     
     // First, we create the project
@@ -91,6 +89,64 @@ export async function testMergePreservesCrossSheetReferences() {
 
     assert.equal(sheet1A1, 10, "Wrong value in Sheet1!A1");
     assert.equal(sheet2A1, "=Sheet1!A1", "Wrong formula in Sheet2!A1");
+
+    return true;
+}
+
+export async function testOriginalEmptyMergeConflict() {
+    // Load scenario
+    const fileContents = scenarios["mergeConflictSimpleEmptyOrigin"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Perform a merge
+    const g = getGlobal();
+    const mergeResult = await g.merge();
+
+    const expected = 
+        {
+            mergeConflictData: [
+                {sheet: "Sheet1", result: [[5]], conflicts: 
+                    [
+                        {sheet: "Sheet1", cellOrRow: "A1", conflictType: "cell", a: 5, b: 10, o: ""}
+                    ]
+                }
+            ],
+            status: "merge_conflict"
+        }
+
+    // Check that the conflict is correct
+    assert.deepEqual(mergeResult, expected, "merge conflict did not return correct value")
+
+    // Then resolve merge conflicts
+    const resolutions = {"Sheet1": [{cellOrRow: "A1", value: "10"}]}
+    await runResolveMergeConflicts(resolutions)
+
+    // Check that merge conflicts are resolved correctly
+    const updatedValue= (await runOperation(getFormulas, "Sheet1", "A1"))[0][0];
+    assert.equal(updatedValue, 10, "updated to the wrong value")
+
+    return true;
+}
+
+export async function testAddingColumnMergeConflict() {
+    // Load scenario
+    const fileContents = scenarios["addingColumnUnmerged"].fileContents;
+    await runReplaceFromBase64(fileContents)
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Perform a merge
+    const g = getGlobal();
+    const mergeResult = await g.merge();
+
+    console.log(mergeResult)
+
+    // Check that there is no merge conflict
+    assert.deepEqual(mergeResult, {}, "there was a merge conflict")
 
     return true;
 }
@@ -208,4 +264,3 @@ export async function testNoDiffAfterMerge() {
 
     return true;
 }
-
