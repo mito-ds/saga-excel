@@ -1,7 +1,5 @@
-import { runCreateSaga, createRemoteURL } from "../saga/create";
-import { runOperation } from "../saga/runOperation";
-import { getSheetsWithNames } from "../saga/sagaUtils";
 import { strict as assert } from 'assert';
+<<<<<<< HEAD:src/tests/testFile.js
 import { item, mergeState, taskpaneStatus } from '../constants';
 import { runCleanup } from "../saga/cleanup";
 import { getGlobal } from "../commands/commands";
@@ -66,17 +64,19 @@ export async function testCleanup() {
     
     // First, we create the project
     await runCreateSaga(TEST_URL, "email");
+=======
+import { runCreateSaga, runReplaceFromBase64 } from "../../saga/create";
+import { runOperation } from "../../saga/runOperation";
+import { item, TEST_URL, mergeState, taskpaneStatus } from "../../constants";
+import { getSheetsWithNames } from "../../saga/sagaUtils";
+import { getGlobal } from "../../commands/commands";
+import { runResolveMergeConflicts }  from "../../saga/merge";
+import * as scenarios from "../../../scenarios";
+import Project from "../../saga/Project";
+import { getItemRangeValues, getFormulas, getValues } from "../testHelpers";
 
-    // Then, we cleanup the project
-    await runCleanup();
+>>>>>>> test-suites:src/tests/suites/mergeTests.js
 
-    // Then, we make sure there is only a single sheet
-    const sheets = await runOperation(getSheetsWithNames);
-    assert.equal(sheets.length, 1, "Should have created 3 sheets");
-
-    return true;
-}
-  
 export async function testEmptyMerge() {
     
     // First, we create the project
@@ -97,6 +97,7 @@ export async function testEmptyMerge() {
     return true;
 }
 
+<<<<<<< HEAD:src/tests/testFile.js
 export async function testSwitchVersions() {
     
     // First, we create the project
@@ -119,6 +120,9 @@ export async function testSwitchVersions() {
 
     return true;
 }
+=======
+
+>>>>>>> test-suites:src/tests/suites/mergeTests.js
 
 export async function testMergeThenSwitchVersions() {
     
@@ -297,6 +301,7 @@ export async function testMergeConflict() {
     return true;
 }
 
+<<<<<<< HEAD:src/tests/testFile.js
 export async function testResetPersonal() {
 
     // Load scenario
@@ -398,6 +403,8 @@ export async function testResetPersonalChangesLastCaughtUp() {
 
     return true;
 }
+=======
+>>>>>>> test-suites:src/tests/suites/mergeTests.js
 
 export async function testMergeChangesLastCaughtUp() {
 
@@ -433,6 +440,7 @@ export async function testMergeChangesLastCaughtUp() {
 }
 
 
+<<<<<<< HEAD:src/tests/testFile.js
 export async function acrossSheetsDiff() {
     
     // Load scenario
@@ -456,6 +464,8 @@ export async function acrossSheetsDiff() {
     return true;   
 }
 
+=======
+>>>>>>> test-suites:src/tests/suites/mergeTests.js
 export async function testNoDiffAfterMerge() {
     
     // Load scenario
@@ -479,6 +489,7 @@ export async function testNoDiffAfterMerge() {
     return true;
 }
 
+<<<<<<< HEAD:src/tests/testFile.js
 export async function testDiffSimple() {
     // Load scenario
     const fileContents = scenarios["diffSimple"].fileContents;
@@ -600,3 +611,5 @@ export async function testDiffMedium() {
     - write tests for merge with some data
     - Figure out how to simulate a sync? Can we fake it somehow...
 */
+=======
+>>>>>>> test-suites:src/tests/suites/mergeTests.js

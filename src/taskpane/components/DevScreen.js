@@ -2,7 +2,8 @@ import * as React from "react";
 import Taskpane from "./Taskpane";
 import { StatusContext } from "./StatusContext";
 import { runCleanup } from "../../saga/cleanup";
-import { runTests } from "../../tests/runTests";
+import { runAllTests, runTestSuite } from "../../tests/runTests";
+import * as testSuites from "../../tests/";
 import { headerSize, TEST_URL } from "../../constants";
 import { runUpgradeAllScenarios } from "../../saga/upgrade";
 
@@ -46,6 +47,12 @@ async function createScenario() {
 export default function DevScreen(props) {
     const {status, setStatus} = React.useContext(StatusContext);
 
+    let testSuiteArray = [];
+    Object.keys(testSuites).forEach(function(testSuite) {
+        testSuiteArray.push(<option value={testSuite}>{testSuite}</option>)
+    })
+
+
     let scenarioArray = []
     Object.keys(scenarios).forEach(function(scenario) {
         scenarioArray.push(<option value={scenario}>{scenario}</option>)
@@ -53,7 +60,11 @@ export default function DevScreen(props) {
 
     return (
         <Taskpane header={headerSize.LARGE} title="Development Mode. NOTE: Run from an empty Excel workbook with no saga project">
-            <button onClick={runTests}> Run Tests </button>
+            <button onClick={runAllTests}> Run Tests </button>
+            <select onChange={async (e) => {await runTestSuite(e.target.value);}}>
+                <option> Select Test Suite</option>
+                {testSuiteArray}                
+            </select>
             <button onClick={runCleanup}> Cleanup </button>
             <button onClick={runUpgradeAllScenarios}> Upgrade All Scenarios </button>
             <button onClick={createScenario}> Create Scenario from Current Workbook (check console) </button>
