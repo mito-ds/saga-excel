@@ -31,20 +31,20 @@ async function resolveMergeConflicts(context, resolutions) {
     for (var i=0; i < sheetsResolutionsArray.length; i++) {
 
         // Get the personal version of the worksheet
-        const sheetName = sheetsResolutionsArray[i][0]
+        const sheetName = sheetsResolutionsArray[i][0];
         const personalWorksheet = worksheets.getItem(sheetName);
 
         // Get the master version of the worksheet
         const project = new Project(context);
         const headCommit = await project.getCommitIDFromBranch("master");
-        const masterWorksheetName = "saga-" + headCommit + "-" + sheetName
-        const masterWorksheet = worksheets.getItem(masterWorksheetName)
+        const masterWorksheetName = "saga-" + headCommit + "-" + sheetName;
+        const masterWorksheet = worksheets.getItem(masterWorksheetName);
 
-        const resolutions = sheetsResolutionsArray[i][1]
+        const resolutions = sheetsResolutionsArray[i][1];
         
         for (var j = 0; j < resolutions.length; j++) {
-            const cell = resolutions[j].cellOrRow
-            const value = resolutions[j].value
+            const cell = resolutions[j].cellOrRow;
+            const value = resolutions[j].value;
 
             // Set cell value on personal Branch
             const cellRangePersonal = personalWorksheet.getRange(cell);
@@ -53,13 +53,13 @@ async function resolveMergeConflicts(context, resolutions) {
             
             // Set cell value on master Branch
             const cellRangeMaster = masterWorksheet.getRange(cell);
-            console.log(`Resolving ${cell} to ${value}`)
+            console.log(`Resolving ${cell} to ${value}`);
             cellRangeMaster.values = [[value]];
             await context.sync();
         } 
     }
 
-    await commit(context, "resolved merge conflicts", "resolved merge conflicts", "master")
+    await commit(context, "resolved merge conflicts", "resolved merge conflicts", "master");
 
     return {status: mergeState.MERGE_SUCCESS, conflicts: null};
 } 
@@ -67,8 +67,8 @@ async function resolveMergeConflicts(context, resolutions) {
 const getNonsagaSheets = (sheets) => {
     return sheets.filter(sheet => {
         return !sheet.name.startsWith(`saga`);
-    })
-}
+    });
+};
 
 async function findOtherSheetReferencesAddr(context, sheetName, nonSagaSheets) {
     // In a given non-saga sheet, will return an array of all the addresses of the
@@ -79,9 +79,9 @@ async function findOtherSheetReferencesAddr(context, sheetName, nonSagaSheets) {
     /*
     1. Get all sheet names
     */
-    var found = []
+    var found = [];
     for (let i = 0; i < nonSagaSheets.length; i++) {
-        console.log(`Looking for =${nonSagaSheets[i].name}`)
+        console.log(`Looking for =${nonSagaSheets[i].name}`);
         var foundRanges = worksheet.findAllOrNullObject(`=${nonSagaSheets[i].name}`, {
             completeMatch: false, // findAll will match the whole cell value
             matchCase: false // findAll will not match case
@@ -92,8 +92,8 @@ async function findOtherSheetReferencesAddr(context, sheetName, nonSagaSheets) {
             console.log("No ranges contain this");
         } else {
             foundRanges.load("address");
-            await context.sync()
-            console.log(foundRanges.address)
+            await context.sync();
+            console.log(foundRanges.address);
             found.push(...foundRanges.address.split(","));
         }
     }
@@ -105,7 +105,7 @@ async function updateReferences(context, sheetName, newCommitPrefix) {
 
     const worksheet = context.workbook.worksheets.getItem(sheetName);
 
-    const nonSagaSheets = (await getSheetsWithNames(context)).filter(sheet => {return !sheet.name.startsWith("saga")});
+    const nonSagaSheets = (await getSheetsWithNames(context)).filter(sheet => {return !sheet.name.startsWith("saga");});
     const nonSagaSheetNames = nonSagaSheets.map(sheet => sheet.name);
     const otherSheetReferences = await findOtherSheetReferencesAddr(context, nonSagaSheets);
 
@@ -119,7 +119,7 @@ async function updateReferences(context, sheetName, newCommitPrefix) {
     }
     // TODO: fix this w/ a complicated algorithm so it works for when sheet names are substrings of eachother
 
-    var newMapping = {}
+    var newMapping = {};
     for (const addr in mapping) {
         const formula = mapping[addr];
         var newFormula = formula;
@@ -155,8 +155,8 @@ async function writeDataToSheet(context, sheetName, data) {
     const sheet = context.workbook.worksheets.getItem(sheetName);
 
     // First, we make sure the data is a rectangle
-    const maxLength = Math.max(...data.map(row => {return row.length}));    
-    const rectData = data.map(row => {row.length = maxLength; return row});
+    const maxLength = Math.max(...data.map(row => {return row.length;}));    
+    const rectData = data.map(row => {row.length = maxLength; return row;});
 
     // Find the address of the rectangle range we're going to write
     const endColumn = toColumnName(maxLength);
@@ -196,7 +196,7 @@ function replaceReferencesInData(data, srcString, dstString) {
                 row[i] = row[i].replaceAll(srcString, dstString);
             }
         }
-    })
+    });
 }
 
 
@@ -204,7 +204,7 @@ const doMerge = async (context, formattingEvents) => {
     const project = new Project(context);
 
     if (formattingEvents == undefined) {
-        formattingEvents = []
+        formattingEvents = [];
     }
 
     const personalBranchRange = await project.getPersonalBranchNameWithValues();
@@ -261,14 +261,14 @@ const doMerge = async (context, formattingEvents) => {
     const insertedSheets = personalSheets.filter(sheet => {
         const ex = checkExistance(sheet);
         return !ex.inMaster && !ex.inOrigin;
-    })
+    });
 
     // Sheets that have been added in both the head branch and the 
     // merged branch, and so we have a conflict
     const conflictSheets = personalSheets.filter(sheet => {
         const ex = checkExistance(sheet);
         return ex.inMaster && !ex.inOrigin;
-    })
+    });
 
     // TODO: we should be merging conflict sheets together
 
@@ -277,18 +277,18 @@ const doMerge = async (context, formattingEvents) => {
     const deletedSheets = personalSheets.filter(sheet => {
         const ex = checkExistance(sheet);
         return !ex.inMaster && ex.inOrigin;
-    })
+    });
 
     // Now, we actually need to merge the sheets 
     const mergeSheets = personalSheets.filter(sheet => {
         const ex = checkExistance(sheet);
         return ex.inMaster && ex.inOrigin;
-    })
+    });
 
     if (conflictSheets.length > 0) {
         conflictSheets.forEach(sheet => {
             console.error(`Merge conflict on ${sheet.name}`);
-        })
+        });
         return;
     }
 
@@ -307,19 +307,19 @@ const doMerge = async (context, formattingEvents) => {
     const insertedSheetsNames = insertedSheets.map(sheet => sheet.name);
 
     console.log("Personal:", personalSheetsNames);
-    console.log("Personal renamed:", personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName}));
+    console.log("Personal renamed:", personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName;}));
 
     await makeClique(
         context,
         personalSheetsNames,
-        (sheetName) => {return newCommitPrefix + sheetName},
+        (sheetName) => {return newCommitPrefix + sheetName;},
         Excel.WorksheetPositionType.end,
         Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
-    )
+    );
 
     console.log("Copied over personal sheets to ", newCommitPrefix);
 
-    const renamedPersonalSheets = personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName});
+    const renamedPersonalSheets = personalSheetsNames.map((sheetName) => {return newCommitPrefix + sheetName;});
     var mergedData = [];
     console.log("Renamed personal sheets", renamedPersonalSheets);
     for (let i = 0; i < renamedPersonalSheets.length; i++) {
@@ -370,7 +370,7 @@ const doMerge = async (context, formattingEvents) => {
         sheet.delete();
 
         if (i % 40 === 0 || i === renamedPersonalSheets.length - 1) {
-            await context.sync()
+            await context.sync();
         }
     }
 
@@ -378,16 +378,16 @@ const doMerge = async (context, formattingEvents) => {
 
     // Now, we copy over master sheets, to get their formatting
     const masterNonDeletedNames = masterSheets.filter(sheet => {
-        return !deletedSheets.some(deleted => deleted.name === sheet.name)
+        return !deletedSheets.some(deleted => deleted.name === sheet.name);
     }).map(sheet => sheet.name);
 
     await makeClique(
         context,
         masterNonDeletedNames,
-        (sheetName) => {return newCommitPrefix + sheetName.split(masterPrefix)[1]},
+        (sheetName) => {return newCommitPrefix + sheetName.split(masterPrefix)[1];},
         Excel.WorksheetPositionType.end,
         Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
-    )
+    );
 
     console.log(`Copied over the master non-deleted sheets:`, masterNonDeletedNames);
 
@@ -395,20 +395,20 @@ const doMerge = async (context, formattingEvents) => {
     await makeClique(
         context,
         insertedSheetsNames,
-        (sheetName) => {return newCommitPrefix + sheetName},
+        (sheetName) => {return newCommitPrefix + sheetName;},
         Excel.WorksheetPositionType.end,
         Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
-    )
+    );
 
     console.log("Copied over inserted", insertedSheetsNames);
     
-    console.log(mergedData)
+    console.log(mergedData);
     mergedData.forEach(async function(sheetMergeResult) {
         // TODO: we have to not copy over the sheets that were deleted on master
-        console.log(sheetMergeResult)
+        console.log(sheetMergeResult);
         console.log("Trying to write to ", sheetMergeResult.sheet, "with", sheetMergeResult.result);
         await writeDataToSheet(context, newCommitPrefix + sheetMergeResult.sheet, sheetMergeResult.result);
-    })
+    });
 
     console.log("Wrote data to all sheets");
 
@@ -419,7 +419,7 @@ const doMerge = async (context, formattingEvents) => {
             formattingEventsMap[event.worksheetId] = [];
         }
         formattingEventsMap[event.worksheetId].push(event);
-    })
+    });
 
     for (let i = 0; i < mergeSheets.length; i++) {
         const personalSheetName = mergeSheets[i].name;
@@ -427,7 +427,7 @@ const doMerge = async (context, formattingEvents) => {
         await copyFormatting(context, personalPrefix + personalSheetName, mergeSheetName, formattingEventsMap);
     }
 
-    console.log("Done with formatting")
+    console.log("Done with formatting");
 
     // We make a tmp sheet (so we can delete things)
     var tmpSheet = personalSheets[0];
@@ -436,7 +436,7 @@ const doMerge = async (context, formattingEvents) => {
     // Finially, we have to delete the old personal sheets
     await deleteNonsagaSheets(context);
 
-    console.log("Deleted non-saga sheets")
+    console.log("Deleted non-saga sheets");
     
 
     // And then copy all the sheets on that merge back to the personal branch
@@ -444,10 +444,10 @@ const doMerge = async (context, formattingEvents) => {
     await makeClique(
         context,
         newCommitSheets,
-        (sheetName) => {return sheetName.split(newCommitPrefix)[1]},
+        (sheetName) => {return sheetName.split(newCommitPrefix)[1];},
         Excel.WorksheetPositionType.beginning,
         Excel.SheetVisibility.visible // TODO: change to very hidden, figure out deleting
-    )
+    );
 
     // Then we delete the tmp sheet
     tmpSheet.delete();
@@ -463,7 +463,7 @@ const doMerge = async (context, formattingEvents) => {
     await project.setLastCatchUpCommitID(newCommitID);
 
     return mergedData;
-}
+};
 
 /*
 Merging in is when a user merges their personal branch into the master branch.
@@ -507,10 +507,10 @@ export async function merge(context, formattingEvents) {
 
     // Check for merge conflicts
     const mergedSheets = Object.entries(mergeData);
-    let mergeConflict = false
+    let mergeConflict = false;
     mergedSheets.forEach((sheet) => {
         if (sheet[1].conflicts.length !== 0) {
-            mergeConflict = true
+            mergeConflict = true;
         }
     });
 
@@ -518,10 +518,10 @@ export async function merge(context, formattingEvents) {
 }
 
 export async function runMerge(formattingEvents) {
-    console.log("INSIDE Run MERGE")
+    console.log("INSIDE Run MERGE");
     return runOperation(merge, formattingEvents);
 }
 
 export async function runResolveMergeConflicts(resolutions) {
-    return runOperation(resolveMergeConflicts, resolutions)
+    return runOperation(resolveMergeConflicts, resolutions);
 }

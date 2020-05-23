@@ -37,7 +37,7 @@ async function cleanup(context) {
                 sheet.delete();
             }
         }
-    )
+    );
 
     // TODO: we need to rename to Sheet1, and clear itn
 

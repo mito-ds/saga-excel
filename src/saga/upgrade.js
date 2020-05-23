@@ -10,7 +10,7 @@ import { getFileContents } from "./fileUtils";
 async function upgrade(context) {
     const sagaSheet = context.workbook.worksheets.getItem("saga");
     
-    //Setup, name range for the version
+    //Setup, name range for the version id
     const versionRange = sagaSheet.getRange("A5");
     sagaSheet.names.add(item.VERSION, versionRange);
     versionRange.values = [["0.0.1"]];
@@ -50,7 +50,7 @@ async function upgradeAllScenarios(context) {
         newScenarios.push({
             scenarioName: scenarioName,
             fileContents: newFileContents
-        })
+        });
     }
 
     newScenarios.forEach(newScenario => console.log(JSON.stringify(newScenario)));

@@ -2,7 +2,7 @@ import { runOperation } from './runOperation';
 import { getCommitSheets, getFormulas, numToChar } from "./sagaUtils";
 import Project from "./Project";
 import { getSheetNamePairs, removePrefix, findInsertedSheets, findDeletedSheets, findModifiedSheets } from "./diffUtils";
-import { changeType } from '../constants'
+import { changeType } from '../constants';
 import {ValueWrapper} from "./mergeUtils";
 import { commit } from './commit';
 
@@ -46,7 +46,8 @@ function replaceFormulas(formulas, sheetName, commitSheetPrefix) {
             let formula = formulas[i][j];
             if (formula[0] === "=") {
                 // Then, it's a formula, and we try and replace
-                formula = formula.replaceAll("'" + commitSheetPrefix, "'");
+                // TODOD: remove the ' on both sides of the resulting sheet name
+                formula = formula.replaceAll(commitSheetPrefix, "");
                 // TODO: handle the case where there is no ' at the start of the formula
             }
             formulas[i][j] = formula;
@@ -83,7 +84,7 @@ async function diff(context, initialCommit, finalCommit) {
 
     const modifiedSheetNamePairs = getSheetNamePairs(modifiedSheetNames, initialCommitPrefix, finalCommitPrefix);
 
-    let sheetChanges = []
+    let sheetChanges = [];
 
     // Calculate changes on modified sheets
     for (var i = 0; i < modifiedSheetNamePairs.length; i++) {

@@ -17,7 +17,7 @@ const INTERMEDIATE_MESSAGES = [
   "We are hard at work processing your merge",
   "Woah! I didn't know Excel had this many cells",
   "Sit back, relax, and enjoy the merge"
-]
+];
 
 function randomMessage() {
   return INTERMEDIATE_MESSAGES[Math.floor(Math.random() * INTERMEDIATE_MESSAGES.length)];
@@ -38,7 +38,7 @@ export default class MergeScreen extends React.Component {
 
     // TODO: put this in a proper screen form
     console.log("Merge state", this.props.mergeState);
-    console.log("mergeData", this.props.mergeConflictData)
+    console.log("mergeData", this.props.mergeConflictData);
 
     switch(this.props.mergeState) {
       case mergeState.MERGE_IN_PROGRESS:
@@ -46,19 +46,19 @@ export default class MergeScreen extends React.Component {
         return (<MergeProgressScreen/>);
       
       case mergeState.MERGE_SUCCESS:
-        return (<MergeSuccessScreen/>)
+        return (<MergeSuccessScreen/>);
 
       case mergeState.MERGE_CONFLICT:
-        return (<MergeConflictScreen mergeConflictData={this.props.mergeConflictData}></MergeConflictScreen>)
+        return (<MergeConflictScreen mergeConflictData={this.props.mergeConflictData}></MergeConflictScreen>);
 
       case mergeState.MERGE_ERROR:
-        return (<MergeErrorScreen/>)
+        return (<MergeErrorScreen/>);
 
       case mergeState.MERGE_FORKED:
-        return (<MergeForkedScreen/>)
+        return (<MergeForkedScreen/>);
 
       default:
-        return (<MergeErrorScreen/>)
+        return (<MergeErrorScreen/>);
     }
   }
 }
