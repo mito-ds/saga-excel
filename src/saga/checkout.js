@@ -1,7 +1,7 @@
 import { getSheetsWithNames, deleteNonsagaSheets } from "./sagaUtils";
 import Project from './Project';
 import { runOperation } from "./runOperation";
-import { makeClique } from "./commit"
+import { makeClique } from "./commit";
 
 /* global Excel */
 
@@ -19,7 +19,7 @@ export async function switchVersionFromRibbon(context) {
     } else {
         await checkoutBranch(context, "master");
         // If master, lock sheets
-        await lockWorksheets(context)
+        await lockWorksheets(context);
     }
 }
 
@@ -28,7 +28,7 @@ async function getNonSagaSheets(context) {
     let sheets = await getSheetsWithNames(context);
     sheets = sheets.filter(sheet => {
         return !sheet.name.startsWith("saga");
-    })
+    });
     return sheets;
 }
 
@@ -39,11 +39,11 @@ async function lockWorksheets(context) {
     const sheets = await getNonSagaSheets(context);
 
     await Promise.all(sheets.map(async (sheet) => {
-        sheet.load("protection/protected")
-        await context.sync()
+        sheet.load("protection/protected");
+        await context.sync();
         //Todo: Add password to protect
-        sheet.protection.protect()
-        await context.sync()
+        sheet.protection.protect();
+        await context.sync();
         console.log(sheet.name);
     }));
 }
@@ -55,13 +55,13 @@ export async function checkoutCommitID(context, commitID) {
     // Find those sheets that we should copy back
     let sheets = await getSheetsWithNames(context);
     sheets = sheets.filter(sheet => {
-        return sheet.name.startsWith(`saga-${commitID}-`)
-    })
+        return sheet.name.startsWith(`saga-${commitID}-`);
+    });
 
     const srcWorksheets = sheets.map(sheet => sheet.name);
 
     // Delete the non-saga sheets
-    const tmpSheet = (await getSheetsWithNames(context)).find(sheet => !sheet.name.startsWith("saga"))
+    const tmpSheet = (await getSheetsWithNames(context)).find(sheet => !sheet.name.startsWith("saga"));
     tmpSheet.name = "saga-tmp";
     await deleteNonsagaSheets(context);
 
@@ -107,7 +107,7 @@ export async function checkoutBranch(context, branch) {
     const headRange = await project.getHeadRange();
     headRange.values = [[branch]];
 
-    console.log("update head branch")
+    console.log("update head branch");
 
 
     await context.sync();
@@ -118,5 +118,5 @@ export async function runCheckoutBranch(branch) {
 }
 
 export async function runSwitchVersionFromRibbon() {
-    await runOperation(switchVersionFromRibbon)
+    await runOperation(switchVersionFromRibbon);
 }

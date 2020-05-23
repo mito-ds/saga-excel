@@ -2,7 +2,7 @@ import Project from "./Project";
 import { checkoutBranch } from "./checkout";
 import { runOperation } from "./runOperation";
 import { commit } from "./commit";
-import { checkoutCommitID } from "./checkout"
+import { checkoutCommitID } from "./checkout";
 
 /* global */
 
@@ -13,14 +13,14 @@ export async function resetPersonalVersion(context) {
     const project = new Project(context);
 
     // Checkout personal branch if not already checked out
-    const branch = await project.getHeadBranch()
+    const branch = await project.getHeadBranch();
     const personalBranchName = await project.getPersonalBranchName();
     if (branch !== personalBranchName) {
-        await checkoutBranch(context, personalBranchName)
+        await checkoutBranch(context, personalBranchName);
     }
     
     // Get commitID of master's head commit
-    const masterCommitID = await project.getCommitIDFromBranch('master')
+    const masterCommitID = await project.getCommitIDFromBranch('master');
     await checkoutCommitID(context, masterCommitID);
 
     // Update the last checked out value

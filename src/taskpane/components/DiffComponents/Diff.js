@@ -16,20 +16,20 @@ export default function Diff(props) {
         <div className="diff-boxed old">
             {initialValue}
         </div>   
-    )
+    );
 
     const newBox = (
         <div className="diff-boxed new">
             {finalValue}
         </div>  
-    )
+    );
 
     console.log("initialValue", initialValue);
 
     return (
         <div className="sub-card">
             <div className="card-cols">
-                <div className="cell-div" onClick={async (e)=> {await runSelectCell(sheetName, cell)}}>
+                <div className="cell-div" onClick={async (e)=> {await runSelectCell(sheetName, cell);}}>
                     <div>
                         {cell}
                     </div>
@@ -40,5 +40,5 @@ export default function Diff(props) {
                 </div>   
             </div>
         </div>
-    )
+    );
 }

@@ -7,7 +7,7 @@ import { headerSize } from "../../../constants";
 export default class MergeProgressScreen extends React.Component {
     constructor(props) {
       super(props);
-      this.props = props
+      this.props = props;
 
     }
     render() {

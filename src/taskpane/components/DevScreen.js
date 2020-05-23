@@ -29,34 +29,33 @@ async function createScenario() {
     await Excel.run(async (context) => {
         const project = new Project(context);
         project.setRemoteURL(TEST_URL);
-    })
+    });
 
     // We just get the 
     const fileContents = await getFileContents();
 
-    console.log(`To create a new scenario, create a <<scenario>>.json file in the scenarios folder.`)
-    console.log(`Copy in the JSON object below, and import and then export this object from the index.js`)
-    console.log(`file in the scenarios folder.`)
+    console.log(`To create a new scenario, create a <<scenario>>.json file in the scenarios folder.`);
+    console.log(`Copy in the JSON object below, and import and then export this object from the index.js`);
+    console.log(`file in the scenarios folder.`);
 
     console.log(JSON.stringify({
         scenario: "<<scenario>>",
         fileContents: fileContents
-    }))
+    }));
 }
 
 export default function DevScreen(props) {
-    const {status, setStatus} = React.useContext(StatusContext);
 
     let testSuiteArray = [];
     Object.keys(testSuites).forEach(function(testSuite) {
         testSuiteArray.push(<option value={testSuite}>{testSuite}</option>)
-    })
+    });
 
 
-    let scenarioArray = []
+    let scenarioArray = [];
     Object.keys(scenarios).forEach(function(scenario) {
-        scenarioArray.push(<option value={scenario}>{scenario}</option>)
-    })
+        scenarioArray.push(<option value={scenario}>{scenario}</option>);
+    });
 
     return (
         <Taskpane header={headerSize.LARGE} title="Development Mode. NOTE: Run from an empty Excel workbook with no saga project">

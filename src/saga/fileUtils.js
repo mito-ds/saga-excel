@@ -50,7 +50,7 @@ function getSliceAsync(file, sliceIndex) {
                 resolve(sliceResult.value.data);
             } else {
                 // reject with nothing
-                reject(sliceResult.error.message)
+                reject(sliceResult.error.message);
             }
         });
     });

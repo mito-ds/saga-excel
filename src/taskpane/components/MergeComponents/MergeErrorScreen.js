@@ -13,13 +13,13 @@ export default class MergeErrorScreen extends React.Component {
   constructor(props) {
     super(props); 
 
-    this.postFeedback = this.postFeedback.bind(this)
+    this.postFeedback = this.postFeedback.bind(this);
   }
 
   postFeedback (e) {
     e.preventDefault();
-    const email = document.getElementById('email').value
-    const response = document.getElementById('response').value
+    const email = document.getElementById('email').value;
+    const response = document.getElementById('response').value;
 
     try {
         // Send the feedback to the server
@@ -30,14 +30,14 @@ export default class MergeErrorScreen extends React.Component {
                 relevance: "A bug",
                 response: response
             }
-        )
+        );
     } catch (error) {
-        console.error("Failed to post email.")
+        console.error("Failed to post email.");
     }
     
    // Remove Signup form, display thank you text 
-   document.getElementById('project-link-card').style.display = "none"
-   document.getElementById('feedback-thank-you').style.display = "block"
+   document.getElementById('project-link-card').style.display = "none";
+   document.getElementById('feedback-thank-you').style.display = "block";
 
   }
 
@@ -56,6 +56,6 @@ export default class MergeErrorScreen extends React.Component {
           <p style={{textAlign: "center"}}>Thanks for your feedback!</p>
         </div>
       </Taskpane>
-    )
+    );
   }
 }

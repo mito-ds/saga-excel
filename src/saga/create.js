@@ -21,7 +21,7 @@ async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
 
     // Setup, name range for head branch
     const headRange = worksheet.getRange("A1");
-    worksheet.names.add(item.HEAD, headRange)
+    worksheet.names.add(item.HEAD, headRange);
     headRange.values = [[email]];
 
     // Setup, name range for branch name => commit mapping
@@ -102,8 +102,8 @@ export async function setPersonalBranchName(personalBranchName) {
     await Excel.run(async context => {
         // Set personal branch name
         const project = await new Project(context);
-        await project.updatePersonalBranchName(personalBranchName)
-        return context.sync()
+        await project.updatePersonalBranchName(personalBranchName);
+        return context.sync();
     });
   } catch (error) {
     console.error(error);
@@ -126,9 +126,9 @@ export async function replaceFromBase64(context, fileContents) {
     sheets[i].delete();
   }
 
-  sheets[0].name = "saga-tmp"
+  sheets[0].name = "saga-tmp";
 
-  await context.sync()
+  await context.sync();
 
   const worksheets = context.workbook.worksheets;
   worksheets.addFromBase64(
