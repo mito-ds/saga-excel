@@ -1,82 +1,15 @@
-import { runCreateSaga, createRemoteURL } from "../saga/create";
-import { runOperation } from "../saga/runOperation";
-import { getSheetsWithNames } from "../saga/sagaUtils";
 import { strict as assert } from 'assert';
-import { item, mergeState, taskpaneStatus } from '../constants';
-import { runCleanup } from "../saga/cleanup";
-import { getGlobal } from "../commands/commands";
-import { TEST_URL, changeType } from "../constants";
-import * as scenarios from "../../scenarios";
-import { runReplaceFromBase64 } from "../saga/create";
-import { runResolveMergeConflicts }  from "../saga/merge";
-import Project from "../saga/Project";
-/* global Excel */
+import { runCreateSaga, runReplaceFromBase64 } from "../../saga/create";
+import { runOperation } from "../../saga/runOperation";
+import { item, TEST_URL, mergeState, taskpaneStatus } from "../../constants";
+import { getSheetsWithNames } from "../../saga/sagaUtils";
+import { getGlobal } from "../../commands/commands";
+import { runResolveMergeConflicts }  from "../../saga/merge";
+import * as scenarios from "../../../scenarios";
+import Project from "../../saga/Project";
+import { getItemRangeValues, getFormulas, getValues } from "../testHelpers";
 
 
-async function getItemRangeValues(context, itemName) {
-    const worksheet = context.workbook.worksheets.getItem(`saga`);
-    const storedItem = worksheet.names.getItem(itemName);
-    storedItem.load(`value`);
-    await context.sync();
-    const range = worksheet.getRange(storedItem.value);
-    range.load("values");
-    await context.sync();
-    return range.values;
-}
-
-async function getValues(context, sheetName, rangeAddr) {
-    const worksheet = context.workbook.worksheets.getItem(sheetName);
-    const range = worksheet.getRange(rangeAddr);
-    range.load("values");
-    await context.sync();
-    return range.values;
-}
-
-async function getFormulas(context, sheetName, rangeAddr) {
-    const worksheet = context.workbook.worksheets.getItem(sheetName);
-    const range = worksheet.getRange(rangeAddr);
-    range.load("formulas");
-    await context.sync();
-    return range.formulas;
-}
-
-
-export async function testCreateSaga() {
-    
-    // First, we create the project
-    await runCreateSaga(TEST_URL, "email");
-
-    // Then, we check that the sheets were created correctly
-    const sheets = await runOperation(getSheetsWithNames);
-    assert.equal(sheets.length, 3, "Should have created 3 sheets");
-    assert(sheets.find(sheet => sheet.name === "saga"), "No saga sheet was created");
-
-    // and also that the url and email are stored correctly
-    const storedURL = (await runOperation(getItemRangeValues, item.REMOTE_URL))[0][0]; 
-    assert.equal(TEST_URL, storedURL, "Wrong remote URL stored");
-
-    const storedEmail = (await runOperation(getItemRangeValues, item.PERSONAL_BRANCH))[0][0]; 
-    assert.equal("email", storedEmail, "Wrong remote URL stored");
-
-    return true;
-}
-
-
-export async function testCleanup() {
-    
-    // First, we create the project
-    await runCreateSaga(TEST_URL, "email");
-
-    // Then, we cleanup the project
-    await runCleanup();
-
-    // Then, we make sure there is only a single sheet
-    const sheets = await runOperation(getSheetsWithNames);
-    assert.equal(sheets.length, 1, "Should have created 3 sheets");
-
-    return true;
-}
-  
 export async function testEmptyMerge() {
     
     // First, we create the project
@@ -93,29 +26,6 @@ export async function testEmptyMerge() {
     // Check that the taskpane is in the right state and merge state
     assert.equal(taskpaneStatus.MERGE, window.app.getTaskpaneStatus(), "Should be in a merge state");
     assert.equal(mergeState.MERGE_SUCCESS, window.app.getMergeState(), "Should be in a successful merge");
-
-    return true;
-}
-
-export async function testSwitchVersions() {
-    
-    // First, we create the project
-    await runCreateSaga(TEST_URL, "email");
-
-    // Then, we make sure the personal branch is checked out
-    const head = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
-    assert.equal("email", head, "Personal branch should be checked out");
-
-    // Then, we switch versions
-    const g = getGlobal();
-    await g.switchVersion();
-
-    const newHead = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
-    assert.equal("master", newHead, "Master branch should be checked out");
-
-    await g.switchVersion();
-    const newNewHead = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
-    assert.equal("email", newNewHead, "Personal branch should be checked out again");
 
     return true;
 }
@@ -241,61 +151,6 @@ export async function testMergeConflict() {
     return true;
 }
 
-export async function testGetSetLastCatchUp() {
-
-    // First, we create the project
-    await runCreateSaga(TEST_URL, "email");
-
-    // Then, we check that the last catch up is the first commit.
-    let originalLastCatchUp;
-    let newLastCatchUp;
-    await runOperation(async (context) => {
-        const project = new Project(context);
-        originalLastCatchUp = await project.getLastCatchUpCommitID();
-        
-        // And we try and update it
-        await project.setLastCatchUpCommitID("secondcommit");
-        newLastCatchUp = await project.getLastCatchUpCommitID();
-
-    });
-
-    assert.equal(originalLastCatchUp, "firstcommit");
-    assert.equal(newLastCatchUp, "secondcommit");
-    return true;
-}
-
-export async function testResetPersonalChangesLastCaughtUp() {
-
-    // Load scenario
-    const fileContents = scenarios["unmergedNoConflict"].fileContents;
-    await runReplaceFromBase64(fileContents);
-
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // Then, we check that the last catch up is the first commit.
-    let originalLastCatchUp;
-    await runOperation(async (context) => {
-        const project = new Project(context);
-        originalLastCatchUp = await project.getLastCatchUpCommitID();
-    });
-    assert.equal(originalLastCatchUp, "firstcommit");
-
-    const g = getGlobal();
-    await g.resetPersonalVersion();
-
-    // Then, we check that the last catch up is the first commit.
-    let masterHeadCommitID;
-    let newLastCatchUp;
-    await runOperation(async (context) => {
-        const project = new Project(context);
-        masterHeadCommitID = await project.getCommitIDFromBranch("master");
-        newLastCatchUp = await project.getLastCatchUpCommitID();
-    });
-    assert.equal(masterHeadCommitID, newLastCatchUp);
-
-    return true;
-}
 
 export async function testMergeChangesLastCaughtUp() {
 
@@ -331,7 +186,6 @@ export async function testMergeChangesLastCaughtUp() {
 }
 
 
-
 export async function testNoDiffAfterMerge() {
     
     // Load scenario
@@ -355,10 +209,3 @@ export async function testNoDiffAfterMerge() {
     return true;
 }
 
-
-/*
-    TODO:
-    - write tests for the rest of the buttons: (reset personal, etc)
-    - write tests for merge with some data
-    - Figure out how to simulate a sync? Can we fake it somehow...
-*/

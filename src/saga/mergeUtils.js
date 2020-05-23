@@ -1,12 +1,20 @@
 import { conflictType } from "../constants";
 import { numToChar } from "./sagaUtils";
 
-// This makes it so we can "square everything up..."
+/*
+    This function wraps a 2d array of cell values. For cells that are not in the
+    2d array, it pretends that they are just empty. This makes cell-based comparison 
+    very easy for different sized ranges.
+*/
 export class ValueWrapper {
     constructor(values) {
         this.values = values;
     }
 
+    /*
+        Check if the row is defind, then check if the cell is defined, and return it if so.
+        Otherwise, return an empty cell value.
+    */
     getCell(row, col) {
         return this.values[row] ? (this.values[row][col] ? this.values[row][col] : "") : "";
     }

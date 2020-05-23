@@ -23,9 +23,9 @@ export function findModifiedSheets(initialSheetNames, finalSheetNames) {
     return modifiedSheetNames;
 }
 
-export function removePrefix(initialCommitSheets, initialCommitPrefix) {
-    const sheetNames = initialCommitSheets.map(function(sheet) { 
-        return sheet.name.replace(initialCommitPrefix, ""); 
+export function removePrefix(commitSheets, commitPrefix) {
+    const sheetNames = commitSheets.map(function(sheet) { 
+        return sheet.name.replace(commitPrefix, ""); 
     });
     return sheetNames;
 }
@@ -35,8 +35,8 @@ export function getSheetNamePairs(sheetNames, initialPrefix, finalPrefix) {
     for (var i = 0; i < sheetNames.length; i++) {
         sheetPairs.push({
             sheetName: sheetNames[i],
-            initialSheet: initialPrefix + sheetNames[i], 
-            finalSheet: finalPrefix + sheetNames[i]
+            initialSheetName: initialPrefix + sheetNames[i], 
+            finalSheetName: finalPrefix + sheetNames[i]
         });
     }
     return sheetPairs;

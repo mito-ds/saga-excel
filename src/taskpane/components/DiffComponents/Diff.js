@@ -4,25 +4,22 @@ import { runSelectCell }  from "../../../saga/sagaUtils.js";
 
 /* global  */
 
+
 export default function Diff(props) {
 
-    const sheetName = props.diff.sheetName;
+    const sheetName = props.sheetName;
     const cell = props.diff.cell;
     const initialValue = props.diff.initialValue;
     const finalValue = props.diff.finalValue;
 
-    console.log(`Sheetname: ${props.diff}`);
-
-    console.log(props.diff);
-
     const oldBox = (
-        <div className="boxed old">
+        <div className="diff-boxed old">
             {initialValue}
         </div>   
     );
 
     const newBox = (
-        <div className="boxed new">
+        <div className="diff-boxed new">
             {finalValue}
         </div>  
     );

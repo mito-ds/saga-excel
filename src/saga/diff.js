@@ -4,9 +4,10 @@ import Project from "./Project";
 import { getSheetNamePairs, removePrefix, findInsertedSheets, findDeletedSheets, findModifiedSheets } from "./diffUtils";
 import { changeType } from '../constants';
 import {ValueWrapper} from "./mergeUtils";
+import { commit } from './commit';
 
 // find all of the changes between two 2D array representations of a sheets
-export function simpleDiff2D(initialValue, finalValues, sheetName) {
+export function simpleDiff2D(initialValue, finalValues) {
 
     const maxNumRows = Math.max(initialValue.length, finalValues.length);
     const maxNumCols = Math.max(initialValue[0] ? initialValue[0].length : 0, finalValues[0] ? finalValues[0].length : 0);
@@ -27,7 +28,6 @@ export function simpleDiff2D(initialValue, finalValues, sheetName) {
 
             if (initialValue !== finalValue) {
                 changes.push({
-                    sheetName: sheetName,
                     cell: cell,
                     initialValue: initialValue, 
                     finalValue: finalValue
@@ -39,6 +39,22 @@ export function simpleDiff2D(initialValue, finalValues, sheetName) {
 
     return changes;
 }
+
+function replaceFormulas(formulas, sheetName, commitSheetPrefix) {
+    for (let i = 0; i < formulas.length; i++) {
+        for (let j = 0; j < formulas[i].length; j++) {
+            let formula = formulas[i][j];
+            if (formula[0] === "=") {
+                // Then, it's a formula, and we try and replace
+                formula = formula.replaceAll("'" + commitSheetPrefix, "'");
+                // TODO: handle the case where there is no ' at the start of the formula
+            }
+            formulas[i][j] = formula;
+        }
+    }
+    return formulas;
+}
+
 
 // Finds cell level changes across two commits
 async function diff(context, initialCommit, finalCommit) {
@@ -64,9 +80,6 @@ async function diff(context, initialCommit, finalCommit) {
     const deletedSheetNames = findDeletedSheets(initialSheetNames, finalSheetNames);
     const modifiedSheetNames = findModifiedSheets(initialSheetNames, finalSheetNames);
 
-    console.log("inserted sheets", insertedSheetNames);
-    console.log("deleted sheets", deletedSheetNames);
-    console.log("modified sheets", modifiedSheetNames);
 
     const modifiedSheetNamePairs = getSheetNamePairs(modifiedSheetNames, initialCommitPrefix, finalCommitPrefix);
 
@@ -74,15 +87,29 @@ async function diff(context, initialCommit, finalCommit) {
 
     // Calculate changes on modified sheets
     for (var i = 0; i < modifiedSheetNamePairs.length; i++) {
-        const initialFormulas = await getFormulas(context, modifiedSheetNamePairs[i].initialSheet);
-        const finalFormulas = await getFormulas(context, modifiedSheetNamePairs[i].finalSheet);
+        let initialFormulas = await getFormulas(context, modifiedSheetNamePairs[i].initialSheetName);
+        let finalFormulas = await getFormulas(context, modifiedSheetNamePairs[i].finalSheetName);
 
-        const changes = simpleDiff2D(initialFormulas, finalFormulas, modifiedSheetNamePairs[i].sheetName);
+        // We then normalize the formulas, so that they don't have references to saga commit sheets
+        initialFormulas = replaceFormulas(
+            initialFormulas, 
+            modifiedSheetNamePairs[i].sheetName, 
+            initialCommitPrefix
+        );
+
+        finalFormulas = replaceFormulas(
+            finalFormulas, 
+            modifiedSheetNamePairs[i].sheetName, 
+            finalCommitPrefix
+        );
+
+
+        const changes = simpleDiff2D(initialFormulas, finalFormulas);
 
         // TODO: we can save if there are no changes, and just mark it as such
         if (changes.length !== 0) {
             sheetChanges.push({
-                sheetName: modifiedSheetNamePairs[i].sheetName, 
+                sheetName: modifiedSheetNamePairs[i].sheetName,
                 changeType: changeType.MODIFIED, 
                 changes: changes
             });
