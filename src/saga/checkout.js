@@ -14,7 +14,7 @@ export async function switchVersionFromRibbon(context) {
 
     // Switch Branches
     if (currentBranch === 'master') {
-        const personalBranchName = await project.getPersonalBranchName();
+        const personalBranchName = await project.getPersonalBranch();
         await checkoutBranch(context, personalBranchName);
     } else {
         await checkoutBranch(context, "master");
@@ -54,15 +54,19 @@ async function lockWorksheets(context) {
 export async function checkoutCommitID(context, commitID) {
     // Find those sheets that we should copy back
     let sheets = await getSheetsWithNames(context);
-    sheets = sheets.filter(sheet => {
+    const commitSheets = sheets.filter(sheet => {
         return sheet.name.startsWith(`saga-${commitID}-`);
     });
+    const srcWorksheets = commitSheets.map(sheet => sheet.name);
 
-    const srcWorksheets = sheets.map(sheet => sheet.name);
-
+    // TODO: make this a safe delete function!
+    let tmpSheet = sheets.find(sheet => sheet.name === "saga-tmp");
+    if (!tmpSheet) {
+        // If there is not already a tmp sheet, we need to make one
+        tmpSheet = sheets.find(sheet => !sheet.name.startsWith("saga"));
+        tmpSheet.name = "saga-tmp";
+    }
     // Delete the non-saga sheets
-    const tmpSheet = (await getSheetsWithNames(context)).find(sheet => !sheet.name.startsWith("saga"));
-    tmpSheet.name = "saga-tmp";
     await deleteNonsagaSheets(context);
 
     // Checkout the sheet data in the correct location

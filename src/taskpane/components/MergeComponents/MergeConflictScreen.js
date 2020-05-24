@@ -4,6 +4,8 @@ import Taskpane from "../Taskpane";
 import { headerSize, mergeState } from "../../../constants";
 import MergeConflict from "./MergeConflict";
 import { runResolveMergeConflicts }  from "../../../saga/merge";
+import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
+
 
 import './MergeConflictScreen.css';
 
@@ -16,31 +18,63 @@ export default class MergeConflictScreen extends React.Component {
 
     this.state = {
         mergeConflictData: this.props.mergeConflictData,
-        resolutions: {}
+        resolutions: {},
+        default: "default"
     };
 
     this.collectResolutions = this.collectResolutions.bind(this);
     this.executeResolutions = this.executeResolutions.bind(this);
     this.hideWarningBox = this.hideWarningBox.bind(this);
+    this.onChanged = this.onChanged.bind(this);
+  }
+
+  // Highlights the conflict options on batch select
+  onChanged(checked) {
+    // TODO: Check this value without converting to a string
+    const isDefaultPersonal = document.getElementById("default-toggle").getAttribute('aria-checked').toString();
+
+    this.state.mergeConflictData.forEach(function(sheetResults) {
+        sheetResults.conflicts.forEach(function(conflict) {
+
+            const cellID = conflict.sheet + ":" + conflict.cellOrRow;
+
+            if (isDefaultPersonal === "true") {
+                const optionToSelect = document.getElementById(cellID + "b");
+                optionToSelect.checked = true;
+            }
+
+            if (isDefaultPersonal === "false") {
+                const optionToSelect = document.getElementById(cellID + "a");
+                optionToSelect.checked = true;
+            }
+        });
+    });
   }
 
   collectResolutions(e) {
     e.preventDefault();
     var collectedResolutions = {};
     let usingDefault = false;
-    
+
+    // TODO: Check this value without converting to a string
+    const isDefaultPersonal = document.getElementById("default-toggle").getAttribute('aria-checked').toString();
+
+    this.setState({default: isDefaultPersonal === "true" ? "your changes" : "your collaborator's changes"});
+
     this.state.mergeConflictData.forEach(function(sheetResults) {
         sheetResults.conflicts.forEach(function(conflict) {
-            console.log(conflict);
 
             // Get user's selection from the conflict component
             const cellID = conflict.sheet + ":" + conflict.cellOrRow;
             const selectedButton = document.querySelector('input[name="' + cellID + '"]:checked');
 
-            // If the user selected an option, use that. Otherwise, default to option a
+            // If the user selected an option, use that. Otherwise default
             let selection = "";
             if (selectedButton !== null) {
                 selection = selectedButton.value;
+            } else if (isDefaultPersonal === "true") {
+                selection = conflict.b;
+                usingDefault = true;
             } else {
                 selection = conflict.a;
                 usingDefault = true;
@@ -75,13 +109,13 @@ export default class MergeConflictScreen extends React.Component {
   }
 
   async executeResolutions (resolutions) {
+
     // Send resolution data to update the sheets
     document.getElementById("warning-div").style.display = "none";
 
     // display merge in progress
     window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
 
-    console.log(resolutions);
     // resolve merge conflicts
     const mergeResult = await runResolveMergeConflicts(resolutions);
 
@@ -107,16 +141,19 @@ export default class MergeConflictScreen extends React.Component {
     return (
       <Taskpane header={headerSize.SMALL} title="You need to resolve merge conflicts before your merge can finish">
         <div className="title-subtext-div">
-            <div className="title-subtext">Pick which version of the cell you want to keep. They are ordered: <b>yours, collaborator’s, original</b>.</div>
+            <div className="title-subtext">Choose which changes to keep - they're ordered: <br></br> <b>Yours, Collaborator's, Original</b></div>
         </div>
         <div className="warning-div" id="warning-div">
-            <p><b>Warning</b>: You didn't resolve all of the merge conflicts. Either continue resolving them or use the values in the main version of the project to resolve the remaining conflicts </p>
+            <p><b>Warning</b>: You didn't resolve all of the merge conflicts, so we're using {this.state.default}.</p>
             <div className="warning-box-button-div">
                 <PrimaryButton className="warning-box-button" type="button" onClick={(e) => this.hideWarningBox(e)}>Finish Resolving</PrimaryButton>
-                <PrimaryButton className="warning-box-button" type="button" onClick={(e) => this.executeResolutions(this.state.resolutions)}>Use Main Version</PrimaryButton>
+                <PrimaryButton className="warning-box-button" type="button" onClick={(e) => this.executeResolutions(this.state.resolutions)}>Use Default</PrimaryButton>
             </div>
         </div>
         <div className="conflict-card-div">
+            <div className="batch-toggle-div">
+                <Toggle className="toggle" id="default-toggle" label="Batch Select" inlineLabel onText="Collaborator's Changes" offText="Your Changes" onChange={this.onChanged} />
+            </div>
             <form onSubmit={this.collectResolutions}>
                 <div className="scrollable-div">
                     {mergeConflictComponentsArray}

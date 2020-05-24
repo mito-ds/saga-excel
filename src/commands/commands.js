@@ -42,12 +42,10 @@ Office.onReady(() => {
  */
 async function merge(event) {
   openMergeTaskpane();
-  window.app.setTaskpaneStatus(taskpaneStatus.MERGE);
 
   // update UI and execute merge
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
   var mergeResult = await runMerge(events);
-  console.log(mergeResult);
   window.app.setMergeState(mergeResult);
 
   // If this function was called by clicking the button, let Excel know it's done
