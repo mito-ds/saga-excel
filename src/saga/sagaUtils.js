@@ -198,7 +198,7 @@ export async function runSelectCell(sheet, cell) {
 }
 
 
-export const getFirstAncestorOnMaster = async (context, masterHead, commitID) => {
+export async function getFirstAncestorOnMaster(context, masterHead, commitID) {
     const commitRange = await (new Project(context)).getCommitRangeWithValues();
     const commits = commitRange.values;
     console.log(commits);
