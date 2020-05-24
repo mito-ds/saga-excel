@@ -37,10 +37,10 @@ export async function testSwitchVersionsDoesNotDeletePersonal() {
     
     // Load scenario
     const fileContents = scenarios["switchVersionDoesNotDeletePersonal"].fileContents;
-    await runReplaceFromBase64(fileContents)
+    await runReplaceFromBase64(fileContents);
 
     // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Switch to master version
     const g = getGlobal();
@@ -50,7 +50,7 @@ export async function testSwitchVersionsDoesNotDeletePersonal() {
     await g.switchVersion();
 
     // get remaining value at A1
-    const A1 = (await runOperation(getValues, "Sheet1", "A1"))[0][0]
+    const A1 = (await runOperation(getValues, "Sheet1", "A1"))[0][0];
 
     assert.equal(A1, 5, "switch versions should not delete personal");
 

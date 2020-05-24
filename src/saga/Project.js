@@ -67,7 +67,7 @@ export default class Project {
         return headRange;
     }
 
-    getPersonalBranchNameRange = async () => {
+    getPersonalBranchRange = async () => {
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
         const personalBranchNameRange = worksheet.names.getItem(item.PERSONAL_BRANCH);
         personalBranchNameRange.load(`value`);
@@ -75,27 +75,16 @@ export default class Project {
         return worksheet.getRange(personalBranchNameRange.value)
     }
 
-    getPersonalBranchNameWithValues = async () => {
-        const personalBranchNamesRange = await this.getPersonalBranchNameRange(this.context)
+    getPersonalBranchWithValues = async () => {
+        const personalBranchNamesRange = await this.getPersonalBranchRange(this.context)
         personalBranchNamesRange.load("values")
         await this.context.sync();
         return personalBranchNamesRange
     }
-
-    // Get only the name of the personal branch
-    getPersonalBranchName = async () => {
-        const personalBranchNameRange = await this.getPersonalBranchNameWithValues();
-        return personalBranchNameRange.values[0][0];
-    }
-    
 
     getPersonalBranch = async () => {
-        
-        const personalBranchNamesRange = await this.getPersonalBranchNameRange(this.context)
-        personalBranchNamesRange.load("values")
-        await this.context.sync();
-        console.log(personalBranchNamesRange)
-        return personalBranchNamesRange
+        const personalBranchNameRange = await this.getPersonalBranchWithValues();
+        return personalBranchNameRange.values[0][0];
     }
 
     getCommitRange = async () => {
@@ -217,7 +206,7 @@ export default class Project {
     updates the personal branch name to @param personalBranchName
     */
     updatePersonalBranchName = async (personalBranchName) => {
-        var personalBranchNameRange = await this.getPersonalBranchNameRange(this.context);
+        var personalBranchNameRange = await this.getPersonalBranchRange(this.context);
         personalBranchNameRange.values = [[personalBranchName]];
         await this.context.sync();
         return;
