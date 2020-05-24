@@ -25,13 +25,38 @@ export default class MergeConflictScreen extends React.Component {
     this.collectResolutions = this.collectResolutions.bind(this);
     this.executeResolutions = this.executeResolutions.bind(this);
     this.hideWarningBox = this.hideWarningBox.bind(this);
+    this.onChanged = this.onChanged.bind(this);
+  }
+
+
+  onChanged(checked) {
+    // TODO: Check this value without converting to a string
+    const isDefaultPersonal = document.getElementById("default-toggle").getAttribute('aria-checked').toString();
+
+    this.state.mergeConflictData.forEach(function(sheetResults) {
+        sheetResults.conflicts.forEach(function(conflict) {
+
+            const cellID = conflict.sheet + ":" + conflict.cellOrRow;
+
+            if (isDefaultPersonal === "true") {
+                const optionToSelect = document.getElementById(cellID + "b");
+                optionToSelect.checked = true;
+            }
+
+            if (isDefaultPersonal === "false") {
+                const optionToSelect = document.getElementById(cellID + "a");
+                optionToSelect.checked = true;
+            }
+        });
+    });
   }
 
   collectResolutions(e) {
     e.preventDefault();
-    var collectedResolutions = {}
-    let usingDefault = false
+    var collectedResolutions = {};
+    let usingDefault = false;
 
+    // TODO: Check this value without converting to a string
     const isDefaultPersonal = document.getElementById("default-toggle").getAttribute('aria-checked').toString();
 
     this.setState({default: isDefaultPersonal === "true" ? "your changes" : "your collaborator's changes"});
@@ -116,7 +141,7 @@ export default class MergeConflictScreen extends React.Component {
     return (
       <Taskpane header={headerSize.SMALL} title="You need to resolve merge conflicts before your merge can finish">
         <div className="title-subtext-div">
-            <div className="title-subtext">Choose a default version to accept the changes from and/or make cell level decisions by clicking on the options below. The changes are ordered: <br></br> <b>Yours, Collaborator's, Original</b></div>
+            <div className="title-subtext">Choose which changes to keep. The changes are ordered: <br></br> <b>Yours, Collaborator's, Original</b></div>
         </div>
         <div className="warning-div" id="warning-div">
             <p><b>Warning</b>: You didn't resolve all of the merge conflicts, so we're using {this.state.default}.</p>
@@ -127,7 +152,7 @@ export default class MergeConflictScreen extends React.Component {
         </div>
         <div className="conflict-card-div">
             <div className="batch-toggle-div">
-                <Toggle className="toggle" id="default-toggle" label="Default changes" inlineLabel onText="Your Changes" offText="Collaborator's Changes" />
+                <Toggle className="toggle" id="default-toggle" label="Batch Select" inlineLabel onText="Your Changes" offText="Collaborator's Changes" onChange={this.onChanged} />
             </div>
             <form onSubmit={this.collectResolutions}>
                 <div className="scrollable-div">
