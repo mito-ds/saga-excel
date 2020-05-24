@@ -58,7 +58,7 @@ export default function DevScreen(props) {
     });
 
     return (
-        <Taskpane header={headerSize.LARGE} title="Development Mode. NOTE: Run from an empty Excel workbook with no saga project">
+        <Taskpane header={headerSize.LARGE} title="Development Mode. Careful there, power user.">
             <button onClick={runAllTests}> Run Tests </button>
             <select onChange={async (e) => {await runTestSuite(e.target.value);}}>
                 <option> Select Test Suite</option>

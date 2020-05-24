@@ -1,5 +1,5 @@
 import { commit } from './commit';
-import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets, getCommitSheets } from "./sagaUtils";
+import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets, getCommitSheets, getFirstAncestorOnMaster } from "./sagaUtils";
 import { simpleMerge2D } from "./mergeUtils";
 import { updateShared } from "./sync";
 import { checkoutCommitID } from "./checkout";
@@ -219,9 +219,8 @@ const doMerge = async (context, formattingEvents) => {
     const masterCommitID = await project.getCommitIDFromBranch(`master`);
     const personalCommitID = await project.getCommitIDFromBranch(personalBranch);
 
-    // Because we don't have commits, the least common ancestor is always 
-    // the parent of the personal commit ID
-    const originCommitID = await project.getParentCommitID(personalCommitID);
+    // The origin is always on master, b/c we don't allow much branching
+    const originCommitID = await getFirstAncestorOnMaster(context, masterCommitID, personalCommitID);
 
     console.log("masterCommitID", masterCommitID);
     console.log("personalCommitID", personalCommitID);

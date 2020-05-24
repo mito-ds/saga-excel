@@ -9,6 +9,8 @@ import * as scenarios from "../../../scenarios";
 import Project from "../../saga/Project";
 import { getItemRangeValues, getFormulas, getValues } from "../testHelpers";
 
+/* global Excel */
+
 
 export async function testEmptyMerge() {
     
@@ -57,6 +59,7 @@ export async function testMergeThenSwitchVersions() {
 
     return true;
 }
+
 
 export async function testMergePreservesCrossSheetReferences() {
 
