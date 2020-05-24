@@ -2,8 +2,10 @@ import * as React from "react";
 import Taskpane from "./Taskpane";
 import { StatusContext } from "./StatusContext";
 import { runCleanup } from "../../saga/cleanup";
-import { runTests } from "../../tests/runTests";
+import { runAllTests, runTestSuite } from "../../tests/runTests";
+import * as testSuites from "../../tests/";
 import { headerSize, TEST_URL } from "../../constants";
+import { runUpgradeAllScenarios } from "../../saga/upgrade";
 
 import { getFileContents } from "../../saga/fileUtils";
 import * as scenarios from "../../../scenarios";
@@ -27,33 +29,43 @@ async function createScenario() {
     await Excel.run(async (context) => {
         const project = new Project(context);
         project.setRemoteURL(TEST_URL);
-    })
+    });
 
     // We just get the 
     const fileContents = await getFileContents();
 
-    console.log(`To create a new scenario, create a <<scenario>>.json file in the scenarios folder.`)
-    console.log(`Copy in the JSON object below, and import and then export this object from the index.js`)
-    console.log(`file in the scenarios folder.`)
+    console.log(`To create a new scenario, create a <<scenario>>.json file in the scenarios folder.`);
+    console.log(`Copy in the JSON object below, and import and then export this object from the index.js`);
+    console.log(`file in the scenarios folder.`);
 
     console.log(JSON.stringify({
         scenario: "<<scenario>>",
         fileContents: fileContents
-    }))
+    }));
 }
 
 export default function DevScreen(props) {
-    const {status, setStatus} = React.useContext(StatusContext);
 
-    let scenarioArray = []
+    let testSuiteArray = [];
+    Object.keys(testSuites).forEach(function(testSuite) {
+        testSuiteArray.push(<option value={testSuite}>{testSuite}</option>)
+    });
+
+
+    let scenarioArray = [];
     Object.keys(scenarios).forEach(function(scenario) {
-        scenarioArray.push(<option key={scenario} value={scenario}>{scenario}</option>)
-    })
+        scenarioArray.push(<option key={scenario} value={scenario}>{scenario}</option>);
+    });
 
     return (
         <Taskpane header={headerSize.LARGE} title="Development Mode. NOTE: Run from an empty Excel workbook with no saga project">
-            <button onClick={runTests}> Run Tests </button>
+            <button onClick={runAllTests}> Run Tests </button>
+            <select onChange={async (e) => {await runTestSuite(e.target.value);}}>
+                <option> Select Test Suite</option>
+                {testSuiteArray}                
+            </select>
             <button onClick={runCleanup}> Cleanup </button>
+            <button onClick={runUpgradeAllScenarios}> Upgrade All Scenarios </button>
             <button onClick={createScenario}> Create Scenario from Current Workbook (check console) </button>
             <select onChange={loadScenario}>
                 <option> Select Secenario</option>

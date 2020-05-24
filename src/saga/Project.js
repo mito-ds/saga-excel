@@ -22,6 +22,31 @@ export default class Project {
         return branchRange;
     }
 
+    getLastCatchUpRange = async () => {
+        const worksheet = this.context.workbook.worksheets.getItem(`saga`);
+        const lastCatchUpItem = worksheet.names.getItem(item.LAST_CATCH_UP);
+        lastCatchUpItem.load(`value`);
+        await this.context.sync();
+        return worksheet.getRange(lastCatchUpItem.value);
+    }
+    
+    getLastCatchUpRangeWithValues = async () => {
+        const lastCatchUpRange = await this.getLastCatchUpRange(this.context);
+        lastCatchUpRange.load("values");
+        await this.context.sync();
+        return lastCatchUpRange;
+    }
+
+    getLastCatchUpCommitID = async () => {
+        const lastCatchUpRange = await this.getLastCatchUpRangeWithValues();
+        return lastCatchUpRange.values[0][0];
+    }
+
+    setLastCatchUpCommitID = async (commitID) => {
+        const lastCatchUpRange = await this.getLastCatchUpRange();
+        lastCatchUpRange.values = [[commitID]];
+    }
+
     getHeadRange = async () => {
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
         const headItem = worksheet.names.getItem(item.HEAD);

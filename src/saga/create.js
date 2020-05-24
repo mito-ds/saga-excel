@@ -21,17 +21,17 @@ async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
 
     // Setup, name range for head branch
     const headRange = worksheet.getRange("A1");
-    worksheet.names.add(item.HEAD, headRange)
+    worksheet.names.add(item.HEAD, headRange);
     headRange.values = [[email]];
 
     // Setup, name range for branch name => commit mapping
     const branchRange = worksheet.getRange("B1:C2");
-    worksheet.names.add(item.BRANCHES, branchRange)
+    worksheet.names.add(item.BRANCHES, branchRange);
     branchRange.values = [["master", "firstcommit"], [email, firstCommitID]];
 
     // Setup, name range for commit id => (parent commit id, name, message) mapping
     const commitRange = worksheet.getRange("D1:G1");
-    worksheet.names.add(item.COMMITS, commitRange)
+    worksheet.names.add(item.COMMITS, commitRange);
     commitRange.values = [["firstcommit", "", "", ""]];
 
     //Setup, name range for personal branch identifier
@@ -41,8 +41,18 @@ async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
 
     // Setup, name range for remote url
     const remoteRange = worksheet.getRange("A2");
-    worksheet.names.add(item.REMOTE_URL, remoteRange)
-    remoteRange.values = [[remoteURL]]
+    worksheet.names.add(item.REMOTE_URL, remoteRange);
+    remoteRange.values = [[remoteURL]];
+
+    // Setup, name range for last catch up commit
+    const lastCatchUpRange = worksheet.getRange("A4");
+    worksheet.names.add(item.LAST_CATCH_UP, lastCatchUpRange);
+    lastCatchUpRange.values = [[firstCommitID]];
+
+    //Setup, name range for the version id
+    const versionRange = worksheet.getRange("A5");
+    worksheet.names.add(item.VERSION, versionRange);
+    versionRange.values = [["0.0.1"]];
 
     return context.sync();
 }
@@ -92,8 +102,8 @@ export async function setPersonalBranchName(personalBranchName) {
     await Excel.run(async context => {
         // Set personal branch name
         const project = await new Project(context);
-        await project.updatePersonalBranchName(personalBranchName)
-        return context.sync()
+        await project.updatePersonalBranchName(personalBranchName);
+        return context.sync();
     });
   } catch (error) {
     console.error(error);
@@ -107,9 +117,8 @@ export async function setPersonalBranchName(personalBranchName) {
 /*
   Replaces the current workbook with the given base 64 string
 */
-async function replaceFromBase64(context, fileContents) {
+export async function replaceFromBase64(context, fileContents) {
 
-  console.log(fileContents)
   const project = new Project(context);
   const sheets = await project.getSheetsWithNames();
 
@@ -117,9 +126,9 @@ async function replaceFromBase64(context, fileContents) {
     sheets[i].delete();
   }
 
-  sheets[0].name = "saga-tmp"
+  sheets[0].name = "saga-tmp";
 
-  await context.sync()
+  await context.sync();
 
   const worksheets = context.workbook.worksheets;
   worksheets.addFromBase64(

@@ -4,8 +4,9 @@ export const taskpaneStatus = {
     SHARE: 'share',
     MERGE: 'merge',
     OFFLINE: 'offline',
-    DEVELOPMENT: 'development'
-}
+    DEVELOPMENT: 'development',
+    DIFF: 'diff'
+};
 
 /*
     The states a merge can be in:
@@ -21,7 +22,7 @@ export const mergeState = {
     MERGE_CONFLICT: 'merge_conflict',
     MERGE_ERROR: 'merge_error',
     MERGE_FORKED: 'merge_forked'
-}
+};
 
 
 /*
@@ -39,7 +40,7 @@ export const branchState = {
     BRANCH_STATE_BEHIND: 'branch_state_behind',
     BRANCH_STATE_FORKED: 'branch_state_forked',
     BRANCH_STATE_ERROR: 'branch_state_error'
-}
+};
 
 /*
     Named items in the excel sheet
@@ -49,8 +50,10 @@ export const item = {
     BRANCHES: 'branches',
     COMMITS: 'commits',
     PERSONAL_BRANCH: 'personalBranchName',
-    REMOTE_URL: 'remote'
-}
+    REMOTE_URL: 'remote',
+    LAST_CATCH_UP: "lastCatchUp",
+    VERSION: "version"
+};
 
 /*
     The type of merge conflict
@@ -58,7 +61,7 @@ export const item = {
 export const conflictType = {
     ROW: 'row',
     CELL: 'cell'
-}
+};
 
 /*
     The type of taskpane header
@@ -66,6 +69,16 @@ export const conflictType = {
 export const headerSize = {
     SMALL: 'small',
     LARGE: "large"
-}
+};
+
+/*
+    The type of change identified through the diff algorithm
+*/
+export const changeType = {
+    NONE: "None",
+    MODIFIED: "Modified",
+    INSERTED: "Inserted",
+    DELETED: "Deleted"
+};
 
 export const TEST_URL = "test_url";

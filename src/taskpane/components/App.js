@@ -3,15 +3,18 @@ import Progress from "./Progress";
 import LinkScreen from "./LinkScreen"
 import LoginScreen from "./LoginScreen"
 import ProjectSourceScreen from "./ProjectSourceScreen"
+import { OutOfDateErrorScreen, logOutOfDate } from "./OutOfDateErrorScreen"
 import DevScreen from "./DevScreen";
 import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
 import { taskpaneStatus, mergeState } from "../../constants";
 import { sagaProjectJSON } from "../../saga/sagaUtils";
 
-import './App.css';
 
-/* global */
+import './App.css';
+import DiffScreen from "./DiffComponents/DiffScreen";
+
+/* global Office */
 
 export default class App extends React.Component {
   constructor(props) {
@@ -23,7 +26,8 @@ export default class App extends React.Component {
       offline: false,
       taskpaneStatus: taskpaneStatus.CREATE,
       mergeState: mergeState.MERGE_SUCCESS,
-      mergeConflicts: null
+      mergeConflicts: null,
+      sheetDiffs: null
     };
 
     this.getTaskpaneStatus = this.getTaskpaneStatus.bind(this);
@@ -34,7 +38,7 @@ export default class App extends React.Component {
     this.offline = this.offline.bind(this);
     this.getMergeState = this.getMergeState.bind(this);
     this.setMergeState = this.setMergeState.bind(this);
-
+    this.setSheetDiffs = this.setSheetDiffs.bind(this);
   }
 
   /*
@@ -79,6 +83,10 @@ export default class App extends React.Component {
     this.setState({remoteURL: remoteURL})
   }
 
+  setSheetDiffs = (sheetDiffs) => {
+    this.setState({sheetDiffs: sheetDiffs})
+  }
+
   offline = () => {
     this.setState({offline: true})
   }
@@ -93,7 +101,27 @@ export default class App extends React.Component {
     const { title, isOfficeInitialized } = this.props;
 
     // TODO: check if office is initialized, and that we are online
+    if (!isOfficeInitialized) {
+      return (
+        <Progress title={title} logo="assets/saga-logo/saga-logo-taskpane.png" message="Please sideload your addin to see app body." />
+      );
+    }
+    
+
+    /*
+      We check to make sure some minimum version of the ExcelApi is supported. Note that this is actually not
+      enough - we want to check that the preview set is supported (so we get addFromBase64), but I can't figure
+      out how to check this programmatically.
+    */
+    if (!Office.context.requirements.isSetSupported("ExcelApi", "1.11")) {
+      // We then log what their current version of the UI is
+      logOutOfDate();
+      return (<OutOfDateErrorScreen/>);
+    }
+
     var toReturn;
+    
+
 
     switch(this.state.taskpaneStatus) {
       case taskpaneStatus.DEVELOPMENT:
@@ -107,6 +135,11 @@ export default class App extends React.Component {
       case taskpaneStatus.SHARE:
         toReturn = (<LinkScreen remoteURL={this.state.remoteURL}/>);
         break;
+
+      case taskpaneStatus.DIFF:
+        toReturn = (<DiffScreen sheetDiffs={this.state.sheetDiffs}/>);
+        break;
+
 
       case taskpaneStatus.CREATE:
         const step = this.state.step;
@@ -133,6 +166,7 @@ export default class App extends React.Component {
           );
         }
     }
+
     
     return (
       <StatusContext.Provider value={{status: this.state.taskpaneStatus, setStatus: this.setTaskpaneStatus}}>

@@ -3,9 +3,10 @@
  * See LICENSE in the project root for license information.
  */
 
-import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
-import { runResetPersonalVersion } from "../saga/resetPersonal.js"
-import { runMerge } from "../saga/merge.js"
+import { runSwitchVersionFromRibbon } from "../saga/checkout.js";
+import { runResetPersonalVersion } from "../saga/resetPersonal.js";
+import { runMerge } from "../saga/merge.js";
+import { runCatchUp } from "../saga/diff.js";
 import { taskpaneStatus, mergeState } from "../constants";
 
 /* global global, Office, Excel */
@@ -18,13 +19,13 @@ function formattingHandler(event) {
 }
 
 async function openShareTaskpane(event) {
-  window.app.setTaskpaneStatus(taskpaneStatus.SHARE)
+  window.app.setTaskpaneStatus(taskpaneStatus.SHARE);
   Office.addin.showAsTaskpane();
   event.completed();
 }
 
 function openMergeTaskpane() {
-  window.app.setTaskpaneStatus(taskpaneStatus.MERGE)
+  window.app.setTaskpaneStatus(taskpaneStatus.MERGE);
   Office.addin.showAsTaskpane();
 }
 
@@ -32,7 +33,7 @@ Office.onReady(() => {
   Excel.run(function (context) {
     context.workbook.worksheets.onFormatChanged.add(formattingHandler);
     return context.sync();
-  })
+  });
 });
 
 /**
@@ -40,13 +41,13 @@ Office.onReady(() => {
  * @param event {Office.AddinCommands.Event}
  */
 async function merge(event) {
-  openMergeTaskpane()
+  openMergeTaskpane();
   window.app.setTaskpaneStatus(taskpaneStatus.MERGE);
 
   // update UI and execute merge
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
   var mergeResult = await runMerge(events);
-  console.log(mergeResult)
+  console.log(mergeResult);
   window.app.setMergeState(mergeResult);
 
   // If this function was called by clicking the button, let Excel know it's done
@@ -55,6 +56,20 @@ async function merge(event) {
   }
   events = [];
   return mergeResult;
+}
+
+async function catchUp(event) {
+  const sheetDiffs = await runCatchUp();
+  console.log("Sheetdiffs", sheetDiffs);
+  // We set the diff state as well
+  window.app.setSheetDiffs(sheetDiffs);
+  console.log("catching up in commands");
+  window.app.setTaskpaneStatus(taskpaneStatus.DIFF);
+  
+  if (event) {
+    event.completed();
+  }
+  return sheetDiffs;
 }
 
 async function switchVersion(event) {
@@ -68,8 +83,10 @@ async function switchVersion(event) {
 
 async function resetPersonalVersion(event) {
   // Todo: If on master, tell them they can't
-  await runResetPersonalVersion(); 
-  event.completed();
+  await runResetPersonalVersion();
+  if (event) {
+    event.completed();
+  }
 }
 
 export function getGlobal() {
@@ -89,3 +106,4 @@ g.merge = merge;
 g.switchVersion = switchVersion;
 g.resetPersonalVersion = resetPersonalVersion;
 g.openShareTaskpane = openShareTaskpane;
+g.catchUp = catchUp;
