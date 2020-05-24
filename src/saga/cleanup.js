@@ -1,5 +1,5 @@
 import { turnSyncOff } from "./sync";
-import { getSheetsWithNames } from "./sagaUtils";
+import { getSheetsWithNames, createSheet } from "./sagaUtils";
 
 /* global Excel, OfficeExtension */
 
@@ -29,26 +29,19 @@ async function safeSyncLoop(context, arr, operation) {
 async function cleanup(context) {
     const sheets = await getSheetsWithNames(context);
 
-    await safeSyncLoop(
-        context,
-        sheets,
-        (sheet) => {
-            if (sheet.name.startsWith(`saga`)) {
-                sheet.delete();
-            }
-        }
-    );
+    await safeSyncLoop(context, sheets.slice(1), (sheet) => {sheet.delete()});
+    sheets[0].name = "saga-tmp"; 
+    await createSheet(context, "Sheet1", Excel.SheetVisibility.visible); 
+    sheets[0].delete(); 
+    await context.sync(); 
 
-    // TODO: we need to rename to Sheet1, and clear itn
-
-    // Then, we rename the current sheet to Sheet1, and clear it
-
-
-    
     return true;
+
 }
 
-
+/*
+    Leaves just an empty Sheet1, and further deletes any scheduled processes
+*/
 export async function runCleanup() {
 
     turnSyncOff();

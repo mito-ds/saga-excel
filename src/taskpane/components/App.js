@@ -8,6 +8,7 @@ import DevScreen from "./DevScreen";
 import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
 import { taskpaneStatus, mergeState } from "../../constants";
+import { sagaProjectJSON } from "../../saga/sagaUtils";
 
 
 import './App.css';
@@ -38,6 +39,20 @@ export default class App extends React.Component {
     this.getMergeState = this.getMergeState.bind(this);
     this.setMergeState = this.setMergeState.bind(this);
     this.setSheetDiffs = this.setSheetDiffs.bind(this);
+  }
+
+  /*
+  If there is a saga project already, we load it into the taskpane
+  */
+  async componentDidUpdate(prevProps) {
+    if (!prevProps.isOfficeInitialized && this.props.isOfficeInitialized) {
+      const projectObj = await sagaProjectJSON();
+      if (("remoteURL" in projectObj)) {
+        this.setURL(projectObj["remoteURL"]);
+        this.setEmail(projectObj["email"]);
+        this.setTaskpaneStatus(taskpaneStatus.SHARE);
+      }
+    }
   }
 
   getTaskpaneStatus = () => {

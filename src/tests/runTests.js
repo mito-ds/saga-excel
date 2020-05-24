@@ -1,7 +1,7 @@
 import * as testSuites from "./index";
 import { runCleanup } from "../saga/cleanup";
 
-/* global process */
+/* global */
 
 export async function runTestSuite(testSuiteName) {
 
@@ -14,8 +14,6 @@ export async function runTestSuite(testSuiteName) {
     var numFailed = 0;
     var failed = {};
     var output = {};
-
-    
     
     const oldConsoleLog = window.console.log;
     for (let i = 0; i < testNames.length; i++) {

@@ -1,4 +1,5 @@
 import { runOperation } from './runOperation';
+import Project from "./Project";
 
 /* global Excel */
 
@@ -129,6 +130,52 @@ export async function deleteNonsagaSheets(context) {
     sheets.forEach(sheet => sheet.delete());
 
     await context.sync();
+}
+
+// TODO: have to move this to take context as input, and run through the safe channels
+export async function sagaProjectExists() {
+    var exists;
+    try {
+        await Excel.run(async (context) => {
+            const sagaSheet = context.workbook.worksheets.getItemOrNullObject("saga");
+
+            await context.sync();
+            console.log("sagasheet")
+            console.log(sagaSheet.isNullObject)
+            exists = !sagaSheet.isNullObject;
+        })
+    } catch (e) {
+        return false;
+    }
+    console.log("using exists", exists);
+    return exists;
+}
+
+export async function sagaProjectJSON() {
+    var obj = {};
+    try {
+        await Excel.run(async (context) => {
+            const sagaSheet = context.workbook.worksheets.getItemOrNullObject("saga");
+            await context.sync();
+
+            // If there is no saga project, we just return, as there is no project
+            if (sagaSheet.isNullObject) {
+                return;
+            }
+
+            // If there is a saga project, we get the remote URL and the email
+            const project = new Project(context);
+            const remoteURL = await project.getRemoteURL();
+            const email = await project.getPersonalBranchName();
+
+
+            obj["remoteURL"] = remoteURL;
+            obj["email"] = email;
+        })
+    } catch (e) {
+        return obj;
+    }
+    return obj;
 }
 
 /*
