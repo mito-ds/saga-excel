@@ -18,7 +18,8 @@ export default class MergeConflictScreen extends React.Component {
 
     this.state = {
         mergeConflictData: this.props.mergeConflictData,
-        resolutions: {}
+        resolutions: {},
+        default: "default"
     };
 
     this.collectResolutions = this.collectResolutions.bind(this);
@@ -31,7 +32,9 @@ export default class MergeConflictScreen extends React.Component {
     var collectedResolutions = {}
     let usingDefault = false
 
-    const isDefaultPersonal = document.getElementById("default-toggle").getAttribute('aria-checked')
+    const isDefaultPersonal = document.getElementById("default-toggle").getAttribute('aria-checked').toString();
+
+    this.setState({default: isDefaultPersonal === "true" ? "your changes" : "your collaborator's changes"});
 
     this.state.mergeConflictData.forEach(function(sheetResults) {
         sheetResults.conflicts.forEach(function(conflict) {
@@ -44,9 +47,9 @@ export default class MergeConflictScreen extends React.Component {
             let selection = "";
             if (selectedButton !== null) {
                 selection = selectedButton.value;
-            } else if (isDefaultPersonal) {
-                selection = conflict.b
-                usingDefault = true
+            } else if (isDefaultPersonal === "true") {
+                selection = conflict.b;
+                usingDefault = true;
             } else {
                 selection = conflict.a;
                 usingDefault = true;
@@ -116,7 +119,7 @@ export default class MergeConflictScreen extends React.Component {
             <div className="title-subtext">Choose a default version to accept the changes from and/or make cell level decisions by clicking on the options below. The changes are ordered: <br></br> <b>Yours, Collaborator's, Original</b></div>
         </div>
         <div className="warning-div" id="warning-div">
-            <p><b>Warning</b>: You didn't resolve all of the merge conflicts, so we're using the default changes you selected.</p>
+            <p><b>Warning</b>: You didn't resolve all of the merge conflicts, so we're using {this.state.default}.</p>
             <div className="warning-box-button-div">
                 <PrimaryButton className="warning-box-button" type="button" onClick={(e) => this.hideWarningBox(e)}>Finish Resolving</PrimaryButton>
                 <PrimaryButton className="warning-box-button" type="button" onClick={(e) => this.executeResolutions(this.state.resolutions)}>Use Default</PrimaryButton>
