@@ -21,15 +21,14 @@ export default function Taskpane(props) {
         );
     }
 
-    if (props.header == headerSize.LARGE) {
-        return (
-            <div className="taskpane">
-                <TaskpaneHeaderLarge title={props.title}/>
-                <div className="content">
-                    {props.children}
-                </div>
-                <TaskpaneFooter/>
+    // We default to large
+    return (
+        <div className="taskpane">
+            <TaskpaneHeaderLarge title={props.title}/>
+            <div className="content">
+                {props.children}
             </div>
-        );
-    } 
+            <TaskpaneFooter/>
+        </div>
+    );
 }

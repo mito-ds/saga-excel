@@ -22,5 +22,8 @@
         "react"
     ],
     "rules": {
+        "semi": "error",
+        "no-irregular-whitespace": "error",
+        "no-unreachable": "error"
     }
 }

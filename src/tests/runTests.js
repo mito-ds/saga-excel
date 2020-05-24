@@ -5,7 +5,7 @@ import { runCleanup } from "../saga/cleanup";
 
 export async function runTestSuite(testSuiteName) {
 
-    console.log(`%cRunning test suites ${testSuiteName}:\n`, "color: yellow;");
+    console.log(`%cRunning test suites ${testSuiteName}:\n`, "color: orange;");
 
     const tests = testSuites[testSuiteName];
     const testNames = Object.keys(tests);
@@ -19,7 +19,7 @@ export async function runTestSuite(testSuiteName) {
     
     const oldConsoleLog = window.console.log;
     for (let i = 0; i < testNames.length; i++) {
-        oldConsoleLog(`%cRunning test ${testNames[i]}:\n`, "color: yellow;");
+        oldConsoleLog(`%cRunning test ${testNames[i]}:\n`, "color: orange;");
 
         const test = tests[testNames[i]];
 
@@ -39,11 +39,11 @@ export async function runTestSuite(testSuiteName) {
         }
 
         if (success) {
-            oldConsoleLog(`%c passed`, "color: green;")
-            results += "."
+            oldConsoleLog(`%c passed`, "color: green;");
+            results += ".";
         } else {
-            oldConsoleLog(`%c failed`, "color: red;")
-            results += "F"
+            oldConsoleLog(`%c failed`, "color: red;");
+            results += "F";
             numFailed++;
             if (!(testNames[i] in failed)) {
                 failed[testNames[i]] = false;
@@ -55,7 +55,7 @@ export async function runTestSuite(testSuiteName) {
     }
 
     // Print the result string
-    console.log(`%c${results}`, "color: yellow;");
+    console.log(`%c${results}`, "color: orange;");
 
     if (numFailed !== 0) {
         const failedNames = Object.keys(failed);
@@ -79,11 +79,11 @@ export async function runAllTests() {
 
     await runCleanup();
 
-    console.log(`%cRunning ${testSuiteNames.length} test suites:\n`, "color: yellow;");
+    console.log(`%cRunning ${testSuiteNames.length} test suites:\n`, "color: orange;");
 
     let results = "";
     for (let i = 0; i < testSuiteNames.length; i++) {
         results += await runTestSuite(testSuiteNames[i]);
     }
-    console.log(`%cAll tests ${results}`, "color: yellow;");
+    console.log(`%cAll tests ${results}`, "color: orange;");
 }

@@ -50,93 +50,12 @@ export async function createSheet(context, worksheetName, worksheetVisibility) {
 }
 
 /*
-Copies srcWorksheetName to dstWorksheetName, with the given visibility parameters
-*/
-async function copySheets(
-    context, 
-    srcWorksheets, 
-    getNewName,
-    worksheetPositionType,
-    worksheetVisibility
-) {
-
-    if (worksheetPositionType !== Excel.WorksheetPositionType.end && worksheetPositionType !== Excel.WorksheetPositionType.beginning) {
-        console.error(`Bulk copy only supports beggining or end, not ${worksheetPositionType}`);
-        return false;
-    }
-
-    console.log(srcWorksheets)
-
-    if (worksheetPositionType === Excel.WorksheetPositionType.end) {
-        for (let i = 0; i < srcWorksheets.length; i++) {
-            const srcName = srcWorksheets[i];
-            const dstName = getNewName(srcName);
-            const src = context.workbook.worksheets.getItemOrNullObject(srcName);
-            const dst = src.copy(worksheetPositionType);
-            dst.name = dstName;
-            dst.visibility = worksheetVisibility;
-    
-            // We can queue at most 40 txs
-            if (i % 40 === 0) {
-                await context.sync();
-            }
-        }
-    } else if (worksheetPositionType === Excel.WorksheetPositionType.beginning) {
-        for (let i = srcWorksheets.length - 1; i >= 0; i--) {
-            const srcName = srcWorksheets[i];
-            const dstName = getNewName(srcName);
-            const src = context.workbook.worksheets.getItemOrNullObject(srcName);
-            const dst = src.copy(worksheetPositionType);
-            dst.name = dstName;
-            dst.visibility = worksheetVisibility;
-    
-            // We can queue at most 40 txs
-            if (i % 40 === 0) {
-                await context.sync();
-            }
-        }
-    }
-
-    return context.sync();
-}
-
-/*
-Copies srcWorksheetName to dstWorksheetName, with the given visibility parameters
-*/
-async function copySheet(
-        context, 
-        srcWorksheetName, 
-        dstWorksheetName,
-        worksheetPositionType,
-        worksheetVisibility
-    ) {
-    // copy a sheet
-    const activeSheet = context.workbook.worksheets.getItemOrNullObject(srcWorksheetName);
-    const copiedSheet = activeSheet.copy(worksheetPositionType);
-    // Set the name and visibiliy
-    copiedSheet.name = dstWorksheetName;
-    copiedSheet.visibility = worksheetVisibility;
-
-    console.log(
-        `Copied ${srcWorksheetName} to ${dstWorksheetName}
-         at position ${worksheetPositionType} and set to ${worksheetVisibility}`
-    );
-
-    return context.sync();
-}
-
-/*
 Returns a random 14-digit string.
 */
 export function getRandomID() {
     return Math.random().toString(36).substring(2, 15);
 }
 
-// Taken https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
-
-function fromColumnName(col){
-    return col.split('').reduce((r, a) => r * 26 + parseInt(a, 36) - 9, 0);
-}
 
 // numToChar and chr are taken from https://stackoverflow.com/questions/9905533/convert-excel-column-alphabet-e-g-aa-to-number-e-g-25
 
@@ -163,7 +82,7 @@ function chr(codePt) {
 export async function getCommitSheets (sheets, commitID) {
     return sheets.filter(sheet => {
         return sheet.name.startsWith(`saga-${commitID}`);
-    })
+    });
 }
 
 export async function getFormulas(context, sheetName) {
@@ -171,9 +90,9 @@ export async function getFormulas(context, sheetName) {
     var sheet = context.workbook.worksheets.getItem(sheetName);
     var usedRange = sheet.getUsedRangeOrNullObject(true);
     // Have to load and then sync to run the command
-    usedRange.load("formulas")
-    usedRange.load("address")
-    usedRange.load("isNullObject")
+    usedRange.load("formulas");
+    usedRange.load("address");
+    usedRange.load("isNullObject");
     await context.sync();
     
     if (usedRange.isNullObject) {
@@ -190,7 +109,7 @@ export async function getFormulas(context, sheetName) {
     const bottomRight = addrParts.length === 1 ? addrParts[0] : addrParts[1];
 
     var usedRangeWithA1 = sheet.getRange(`A1:${bottomRight}`);
-    usedRangeWithA1.load("formulas")
+    usedRangeWithA1.load("formulas");
     await context.sync();
 
     return usedRangeWithA1.formulas;
@@ -204,7 +123,7 @@ export async function deleteNonsagaSheets(context) {
     let sheets = await getSheetsWithNames(context);
     sheets = sheets.filter(sheet => {
         return !sheet.name.startsWith("saga");
-    })
+    });
 
     // TODO: make it be save w/ number of sheets
     sheets.forEach(sheet => sheet.delete());
@@ -228,6 +147,6 @@ async function selectCell(context, sheetName, cell) {
 }
 
 export async function runSelectCell(sheet, cell) {
-    return runOperation(selectCell, sheet, cell)
+    return runOperation(selectCell, sheet, cell);
 }
 

@@ -17,52 +17,52 @@ export default class MergeConflictScreen extends React.Component {
     this.state = {
         mergeConflictData: this.props.mergeConflictData,
         resolutions: {}
-    }
+    };
 
-    this.collectResolutions = this.collectResolutions.bind(this)
-    this.executeResolutions = this.executeResolutions.bind(this)
-    this.hideWarningBox = this.hideWarningBox.bind(this)
+    this.collectResolutions = this.collectResolutions.bind(this);
+    this.executeResolutions = this.executeResolutions.bind(this);
+    this.hideWarningBox = this.hideWarningBox.bind(this);
   }
 
   collectResolutions(e) {
     e.preventDefault();
-    var collectedResolutions = {}
-    let usingDefault = false
+    var collectedResolutions = {};
+    let usingDefault = false;
     
     this.state.mergeConflictData.forEach(function(sheetResults) {
         sheetResults.conflicts.forEach(function(conflict) {
-            console.log(conflict)
+            console.log(conflict);
 
             // Get user's selection from the conflict component
-            const cellID = conflict.sheet + ":" + conflict.cellOrRow
+            const cellID = conflict.sheet + ":" + conflict.cellOrRow;
             const selectedButton = document.querySelector('input[name="' + cellID + '"]:checked');
 
             // If the user selected an option, use that. Otherwise, default to option a
-            let selection = ""
+            let selection = "";
             if (selectedButton !== null) {
                 selection = selectedButton.value;
             } else {
-                selection = conflict.a
-                usingDefault = true
+                selection = conflict.a;
+                usingDefault = true;
             }
 
             // create the resolution object
             const resolution = {
                 cellOrRow: conflict.cellOrRow, 
                 value: selection
-            }
+            };
 
             // Add resolution to resolutions list in the correct sheet entry 
             if (conflict.sheet in collectedResolutions) {
-                collectedResolutions.sheetName.push(resolution)
+                collectedResolutions.sheetName.push(resolution);
             } else {
-                collectedResolutions[conflict.sheet] = [resolution]
+                collectedResolutions[conflict.sheet] = [resolution];
             }
         });
     });
 
     // save the resolutions
-    this.setState({resolutions: collectedResolutions})
+    this.setState({resolutions: collectedResolutions});
 
     if (usingDefault) {
         // If not all conflicts were resolved, display warning
@@ -70,7 +70,7 @@ export default class MergeConflictScreen extends React.Component {
         return;
     } else {
         // If all conflicts are resolved, execute them
-        this.executeResolutions(collectedResolutions)
+        this.executeResolutions(collectedResolutions);
     }
   }
 
@@ -81,26 +81,26 @@ export default class MergeConflictScreen extends React.Component {
     // display merge in progress
     window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
 
-    console.log(resolutions)
+    console.log(resolutions);
     // resolve merge conflicts
-    const mergeResult = await runResolveMergeConflicts(resolutions)
+    const mergeResult = await runResolveMergeConflicts(resolutions);
 
     // display success screen
     window.app.setMergeState(mergeResult);
   }
 
   hideWarningBox (e) {
-    e.preventDefault()
+    e.preventDefault();
     document.getElementById("warning-div").style.display = "none";
   }
     
   render() {
     
-    let mergeConflictComponentsArray = []
-    console.log(this.state.mergeConflictData)
+    let mergeConflictComponentsArray = [];
+    console.log(this.state.mergeConflictData);
     this.state.mergeConflictData.forEach(function(sheetResults) {
         sheetResults.conflicts.forEach(function(conflict) {
-            mergeConflictComponentsArray.push(<MergeConflict conflict={conflict}></MergeConflict>)
+            mergeConflictComponentsArray.push(<MergeConflict conflict={conflict}></MergeConflict>);
         });
     });
 
@@ -127,6 +127,6 @@ export default class MergeConflictScreen extends React.Component {
             </form>
         </div>
       </Taskpane>
-    )
+    );
   }
 }

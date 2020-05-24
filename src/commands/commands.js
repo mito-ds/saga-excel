@@ -3,11 +3,10 @@
  * See LICENSE in the project root for license information.
  */
 
-import { runSwitchVersionFromRibbon } from "../saga/checkout.js"
-import { runResetPersonalVersion } from "../saga/resetPersonal.js"
-import { runMerge } from "../saga/merge.js"
-import { runCatchUp } from "../saga/diff.js"
-
+import { runSwitchVersionFromRibbon } from "../saga/checkout.js";
+import { runResetPersonalVersion } from "../saga/resetPersonal.js";
+import { runMerge } from "../saga/merge.js";
+import { runCatchUp } from "../saga/diff.js";
 import { taskpaneStatus, mergeState } from "../constants";
 
 /* global global, Office, Excel */
@@ -20,13 +19,13 @@ function formattingHandler(event) {
 }
 
 async function openShareTaskpane(event) {
-  window.app.setTaskpaneStatus(taskpaneStatus.SHARE)
+  window.app.setTaskpaneStatus(taskpaneStatus.SHARE);
   Office.addin.showAsTaskpane();
   event.completed();
 }
 
 function openMergeTaskpane() {
-  window.app.setTaskpaneStatus(taskpaneStatus.MERGE)
+  window.app.setTaskpaneStatus(taskpaneStatus.MERGE);
   Office.addin.showAsTaskpane();
 }
 
@@ -34,7 +33,7 @@ Office.onReady(() => {
   Excel.run(function (context) {
     context.workbook.worksheets.onFormatChanged.add(formattingHandler);
     return context.sync();
-  })
+  });
 });
 
 /**
@@ -42,7 +41,7 @@ Office.onReady(() => {
  * @param event {Office.AddinCommands.Event}
  */
 async function merge(event) {
-  openMergeTaskpane()
+  openMergeTaskpane();
 
   // update UI and execute merge
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
@@ -58,11 +57,11 @@ async function merge(event) {
 }
 
 async function catchUp(event) {
-  const sheetDiffs = await runCatchUp()
+  const sheetDiffs = await runCatchUp();
   console.log("Sheetdiffs", sheetDiffs);
   // We set the diff state as well
   window.app.setSheetDiffs(sheetDiffs);
-  console.log("catching up in commands")
+  console.log("catching up in commands");
   window.app.setTaskpaneStatus(taskpaneStatus.DIFF);
   
   if (event) {
