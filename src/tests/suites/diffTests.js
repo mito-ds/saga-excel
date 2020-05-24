@@ -7,10 +7,10 @@ import * as scenarios from "../../../scenarios";
 export async function testDiffSimple() {
     // Load scenario
     const fileContents = scenarios["diffSimple"].fileContents;
-    await runReplaceFromBase64(fileContents)
+    await runReplaceFromBase64(fileContents);
 
     // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Perform a merge
     const g = getGlobal();
@@ -24,11 +24,11 @@ export async function testDiffSimple() {
             ]
         }, 
         {sheetName: "Sheet2", changeType: "Inserted", changes: []}
-    ]
+    ];
 
     // Check that the changes are correct
     assert.deepEqual(catchUpResult, expected, "diffs were different (haha) than expected");
-    return true
+    return true;
 }
 
 
@@ -36,10 +36,10 @@ export async function acrossSheetsDiff() {
     
     // Load scenario
     const fileContents = scenarios["acrossSheetsDiff"].fileContents;
-    await runReplaceFromBase64(fileContents)
+    await runReplaceFromBase64(fileContents);
 
     // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Then, we get the diffs
     const g = getGlobal();
@@ -58,10 +58,10 @@ export async function testNoDiffAfterMerge() {
     
     // Load scenario
     const fileContents = scenarios["unmergedNoConflict"].fileContents;
-    await runReplaceFromBase64(fileContents)
+    await runReplaceFromBase64(fileContents);
 
     // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Perform a merge
     const g = getGlobal();
@@ -81,10 +81,10 @@ export async function testNoDiffAfterMerge() {
 export async function testDiffMedium() {
     // Load scenario
     const fileContents = scenarios["diffMedium"].fileContents;
-    await runReplaceFromBase64(fileContents)
+    await runReplaceFromBase64(fileContents);
 
     // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Perform a merge
     const g = getGlobal();
@@ -126,13 +126,12 @@ export async function testDiffMedium() {
             ]
         },
         {sheetName: "Title", changeType: "Inserted", changes: []} 
-    ]
+    ];
 
-    console.log(catchUpResult)
-    console.log(expected)
+    console.log(catchUpResult);
+    console.log(expected);
 
     // Check that the changes are correct
     assert.deepEqual(catchUpResult, expected, "catch up medium test failed");
-    return true
+    return true;
 }
-
