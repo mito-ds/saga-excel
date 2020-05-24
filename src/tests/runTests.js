@@ -1,7 +1,7 @@
 import * as testSuites from "./index";
 import { runCleanup } from "../saga/cleanup";
 
-/* global process */
+/* global */
 
 export async function runTestSuite(testSuiteName) {
 
@@ -14,21 +14,14 @@ export async function runTestSuite(testSuiteName) {
     var numFailed = 0;
     var failed = {};
     var output = {};
-
     
-    
-    const oldConsoleLog = window.console.log;
     for (let i = 0; i < testNames.length; i++) {
-        oldConsoleLog(`%cRunning test ${testNames[i]}:\n`, "color: orange;");
+        console.log(`%cRunning test ${testNames[i]}:\n`, "color: orange;");
 
         const test = tests[testNames[i]];
 
         // We capture the output of the test
         output[testNames[i]] = "";
-        const captureTestOutput = (msg) => {
-            output[testNames[i]] += msg + "\n";
-        } 
-        window.console.log = captureTestOutput;
 
         var success;
         try {
@@ -39,10 +32,10 @@ export async function runTestSuite(testSuiteName) {
         }
 
         if (success) {
-            oldConsoleLog(`%c passed`, "color: green;");
+            console.log(`%c passed`, "color: green;");
             results += ".";
         } else {
-            oldConsoleLog(`%c failed`, "color: red;");
+            console.log(`%c failed`, "color: red;");
             results += "F";
             numFailed++;
             if (!(testNames[i] in failed)) {
@@ -51,7 +44,6 @@ export async function runTestSuite(testSuiteName) {
         }
         // Cleanup the test, reset the console log
         await runCleanup();
-        window.console.log = oldConsoleLog;
     }
 
     // Print the result string
