@@ -1,5 +1,5 @@
 .header-small {
-    margin-top: 5vh;
+    margin-top: 1vh;
     text-align: center;
 }
 
@@ -10,4 +10,6 @@
 
 .title-text-small {
     font-size: 20px;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
 }
