@@ -28,7 +28,7 @@ export default class MergeConflictScreen extends React.Component {
     this.onChanged = this.onChanged.bind(this);
   }
 
-
+  // Highlights the conflict options on batch select
   onChanged(checked) {
     // TODO: Check this value without converting to a string
     const isDefaultPersonal = document.getElementById("default-toggle").getAttribute('aria-checked').toString();
@@ -141,7 +141,7 @@ export default class MergeConflictScreen extends React.Component {
     return (
       <Taskpane header={headerSize.SMALL} title="You need to resolve merge conflicts before your merge can finish">
         <div className="title-subtext-div">
-            <div className="title-subtext">Choose which changes to keep. The changes are ordered: <br></br> <b>Yours, Collaborator's, Original</b></div>
+            <div className="title-subtext">Choose which changes to keep - they're ordered: <br></br> <b>Yours, Collaborator's, Original</b></div>
         </div>
         <div className="warning-div" id="warning-div">
             <p><b>Warning</b>: You didn't resolve all of the merge conflicts, so we're using {this.state.default}.</p>
@@ -152,7 +152,7 @@ export default class MergeConflictScreen extends React.Component {
         </div>
         <div className="conflict-card-div">
             <div className="batch-toggle-div">
-                <Toggle className="toggle" id="default-toggle" label="Batch Select" inlineLabel onText="Your Changes" offText="Collaborator's Changes" onChange={this.onChanged} />
+                <Toggle className="toggle" id="default-toggle" label="Batch Select" inlineLabel onText="Collaborator's Changes" offText="Your Changes" onChange={this.onChanged} />
             </div>
             <form onSubmit={this.collectResolutions}>
                 <div className="scrollable-div">
