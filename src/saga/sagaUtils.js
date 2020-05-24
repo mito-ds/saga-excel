@@ -166,12 +166,12 @@ export async function sagaProjectJSON() {
             // If there is a saga project, we get the remote URL and the email
             const project = new Project(context);
             const remoteURL = await project.getRemoteURL();
-            const email = await project.getPersonalBranchName();
+            const email = await project.getPersonalBranch();
 
 
             obj["remoteURL"] = remoteURL;
             obj["email"] = email;
-        })
+        });
     } catch (e) {
         return obj;
     }
@@ -197,3 +197,40 @@ export async function runSelectCell(sheet, cell) {
     return runOperation(selectCell, sheet, cell);
 }
 
+
+export const getFirstAncestorOnMaster = async (context, masterHead, commitID) => {
+    const commitRange = await (new Project(context)).getCommitRangeWithValues();
+    const commits = commitRange.values;
+    console.log(commits);
+
+    // We build a simple commit graph
+    const parentCommit = {};
+
+    commits.forEach(row => {
+        console.log("row", row);
+        const child = row[0];
+        const parent = row[1];
+
+        parentCommit[child] = parent;
+    });
+
+    console.log(JSON.stringify(parentCommit));
+
+    const isMasterCommit = {'firstcommit': true};
+
+    let currMasterCommit = masterHead;
+    while (currMasterCommit !== 'firstcommit') {
+        isMasterCommit[currMasterCommit] = true;
+        currMasterCommit = parentCommit[currMasterCommit];
+    }
+
+    let currPersonalCommit = commitID;
+    while (currPersonalCommit !== 'firstcommit') {
+        if (isMasterCommit[currPersonalCommit]) {
+            return currPersonalCommit;
+        }
+        currPersonalCommit = parentCommit[currPersonalCommit];
+    }
+
+    return 'firstcommit';
+};

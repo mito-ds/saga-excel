@@ -7,7 +7,10 @@ import * as diffTests from "./suites/diffTests";
 import * as resetPersonalTests from "./suites/resetPersonalTests";
 import * as sagaUtilsTests from "./suites/sagaUtilsTests";
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8e8b922649d97d4a42eace544000712361d7031b
 export {
     creationTests,
     cleanupTests,
@@ -15,6 +18,11 @@ export {
     mergeTests,
     switchVersionTests,
     resetPersonalTests,
+<<<<<<< HEAD
     diffTests,
     sagaUtilsTests
+=======
+    sagaUtilsTests,
+    diffTests
+>>>>>>> 8e8b922649d97d4a42eace544000712361d7031b
 };
