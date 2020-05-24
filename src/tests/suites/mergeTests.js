@@ -9,6 +9,8 @@ import * as scenarios from "../../../scenarios";
 import Project from "../../saga/Project";
 import { getItemRangeValues, getFormulas, getValues } from "../testHelpers";
 
+/* global Excel */
+
 
 export async function testEmptyMerge() {
     
@@ -54,6 +56,40 @@ export async function testMergeThenSwitchVersions() {
     await g.switchVersion();
     const newNewHead = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
     assert.equal("email", newNewHead, "Personal branch should be checked out again");
+
+    return true;
+}
+
+
+export async function testSwitchVersionsThenMerge() {
+    
+    // First, we create the project
+    await runCreateSaga(TEST_URL, "email");
+
+    // Then, we make a change to the 
+    await runOperation(async (context) => {
+        context.workbook.worksheets.getItem("Sheet1").getRange("A1").values = [["HI"]];
+        await context.sync();
+    });
+
+    // Then, we switch versions, and then switch back
+    const g = getGlobal();
+    await g.switchVersion();
+    await g.switchVersion();
+
+    // Then, we do a merge
+    const mergeResult = await g.merge();
+    assert.equal(mergeResult.status, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
+
+    // Then, we check that the result was saved
+    let cellA1 = await runOperation(async (context) => {
+        const range = context.workbook.worksheets.getItem("Sheet1").getRange("A1");
+        range.load("values");
+        await context.sync();
+        return range.values[0][0];
+    });
+
+    assert.equals("HI", cellA1, "Switching versions then merging shouldn't delete value");
 
     return true;
 }

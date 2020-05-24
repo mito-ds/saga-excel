@@ -1,7 +1,10 @@
 import { strict as assert } from 'assert';
+import { runOperation } from "../../saga/runOperation";
 import { runCreateSaga } from "../../saga/create";
+import { runCommit } from "../../saga/commit";
 import { TEST_URL } from "../../constants";
-import { sagaProjectExists, sagaProjectJSON } from "../../saga/sagaUtils";
+import Project from "../../saga/Project";
+import { sagaProjectExists, sagaProjectJSON, getFirstAncestorOnMaster } from "../../saga/sagaUtils";
 
 export async function testSagaProjectExists() {
 
@@ -27,6 +30,97 @@ export async function testGetSagaObject() {
 
     const afterObj = await sagaProjectJSON();
     assert.deepEqual(afterObj, {"remoteURL": TEST_URL, "email": "email"}, "Project should fill in JSON json")
+
+    return true;
+}
+
+export async function testGetAncestorOnMasterNoHop() {
+    await runCreateSaga(TEST_URL, "email");
+    const masterHead = await runOperation(async (context) => {
+        return await (new Project(context)).getCommitIDFromBranch("master");
+    });
+    const personalHead = await runOperation(async (context) => {
+        return await (new Project(context)).getCommitIDFromBranch("email");
+    });
+
+    const commitID = await runOperation(getFirstAncestorOnMaster, masterHead, personalHead);
+
+    assert.equal(commitID, masterHead);
+
+    return true;
+}
+
+export async function testGetAncestorOnMasterOneHop() {
+    await runCreateSaga(TEST_URL, "email");
+    // Make a commit on personal branch
+    await runCommit("", "", "email");
+
+    const masterHead = await runOperation(async (context) => {
+        return await (new Project(context)).getCommitIDFromBranch("master");
+    });
+    const personalHead = await runOperation(async (context) => {
+        return await (new Project(context)).getCommitIDFromBranch("email");
+    });
+
+    const commitID = await runOperation(getFirstAncestorOnMaster, masterHead, personalHead);
+
+    assert.equal(commitID, masterHead);
+
+    return true;
+}
+
+export async function testGetAncestorOnMasterDivergeOne() {
+    await runCreateSaga(TEST_URL, "email");
+    // Make a commit on personal branch
+    await runCommit("", "", "email");
+    // And make a commit on master
+    await runCommit("", "", "master");
+
+    const masterHead = await runOperation(async (context) => {
+        return await (new Project(context)).getCommitIDFromBranch("master");
+    });
+    const personalHead = await runOperation(async (context) => {
+        return await (new Project(context)).getCommitIDFromBranch("email");
+    });
+
+    const commitID = await runOperation(getFirstAncestorOnMaster, masterHead, personalHead);
+
+    const masterParent = await runOperation(async (context) => {
+        return await (new Project(context)).getParentCommitID(masterHead);
+    });
+    assert.equal(commitID, masterParent);
+
+    return true;
+}
+
+export async function testGetAncestorOnMasterDivergeMany() {
+    await runCreateSaga(TEST_URL, "email");
+    // Make a few commits on personal branch
+    await runCommit("", "", "email");
+    await runCommit("", "", "email");
+    await runCommit("", "", "email");
+    // And make a commit on master
+    await runCommit("", "", "master");
+    await runCommit("", "", "master");
+    await runCommit("", "", "master");
+
+
+    const masterHead = await runOperation(async (context) => {
+        return await (new Project(context)).getCommitIDFromBranch("master");
+    });
+    const personalHead = await runOperation(async (context) => {
+        return await (new Project(context)).getCommitIDFromBranch("email");
+    });
+    const commitID = await runOperation(getFirstAncestorOnMaster, masterHead, personalHead);
+
+    const lcsCommit = await runOperation(async (context) => {
+        const project = new Project(context);
+        let parent = await project.getParentCommitID(masterHead);
+        parent = await project.getParentCommitID(parent);
+        parent = await project.getParentCommitID(parent);
+        return parent;
+    });
+    assert.equal(commitID, lcsCommit);
 
     return true;
 }

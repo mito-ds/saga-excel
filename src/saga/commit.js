@@ -90,17 +90,7 @@ export async function commit(context, commitName, commitMessage, branch, commitI
     return commitID;
 }
 
-async function commitIfPermission(context, name, message) {
-    const userPermission = await checkBranchPermission(context);
-    if (userPermission) {
-        return await commit(context, name, message);
-    } else {
-        console.error("Cannot commit as user does not have permission on this branch");
-    }
-}
 
-
-
-export async function runCommit(name, message) {
-    return await runOperation(commitIfPermission, name, message);
+export async function runCommit(name, message, branch) {
+    return await runOperation(commit, name, message, branch);
 }

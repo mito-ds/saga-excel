@@ -1,5 +1,6 @@
 import { getSheetsWithNames, deleteNonsagaSheets } from "./sagaUtils";
 import Project from './Project';
+import { runCommit } from "./commit";
 import { runOperation } from "./runOperation";
 import { makeClique } from "./commit";
 
@@ -17,6 +18,8 @@ export async function switchVersionFromRibbon(context) {
         const personalBranchName = await project.getPersonalBranchName();
         await checkoutBranch(context, personalBranchName);
     } else {
+        // First, we commit on the personal branch
+        await runCommit("commit before switch version to master", "", currentBranch);
         await checkoutBranch(context, "master");
         // If master, lock sheets
         await lockWorksheets(context);

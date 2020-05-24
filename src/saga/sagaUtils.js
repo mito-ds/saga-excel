@@ -197,3 +197,40 @@ export async function runSelectCell(sheet, cell) {
     return runOperation(selectCell, sheet, cell);
 }
 
+
+export const getFirstAncestorOnMaster = async (context, masterHead, commitID) => {
+    const commitRange = await (new Project(context)).getCommitRangeWithValues();
+    const commits = commitRange.values;
+    console.log(commits);
+
+    // We build a simple commit graph
+    const parentCommit = {};
+
+    commits.forEach(row => {
+        console.log("row", row);
+        const child = row[0];
+        const parent = row[1];
+
+        parentCommit[child] = parent;
+    });
+
+    console.log(JSON.stringify(parentCommit));
+
+    const isMasterCommit = {'firstcommit': true};
+
+    let currMasterCommit = masterHead;
+    while (currMasterCommit !== 'firstcommit') {
+        isMasterCommit[currMasterCommit] = true;
+        currMasterCommit = parentCommit[currMasterCommit];
+    }
+
+    let currPersonalCommit = commitID;
+    while (currPersonalCommit !== 'firstcommit') {
+        if (isMasterCommit[currPersonalCommit]) {
+            return currPersonalCommit;
+        }
+        currPersonalCommit = parentCommit[currPersonalCommit];
+    }
+
+    return 'firstcommit';
+};
