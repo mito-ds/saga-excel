@@ -26,7 +26,7 @@ export async function testGetSagaObject() {
     await runCreateSaga(TEST_URL, "email");
 
     const afterObj = await sagaProjectJSON();
-    assert.deepEqual(afterObj, {"remoteURL": TEST_URL, "email": "email"}, "Project should fill in JSON json")
+    assert.deepEqual(afterObj, {"remoteURL": TEST_URL, "email": "email"}, "Project should fill in JSON json");
 
     return true;
 }

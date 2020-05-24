@@ -166,12 +166,12 @@ export async function sagaProjectJSON() {
             // If there is a saga project, we get the remote URL and the email
             const project = new Project(context);
             const remoteURL = await project.getRemoteURL();
-            const email = await project.getPersonalBranchName();
+            const email = await project.getPersonalBranch();
 
 
             obj["remoteURL"] = remoteURL;
             obj["email"] = email;
-        })
+        });
     } catch (e) {
         return obj;
     }

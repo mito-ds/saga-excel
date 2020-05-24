@@ -14,6 +14,6 @@ export {
     mergeTests,
     switchVersionTests,
     resetPersonalTests,
-    sagaUtilsTests
+    sagaUtilsTests,
     diffTests
 };
