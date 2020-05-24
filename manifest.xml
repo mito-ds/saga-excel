@@ -15,14 +15,14 @@
   <Hosts>
     <Host Name="Workbook"/>
   </Hosts>
-  <DefaultSettings>
-    <SourceLocation DefaultValue="https://localhost:3000/taskpane.html"/>
-  </DefaultSettings>
   <Requirements>
    <Sets DefaultMinVersion="1.1">
       <Set Name="ExcelApi" MinVersion="1.11"/>
    </Sets>
   </Requirements>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://localhost:3000/taskpane.html"/>
+  </DefaultSettings>
   <Permissions>ReadWriteDocument</Permissions>
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
     <Hosts>
