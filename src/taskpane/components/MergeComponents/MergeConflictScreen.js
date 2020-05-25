@@ -59,7 +59,7 @@ export default class MergeConflictScreen extends React.Component {
     // TODO: Check this value without converting to a string
     const isDefaultPersonal = document.getElementById("default-toggle").getAttribute('aria-checked').toString() === "true";
 
-    this.setState({default: isDefaultPersonal === "true" ? "your changes" : "your collaborator's changes"});
+    this.setState({default: isDefaultPersonal? "your changes" : "your collaborator's changes"});
 
     this.state.mergeConflictData.forEach(function(sheetResults) {
         sheetResults.conflicts.forEach(function(conflict) {
