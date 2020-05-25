@@ -15,7 +15,7 @@ async function upgrade(context) {
 
     if (remoteURL !== TEST_URL) {
         // if the remote URL isn't the test URL, we update it
-        await project.setRemoteURL(remoteURL);
+        await project.setRemoteURL(TEST_URL);
         return true;
     }
 
@@ -31,10 +31,11 @@ async function upgrade(context) {
     and the scenario will not be reported as updated.
 */
 
-async function upgradeAllScenarios(context) {
+export async function upgradeAllScenarios() {
     // We get the saga sheet
 
     const scenarioNames = Object.keys(scenarios);
+
 
     const newScenarios = [];
     for (let i = 0; i < scenarioNames.length; i++) {
@@ -42,16 +43,18 @@ async function upgradeAllScenarios(context) {
         const scenarioJSON = scenarios[scenarioName];
 
         // First, we load the scenario
-        await replaceFromBase64(context, scenarioJSON.fileContents);
+        await runOperation(replaceFromBase64, scenarioJSON.fileContents);
 
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Then, we run the upgrade function 
         let upgraded = false;
         try {
-            upgraded = await upgrade(context);
+            upgraded = await runOperation(upgrade);
+            // Wait for the upgrade to take effect, just in case
         } catch (e) {
             console.log(`Error in upgrading ${scenarioName}`);
+            console.log(e);
         }
 
         if (upgraded) {
@@ -71,8 +74,4 @@ async function upgradeAllScenarios(context) {
     }
 
     newScenarios.forEach(newScenario => console.log(JSON.stringify(newScenario)));
-}
-
-export function runUpgradeAllScenarios() {
-    runOperation(upgradeAllScenarios);
 }
