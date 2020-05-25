@@ -7,7 +7,6 @@ import { runOperation } from "../../saga/runOperation";
 import { getFormulas, getValues } from "../testHelpers";
 import { mergeState } from "../../constants";
 
-/*
 
 export async function testOriginalEmptyMergeConflict() {
     // Load scenario
@@ -122,7 +121,7 @@ export async function testMergeConflict() {
     //TODO: Ensure that a new commit is made on master so that sync works
     return true;
 }
-*/
+
 
 export async function testMultipleConflictsPerSheet() {
     // Load scenario
