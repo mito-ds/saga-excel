@@ -91,7 +91,7 @@ export default class MergeConflictScreen extends React.Component {
                 collectedResolutions[conflict.sheet] = [];
             }
 
-            collectedResolutions[conflict.sheet] = [resolution];
+            collectedResolutions[conflict.sheet].push(resolution);
         });
     });
 
