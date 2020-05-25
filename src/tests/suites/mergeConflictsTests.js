@@ -7,7 +7,7 @@ import { runOperation } from "../../saga/runOperation";
 import { getFormulas, getValues } from "../testHelpers";
 import { mergeState } from "../../constants";
 
-
+/*
 
 export async function testOriginalEmptyMergeConflict() {
     // Load scenario
@@ -120,5 +120,60 @@ export async function testMergeConflict() {
     assert.equal(masterSheet2A1, "O-S2-A1", "should have correctly updated the master sheet2 A1");
 
     //TODO: Ensure that a new commit is made on master so that sync works
+    return true;
+}
+*/
+
+export async function testMultipleConflictsPerSheet() {
+    // Load scenario
+    const fileContents = scenarios["multipleMergeConflictsPerSheet"].fileContents;
+    await runReplaceFromBase64(fileContents);
+
+    // Give time for files to update properly 
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Perform a merge
+    const g = getGlobal();
+    const mergeResult = await g.merge();
+
+    const expected = 
+    {
+        mergeConflictData: [
+            {sheet: "Sheet2", result: [["M3", "M4"]], conflicts: 
+                [
+                    {conflictType: "cell", sheet: "Sheet2", cellOrRow: "A1", a: "M3", b: "P3", o: "O3"},
+                    {conflictType: "cell", sheet: "Sheet2", cellOrRow: "B1", a: "M4", b: "P4", o: "O4"}
+                ]
+            },
+            {sheet: "Sheet1", result: [["M1", "M2"]], conflicts:
+                [
+                    {conflictType: "cell", sheet: "Sheet1", cellOrRow: "A1", a: "M1", b: "P1", o: "O1"},
+                    {conflictType: "cell", sheet: "Sheet1", cellOrRow: "B1", a: "M2", b: "P2", o: "O2"}
+                ]   
+            }
+        ],
+        status: "merge_conflict"
+    };
+
+    // Check that there is no merge conflict
+    assert.deepEqual(mergeResult, expected, "there was a merge conflict");
+
+    // Then resolve the merge conflicts
+    const resolutions = {"Sheet2": [{cellOrRow: "A1", value: "P3"}, {cellOrRow: "B1", value: "P4"} ], "Sheet1": [{cellOrRow: "A1", value: "P1"}, {cellOrRow: "B1", value: "P2"}]};
+    await runResolveMergeConflicts(resolutions);
+
+    // Check that merge conflicts are resolved correctly
+    const updatedValue1A1= (await runOperation(getFormulas, "Sheet1", "A1"))[0][0];
+    assert.equal(updatedValue1A1, "P1", "should update Sheet 1 A1 to P1");
+
+    const updatedValue1B1 = (await runOperation(getFormulas, "Sheet1", "B1"))[0][0];
+    assert.equal(updatedValue1B1, "P2", "should update Sheet 1 B1 to P2");
+
+    const updatedValue2A1 = (await runOperation(getFormulas, "Sheet2", "A1"))[0][0];
+    assert.equal(updatedValue2A1, "P3", "should update Sheet 1 A1 to P3");
+
+    const updatedValue2B1= (await runOperation(getFormulas, "Sheet2", "B1"))[0][0];
+    assert.equal(updatedValue2B1, "P4", "should update Sheet 1 B1 to P4");
+
     return true;
 }
