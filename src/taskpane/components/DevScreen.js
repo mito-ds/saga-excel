@@ -28,7 +28,7 @@ async function createScenario() {
     // First, we make sure we're using the test url, so we don't sync things to the scenario
     await Excel.run(async (context) => {
         const project = new Project(context);
-        project.setRemoteURL(TEST_URL);
+        await project.setRemoteURL(TEST_URL);
     });
 
     // We just get the 
