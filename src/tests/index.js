@@ -7,12 +7,16 @@ import * as diffTests from "./suites/diffTests";
 import * as resetPersonalTests from "./suites/resetPersonalTests";
 import * as sagaUtilsTests from "./suites/sagaUtilsTests";
 import * as projectTests from "./suites/projectTests";
+import * as mergeFormattingTest from "./suites/mergeFormattingTests";
+import * as mergeConflictsTests from "./suites/mergeConflictsTests";
 
 export {
     creationTests,
     cleanupTests,
     catchUpTests,
     mergeTests,
+    mergeFormattingTest,
+    mergeConflictsTests,
     switchVersionTests,
     resetPersonalTests,
     sagaUtilsTests,
