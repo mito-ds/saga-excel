@@ -5,7 +5,7 @@ import { runCleanup } from "../../saga/cleanup";
 import { runAllTests, runTestSuite } from "../../tests/runTests";
 import * as testSuites from "../../tests/";
 import { headerSize, TEST_URL } from "../../constants";
-import { runUpgradeAllScenarios } from "../../saga/upgrade";
+import { upgradeAllScenarios } from "../../saga/upgrade";
 
 import { getFileContents } from "../../saga/fileUtils";
 import * as scenarios from "../../../scenarios";
@@ -28,7 +28,7 @@ async function createScenario() {
     // First, we make sure we're using the test url, so we don't sync things to the scenario
     await Excel.run(async (context) => {
         const project = new Project(context);
-        project.setRemoteURL(TEST_URL);
+        await project.setRemoteURL(TEST_URL);
     });
 
     // We just get the 
@@ -65,7 +65,7 @@ export default function DevScreen(props) {
                 {testSuiteArray}                
             </select>
             <button onClick={runCleanup}> Cleanup </button>
-            <button onClick={runUpgradeAllScenarios}> Upgrade All Scenarios </button>
+            <button onClick={upgradeAllScenarios}> Upgrade All Scenarios </button>
             <button onClick={createScenario}> Create Scenario from Current Workbook (check console) </button>
             <select onChange={loadScenario}>
                 <option> Select Secenario</option>
