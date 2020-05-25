@@ -57,9 +57,9 @@ export default class MergeConflictScreen extends React.Component {
     let usingDefault = false;
 
     // TODO: Check this value without converting to a string
-    const isDefaultPersonal = document.getElementById("default-toggle").getAttribute('aria-checked').toString();
+    const isDefaultPersonal = document.getElementById("default-toggle").getAttribute('aria-checked').toString() === "true";
 
-    this.setState({default: isDefaultPersonal === "true" ? "your changes" : "your collaborator's changes"});
+    this.setState({default: isDefaultPersonal? "your changes" : "your collaborator's changes"});
 
     this.state.mergeConflictData.forEach(function(sheetResults) {
         sheetResults.conflicts.forEach(function(conflict) {
@@ -72,7 +72,7 @@ export default class MergeConflictScreen extends React.Component {
             let selection = "";
             if (selectedButton !== null) {
                 selection = selectedButton.value;
-            } else if (isDefaultPersonal === "true") {
+            } else if (isDefaultPersonal) {
                 selection = conflict.b;
                 usingDefault = true;
             } else {
@@ -87,11 +87,11 @@ export default class MergeConflictScreen extends React.Component {
             };
 
             // Add resolution to resolutions list in the correct sheet entry 
-            if (conflict.sheet in collectedResolutions) {
-                collectedResolutions.sheetName.push(resolution);
-            } else {
-                collectedResolutions[conflict.sheet] = [resolution];
+            if (!(conflict.sheet in collectedResolutions)) {
+                collectedResolutions[conflict.sheet] = [];
             }
+
+            collectedResolutions[conflict.sheet].push(resolution);
         });
     });
 
