@@ -43,7 +43,7 @@ export async function runTestSuite(testSuiteName) {
             }   
         }
         // Cleanup the test, reset the console log
-        await runCleanup();
+       // await runCleanup();
     }
 
     // Print the result string
