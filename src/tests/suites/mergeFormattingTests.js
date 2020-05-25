@@ -15,7 +15,7 @@ export async function testMergeBold() {
     
 
     // Bold A1
-    Excel.run(async function (context) {
+    await Excel.run(async function (context) {
         var sheet = context.workbook.worksheets.getItem("Sheet1");
     
         var range = sheet.getRange("A1");
@@ -29,16 +29,20 @@ export async function testMergeBold() {
     await g.merge();
     
     // Check for boldness
-    Excel.run(async function (context) {
+    var isBold;
+    await Excel.run(async function (context) {
         var sheet = context.workbook.worksheets.getItem("Sheet1");
     
         var range = sheet.getRange("A1");
         range.load("format/font/bold");
         await context.sync();
 
-        assert.equal(range.format.font.bold, true,  "A1 should be bold");
+        isBold = range.format.font.bold;
+
         return;
     });
+
+    assert.equal(isBold, true,  "A1 should be bold");
 
     return true;
     
@@ -55,7 +59,7 @@ export async function testMergeMultipleBolds() {
     
 
     // Bold A1:B3
-    Excel.run(async function (context) {
+    await Excel.run(async function (context) {
         var sheet = context.workbook.worksheets.getItem("Sheet1");
     
         var range = sheet.getRange("A1:B3");
@@ -65,6 +69,7 @@ export async function testMergeMultipleBolds() {
         range.format.font.bold = true;
     
         await context.sync();
+        return;
     });
     
     // Perform a merge
@@ -72,15 +77,19 @@ export async function testMergeMultipleBolds() {
     await g.merge();
     
     // Check for boldness
-    Excel.run(async function (context) {
+    var isBold;
+    await Excel.run(async function (context) {
         var sheet = context.workbook.worksheets.getItem("Sheet1");
     
         var range = sheet.getRange("A1:B3");
         range.load("format/font/bold");
         await context.sync();
 
-        assert.equal(range.format.font.bold, true, "range should be bold");
+        isBold = range.format.font.bold;
+        return;
     });
+
+    assert.equal(isBold, true, "range should be bold");
     
     return true;
 }

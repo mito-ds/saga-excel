@@ -122,7 +122,6 @@ export async function testMergeConflict() {
     return true;
 }
 
-
 export async function testMultipleConflictsPerSheet() {
     // Load scenario
     const fileContents = scenarios["multipleMergeConflictsPerSheet"].fileContents;
@@ -162,17 +161,13 @@ export async function testMultipleConflictsPerSheet() {
     await runResolveMergeConflicts(resolutions);
 
     // Check that merge conflicts are resolved correctly
-    const updatedValue1A1= (await runOperation(getFormulas, "Sheet1", "A1"))[0][0];
-    assert.equal(updatedValue1A1, "P1", "should update Sheet 1 A1 to P1");
+    const sheet1Values = await runOperation(getFormulas, "Sheet1", "A1:B1");
+    assert.equal(sheet1Values[0][0], "P1", "should update Sheet 1 A1 to P1");
+    assert.equal(sheet1Values[0][1], "P2", "should update Sheet 1 B1 to P2");
 
-    const updatedValue1B1 = (await runOperation(getFormulas, "Sheet1", "B1"))[0][0];
-    assert.equal(updatedValue1B1, "P2", "should update Sheet 1 B1 to P2");
-
-    const updatedValue2A1 = (await runOperation(getFormulas, "Sheet2", "A1"))[0][0];
-    assert.equal(updatedValue2A1, "P3", "should update Sheet 1 A1 to P3");
-
-    const updatedValue2B1= (await runOperation(getFormulas, "Sheet2", "B1"))[0][0];
-    assert.equal(updatedValue2B1, "P4", "should update Sheet 1 B1 to P4");
+    const sheet2Values = await runOperation(getFormulas, "Sheet2", "A1:B1");
+    assert.equal(sheet2Values[0][0], "P3", "should update Sheet 1 A1 to P3");
+    assert.equal(sheet2Values[0][1], "P4", "should update Sheet 1 B1 to P4");
 
     return true;
 }
