@@ -118,7 +118,7 @@ export default class Project {
         remoteItem.load(`value`);
         await this.context.sync();
         const remoteRange = worksheet.getRange(remoteItem.value);
-        remoteItem.values = [[remoteURL]]
+        remoteRange.values = [[remoteURL]]
         return this.context.sync();
     }
 
