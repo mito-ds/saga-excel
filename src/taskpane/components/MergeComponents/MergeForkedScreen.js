@@ -19,7 +19,7 @@ export default class MergeForkedScreen extends React.Component {
           <p className="forked-resolution-text-title"> To resolve this issue: </p>
           <div className="forked-resolution-text">
             <p> 1. Keep this workbook open</p>
-            <p> 1. Open a new workbook and redownload your saga project using the Saga sharing link: {this.state.remoteURL}</p>
+            <p> 1. Open a new workbook and redownload your saga project using the Saga sharing link: {this.props.remoteURL}</p>
             <p> 3. Copy and paste over any changes from your personal version to the new Excel workbook </p>
             <p> 4. Merge </p>
           </div>

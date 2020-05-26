@@ -129,7 +129,7 @@ export default class App extends React.Component {
         break;
 
       case taskpaneStatus.MERGE:
-        toReturn = (<MergeScreen mergeState={this.state.mergeState} mergeConflictData={this.state.mergeConflictData}/>);
+        toReturn = (<MergeScreen mergeState={this.state.mergeState} mergeConflictData={this.state.mergeConflictData} remoteURL={this.state.remoteURL}/>);
         break;
 
       case taskpaneStatus.SHARE:
