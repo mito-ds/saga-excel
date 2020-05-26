@@ -51,3 +51,7 @@
 .boxed input[type="radio"]:checked + label {
   background-color: #adebad;
 }
+
+.radio-label {
+  min-height: 2vh;
+ }

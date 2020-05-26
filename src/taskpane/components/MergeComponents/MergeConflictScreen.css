@@ -20,7 +20,7 @@
 .scrollable-div {
     position: relative;
     overflow: auto;
-    height: 50vh;
+    height: 60vh;
 } 
 
 .batch-toggle-div {
@@ -34,6 +34,7 @@
 }
 
 .submit-button-div {
+    margin-top: 2vh;
     width: 100%;
     text-align: center;
 }
