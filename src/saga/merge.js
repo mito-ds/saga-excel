@@ -63,10 +63,7 @@ async function resolveMergeConflicts(context, resolutions) {
     // make resolution commit on master
     await commit(context, "resolved merge conflicts", "resolved merge conflicts", "master");
 
-    // update the shared version
-    await updateShared(context);
-
-    return {status: mergeState.MERGE_SUCCESS, conflicts: null};
+    return runMerge([]);
 } 
 
 const getNonsagaSheets = (sheets) => {
