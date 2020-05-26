@@ -1,9 +1,10 @@
 import * as React from "react";
 import Progress from "./Progress";
-import LinkScreen from "./LinkScreen"
-import LoginScreen from "./LoginScreen"
-import ProjectSourceScreen from "./ProjectSourceScreen"
-import { OutOfDateErrorScreen, logOutOfDate } from "./OutOfDateErrorScreen"
+import LinkScreen from "./LinkScreen";
+import LoginScreen from "./LoginScreen";
+import ProjectSourceScreen from "./ProjectSourceScreen";
+import { OutOfDateErrorScreen, logOutOfDate } from "./OutOfDateErrorScreen";
+import CellEdittingModeErrorScreen from "./CellEdittingModeErrorScreen";
 import DevScreen from "./DevScreen";
 import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
@@ -140,6 +141,9 @@ export default class App extends React.Component {
         toReturn = (<DiffScreen sheetDiffs={this.state.sheetDiffs}/>);
         break;
 
+      case taskpaneStatus.CELL_EDITTING_MODE:
+        toReturn = (<CellEdittingModeErrorScreen></CellEdittingModeErrorScreen>);
+        break;
 
       case taskpaneStatus.CREATE:
         const step = this.state.step;
