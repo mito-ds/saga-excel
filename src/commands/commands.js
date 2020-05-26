@@ -48,6 +48,7 @@ async function merge(event) {
   var mergeResult = await runMerge(events);
   if (mergeResult.status === taskpaneStatus.CELL_EDITTING_MODE) {
     window.app.setTaskpaneStatus(taskpaneStatus.CELL_EDITTING_MODE);
+    window.app.setSafetyCommit(mergeResult.safetyCommit);
   } else {
     window.app.setMergeState(mergeResult);
   }
@@ -85,7 +86,9 @@ async function switchVersion(event) {
 
 async function resetPersonalVersion(event) {
   // Todo: If on master, tell them they can't
-  await runResetPersonalVersion();
+
+  const resetPersonalResult = await runResetPersonalVersion();
+
   if (event) {
     event.completed();
   }

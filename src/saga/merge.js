@@ -6,7 +6,7 @@ import { checkoutCommitID } from "./checkout";
 import Project from "./Project";
 import { runOperation, runOperationHandleError } from './runOperation';
 import { makeClique } from "./commit";
-import { mergeState, branchState, errorType, taskpaneStatus } from '../constants';
+import { mergeState, branchState, taskpaneStatus } from '../constants';
 
 /* global Excel */
 
@@ -508,10 +508,6 @@ export async function merge(context, formattingEvents) {
         return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
     }
 
-    // Make a commit on the personal branch    
-    await commit(context, `check in of ${personalBranch}`, "", personalBranch);
-
-
     // Merge this commit into the shared branch
     const mergeData = await doMerge(context, formattingEvents);
 
@@ -541,7 +537,7 @@ export async function merge(context, formattingEvents) {
 
     If that fails, we give up... TODO?
 */
-function makeHandleMergeError(previousPersonalCommitID) {
+function makeHandleMergeError(previousPersonalCommitID, safetyCommit) {
     return async (error) => {
         console.log("Handling error");
         try {
@@ -571,7 +567,7 @@ function makeHandleMergeError(previousPersonalCommitID) {
             // Handle cell editting mode error
             if (error.debugInfo.code === "InvalidOperationInCellEditMode") {
                 console.log("error is cell editting mode");
-                return {status: taskpaneStatus.CELL_EDITTING_MODE, mergeConflictData: null};
+                return {status: taskpaneStatus.CELL_EDITTING_MODE, mergeConflictData: null, safetyCommit: safetyCommit};
             }
         }
         return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
@@ -579,12 +575,15 @@ function makeHandleMergeError(previousPersonalCommitID) {
 }
 
 export async function runMerge(formattingEvents) {
-    const previousPersonalCommitID = await runOperation(async (context) => {
+    const errorHandlingCommitsObj = await runOperation(async (context) => {
         const project = new Project(context);
         const personalBranch = await project.getPersonalBranch();
-        return await project.getCommitIDFromBranch(personalBranch);
+        const previousCommit =  await project.getCommitIDFromBranch(personalBranch);
+        const safetyCommit = await commit(context, `safety commit`, `making safety commit in merge`, personalBranch);
+        
+        return {previousCommit: previousCommit, safetyCommit: safetyCommit};
     });
-    const handleMergeError = makeHandleMergeError(previousPersonalCommitID);
+    const handleMergeError = makeHandleMergeError(errorHandlingCommitsObj.previousCommit, errorHandlingCommitsObj.safetyCommit);
     return runOperationHandleError(merge, handleMergeError, formattingEvents);
 }
 

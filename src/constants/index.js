@@ -6,7 +6,9 @@ export const taskpaneStatus = {
     OFFLINE: 'offline',
     DEVELOPMENT: 'development',
     DIFF: 'diff',
-    CELL_EDITTING_MODE: 'editting_mode'
+    CELL_EDITTING_MODE: 'editting_mode',
+    UNSPECIFIED_ERROR: 'unspecified_error',
+    SUCCESS: 'success'
 };
 
 /*

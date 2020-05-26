@@ -120,6 +120,10 @@ export async function checkoutBranch(context, branch) {
     await context.sync();
 }
 
+export async function runCheckoutCommit(commit) {
+    await runOperation(checkoutCommitID, commit);
+}
+
 export async function runCheckoutBranch(branch) {
     await runOperation(checkoutBranch, branch);
 }

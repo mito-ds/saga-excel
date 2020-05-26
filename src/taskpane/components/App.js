@@ -28,7 +28,8 @@ export default class App extends React.Component {
       taskpaneStatus: taskpaneStatus.CREATE,
       mergeState: mergeState.MERGE_SUCCESS,
       mergeConflicts: null,
-      sheetDiffs: null
+      sheetDiffs: null,
+      safetyCommit: false
     };
 
     this.getTaskpaneStatus = this.getTaskpaneStatus.bind(this);
@@ -40,6 +41,7 @@ export default class App extends React.Component {
     this.getMergeState = this.getMergeState.bind(this);
     this.setMergeState = this.setMergeState.bind(this);
     this.setSheetDiffs = this.setSheetDiffs.bind(this);
+    this.setSafetyCommit = this.setSafetyCommit.bind(this);
   }
 
   /*
@@ -86,6 +88,10 @@ export default class App extends React.Component {
 
   setSheetDiffs = (sheetDiffs) => {
     this.setState({sheetDiffs: sheetDiffs})
+  }
+
+  setSafetyCommit = (safetyCommit) => {
+    this.setState({safetyCommit: safetyCommit})
   }
 
   offline = () => {
@@ -142,7 +148,7 @@ export default class App extends React.Component {
         break;
 
       case taskpaneStatus.CELL_EDITTING_MODE:
-        toReturn = (<CellEdittingModeErrorScreen></CellEdittingModeErrorScreen>);
+        toReturn = (<CellEdittingModeErrorScreen safetyCommit={this.state.safetyCommit}></CellEdittingModeErrorScreen>);
         break;
 
       case taskpaneStatus.CREATE:
