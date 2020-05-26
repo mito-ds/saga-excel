@@ -33,6 +33,9 @@ export const mergeState = {
     - If A can be reached by following parent commit ids of B, then BRANCH_STATE_BEHIND.
     - If A and B cannot be reached by following parent commit ids of either, then BRANCH_STATE_FORKED.
     - Otherwise, BRANCH_STATE_ERROR.
+
+    This is also defined in the saga-excel-lambdas, and the defs. MUST be kept the same.
+
 */
 export const branchState = {
     BRANCH_STATE_HEAD: 'branch_state_head',
