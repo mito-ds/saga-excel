@@ -427,8 +427,9 @@ const doMerge = async (context, formattingEvents) => {
 
     if (mergeSheets.length > 0) {
         // This code fixes a merge bug where the first formatting event was not handled
-        // Copy formatting from the first sheet twice because the first sheet always evaluates to undefined
-        await copyFormatting(context, personalPrefix + mergeSheets[0].name, newCommitPrefix + mergeSheets[0].name, formattingEventsMap);
+        // because the ID of the sheet was not defined. It becomes defined if we sync first.
+        await context.sync();
+        await context.sync();
 
         for (let i = 0; i < mergeSheets.length; i++) {
             const personalSheetName = mergeSheets[i].name;
