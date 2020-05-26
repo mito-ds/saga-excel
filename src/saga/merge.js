@@ -170,6 +170,7 @@ async function writeDataToSheet(context, sheetName, data) {
 }
 
 async function copyFormatting(context, srcSheetName, dstSheetName, formattingEventsMap) {
+    console.log(`copying formatting from ${srcSheetName} to ${dstSheetName}`);
     const srcFormatting = context.workbook.worksheets.getItem(srcSheetName);
     const dstFormatting = context.workbook.worksheets.getItem(dstSheetName);
     // We sync here to get the sheet IDs
@@ -179,6 +180,7 @@ async function copyFormatting(context, srcSheetName, dstSheetName, formattingEve
     const events = formattingEventsMap[sheetID] || []; 
     for (let i = 0; i < events.length; i++) {
         const address = events[i].address;
+
         dstFormatting.getRange(address).copyFrom(srcFormatting.getRange(address), Excel.RangeCopyType.formats);
         
         if (i % 40 === 0) {
@@ -205,6 +207,7 @@ const doMerge = async (context, formattingEvents) => {
     const project = new Project(context);
 
     if (formattingEvents == undefined) {
+        console.log("no formatting events");
         formattingEvents = [];
     }
 
@@ -421,11 +424,20 @@ const doMerge = async (context, formattingEvents) => {
         formattingEventsMap[event.worksheetId].push(event);
     });
 
-    for (let i = 0; i < mergeSheets.length; i++) {
-        const personalSheetName = mergeSheets[i].name;
-        const mergeSheetName = newCommitPrefix + personalSheetName;
-        await copyFormatting(context, personalPrefix + personalSheetName, mergeSheetName, formattingEventsMap);
+
+    if (mergeSheets.length > 0) {
+        // This code fixes a merge bug where the first formatting event was not handled
+        // because the ID of the sheet was not defined. It becomes defined if we sync first.
+        await context.sync();
+        await context.sync();
+
+        for (let i = 0; i < mergeSheets.length; i++) {
+            const personalSheetName = mergeSheets[i].name;
+            const mergeSheetName = newCommitPrefix + personalSheetName;
+            await copyFormatting(context, personalPrefix + personalSheetName, mergeSheetName, formattingEventsMap);
+        }
     }
+    
 
     console.log("Done with formatting");
 
