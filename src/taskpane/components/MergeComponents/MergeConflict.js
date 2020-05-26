@@ -35,13 +35,13 @@ export default function MergeConflict(props) {
                 <div className="options-div">
                     <div className="boxed">
                         <input type="radio" id={idB} name={cellID} value={props.conflict.b}/>
-                        <label htmlFor={idB}> {props.conflict.b} </label>
+                        <label className="radio-label" htmlFor={idB}> {props.conflict.b} </label>
 
-                        <input className="top-option" type="radio" id={idA} name={cellID} value={props.conflict.a} />
-                        <label htmlFor={idA}>{props.conflict.a}</label>
+                        <input type="radio" id={idA} name={cellID} value={props.conflict.a} />
+                        <label className="radio-label" htmlFor={idA}>{props.conflict.a}</label>
 
                         <input type="radio" id={idO} name={cellID} value={props.conflict.o}/>
-                        <label htmlFor={idO}> {props.conflict.o} </label>
+                        <label className="radio-label" htmlFor={idO}> {props.conflict.o} </label>
                     </div>         
                 </div>
             </div>
