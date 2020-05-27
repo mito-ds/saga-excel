@@ -18,6 +18,14 @@ function formattingHandler(event) {
   events.push(event);
 }
 
+function getHelp(event) {
+  window.app.setTaskpaneStatus(taskpaneStatus.HELP);
+  Office.addin.showAsTaskpane();
+  if (event) {
+    event.completed();
+  }
+}
+
 async function openShareTaskpane(event) {
   window.app.setTaskpaneStatus(taskpaneStatus.SHARE);
   Office.addin.showAsTaskpane();
@@ -112,3 +120,4 @@ g.switchVersion = switchVersion;
 g.resetPersonalVersion = resetPersonalVersion;
 g.openShareTaskpane = openShareTaskpane;
 g.catchUp = catchUp;
+g.getHelp = getHelp;

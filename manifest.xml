@@ -38,7 +38,7 @@
           </GetStarted>
           <FunctionFile resid="Taskpane.Url"/>
           <ExtensionPoint xsi:type="PrimaryCommandSurface">
-            <OfficeTab id="TabHome">
+            <CustomTab id="SagaTab">
               <Group id="CommandsGroup">
                 <Label resid="CommandsGroup.Label"/>
                 <Icon>
@@ -60,23 +60,6 @@
                   </Icon>
                   <Action xsi:type="ExecuteFunction">
                     <FunctionName>merge</FunctionName>
-                  </Action>
-                  <Enabled>true</Enabled>
-                </Control>
-                <!--Catch Up Buttion-->
-                <Control xsi:type="Button" id="CatchUpButton">
-                  <Label resid="CatchUpButton.Label"/>
-                  <Supertip>
-                    <Title resid="CatchUpButton.Label"/>
-                    <Description resid="CatchUpButton.Tooltip"/>
-                  </Supertip>
-                  <Icon>
-                    <bt:Image size="16" resid="CatchUpButtonIcon.16x16"/>
-                    <bt:Image size="32" resid="CatchUpButtonIcon.32x32"/>
-                    <bt:Image size="80" resid="CatchUpButtonIcon.80x80"/>
-                  </Icon>
-                  <Action xsi:type="ExecuteFunction">
-                    <FunctionName>catchUp</FunctionName>
                   </Action>
                   <Enabled>true</Enabled>
                 </Control>
@@ -114,6 +97,39 @@
                   </Action>
                   <Enabled>true</Enabled>
                 </Control>
+                </Group>
+                <Group id="Review">
+                <Label resid="Review.Label"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16x16"/>
+                  <bt:Image size="32" resid="Icon.32x32"/>
+                  <bt:Image size="80" resid="Icon.80x80"/>
+                </Icon>
+                <!--Catch Up Buttion-->
+                <Control xsi:type="Button" id="CatchUpButton">
+                  <Label resid="CatchUpButton.Label"/>
+                  <Supertip>
+                    <Title resid="CatchUpButton.Label"/>
+                    <Description resid="CatchUpButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="CatchUpButtonIcon.16x16"/>
+                    <bt:Image size="32" resid="CatchUpButtonIcon.32x32"/>
+                    <bt:Image size="80" resid="CatchUpButtonIcon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>catchUp</FunctionName>
+                  </Action>
+                  <Enabled>true</Enabled>
+                </Control>
+              </Group>
+              <Group id="Settings">
+                <Label resid="Settings.Label"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16x16"/>
+                  <bt:Image size="32" resid="Icon.32x32"/>
+                  <bt:Image size="80" resid="Icon.80x80"/>
+                </Icon>
                 <!--Share Project-->
                 <Control xsi:type="Button" id="ShareProjectButton">
                   <Label resid="ShareProjectButton.Label"/>
@@ -149,8 +165,26 @@
                   </Action>
                   <Enabled>true</Enabled>
                 </Control>
+                <!--Help Button-->
+                <Control xsi:type="Button" id="HelpButton">
+                  <Label resid="HelpButton.Label"/>
+                  <Supertip>
+                    <Title resid="HelpButton.Label"/>
+                    <Description resid="HelpButton.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="HelpButtonIcon.16x16"/>
+                    <bt:Image size="32" resid="HelpButtonIcon.32x32"/>
+                    <bt:Image size="80" resid="HelpButtonIcon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>openShareTaskpane</FunctionName>
+                  </Action>
+                  <Enabled>true</Enabled>
+                </Control>
               </Group>
-            </OfficeTab>
+              <Label resid="SagaTab.TabLabel" />
+            </CustomTab>
           </ExtensionPoint>
         </DesktopFormFactor>
       </Host>
@@ -175,21 +209,30 @@
         <bt:Image id="ShareProjectButtonIcon.16x16" DefaultValue="https://localhost:3000/assets/share-icon/share-icon-16.png"/>
         <bt:Image id="ShareProjectButtonIcon.32x32" DefaultValue="https://localhost:3000/assets/share-icon/share-icon-32.png"/>
         <bt:Image id="ShareProjectButtonIcon.80x80" DefaultValue="https://localhost:3000/assets/share-icon/share-icon-80.png"/>
+        <bt:Image id="HelpButtonIcon.16x16" DefaultValue="https://localhost:3000/assets/help-icon/help-icon-16.png"/>
+        <bt:Image id="HelpButtonIcon.32x32" DefaultValue="https://localhost:3000/assets/help-icon/help-icon-32.png"/>
+        <bt:Image id="HelpButtonIcon.80x80" DefaultValue="https://localhost:3000/assets/help-icon/help-icon-80.png"/>
       </bt:Images>
       <bt:Urls>
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812"/>
         <bt:Url id="Commands.Url" DefaultValue="https://localhost:3000/commands.html"/>
+        <bt:Url id="Settings.Url" DefaultValue="https://localhost:3000/commands.html"/>
+        <bt:Url id="Review.Url" DefaultValue="https://localhost:3000/commands.html"/>
         <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/taskpane.html"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Get started with you Saga VCS!"/>
-        <bt:String id="CommandsGroup.Label" DefaultValue="Commands Group"/>
+        <bt:String id="CommandsGroup.Label" DefaultValue="Create"/>
+        <bt:String id="Settings.Label" DefaultValue="Settings"/>
+        <bt:String id="Review.Label" DefaultValue="Review"/>
         <bt:String id="TaskpaneButton.Label" DefaultValue="Create/Download a Project"/>
         <bt:String id="MergeButton.Label" DefaultValue="Merge Versions"/>
         <bt:String id="CatchUpButton.Label" DefaultValue="Catch Up"/>
         <bt:String id="VersionButton.Label" DefaultValue="Switch Versions"/>
         <bt:String id="ResetPersonalButton.Label" DefaultValue="Reset Personal"/>
         <bt:String id="ShareProjectButton.Label" DefaultValue="Share Project"/>
+        <bt:String id="HelpButton.Label" DefaultValue="Get Help"/>
+        <bt:String id="SagaTab.TabLabel" DefaultValue="Saga" />
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="GetStarted.Description" DefaultValue="Saga has loaded succesfully. Go to the HOME tab and click the 'Saga VCS' button to get started."/>
@@ -199,6 +242,7 @@
         <bt:String id="VersionButton.Tooltip" DefaultValue="Click to switch to a different version"/>
         <bt:String id="ResetPersonalButton.Tooltip" DefaultValue="Click to reset your personal branch to master"/>
         <bt:String id="ShareProjectButton.Tooltip" DefaultValue="Click to see project sharing link"/>
+        <bt:String id="HelpButton.Tooltip" DefaultValue="Click to get help using Saga"/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>

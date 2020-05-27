@@ -8,7 +8,8 @@ export const taskpaneStatus = {
     DIFF: 'diff',
     CELL_EDITTING_MODE: 'editting_mode',
     UNSPECIFIED_ERROR: 'unspecified_error',
-    SUCCESS: 'success'
+    SUCCESS: 'success',
+    HELP: 'help'
 };
 
 /*
