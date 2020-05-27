@@ -178,7 +178,7 @@
                     <bt:Image size="80" resid="HelpButtonIcon.80x80"/>
                   </Icon>
                   <Action xsi:type="ExecuteFunction">
-                    <FunctionName>openShareTaskpane</FunctionName>
+                    <FunctionName>getHelp</FunctionName>
                   </Action>
                   <Enabled>true</Enabled>
                 </Control>

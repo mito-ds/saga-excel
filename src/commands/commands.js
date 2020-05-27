@@ -18,7 +18,7 @@ function formattingHandler(event) {
   events.push(event);
 }
 
-function getHelp(event) {
+async function getHelp(event) {
   window.app.setTaskpaneStatus(taskpaneStatus.HELP);
   Office.addin.showAsTaskpane();
   if (event) {
@@ -96,7 +96,6 @@ async function resetPersonalVersion(event) {
   // Todo: If on master, tell them they can't
 
   const resetPersonalResult = await runResetPersonalVersion();
-
   if (event) {
     event.completed();
   }

@@ -2,6 +2,7 @@ import * as React from "react";
 import Progress from "./Progress";
 import LinkScreen from "./LinkScreen";
 import LoginScreen from "./LoginScreen";
+import HelpScreen from "./HelpScreen";
 import ProjectSourceScreen from "./ProjectSourceScreen";
 import { OutOfDateErrorScreen, logOutOfDate } from "./OutOfDateErrorScreen";
 import CellEdittingModeErrorScreen from "./CellEdittingModeErrorScreen";
@@ -149,6 +150,10 @@ export default class App extends React.Component {
 
       case taskpaneStatus.CELL_EDITTING_MODE:
         toReturn = (<CellEdittingModeErrorScreen safetyCommit={this.state.safetyCommit}></CellEdittingModeErrorScreen>);
+        break;
+
+      case taskpaneStatus.HELP:
+        toReturn = (<HelpScreen></HelpScreen>);
         break;
 
       case taskpaneStatus.CREATE:
