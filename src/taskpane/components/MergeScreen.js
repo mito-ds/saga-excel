@@ -53,7 +53,7 @@ export default class MergeScreen extends React.Component {
         return (<MergeErrorScreen/>);
 
       case mergeState.MERGE_FORKED:
-        return (<MergeForkedScreen/>);
+        return (<MergeForkedScreen remoteURL={this.props.remoteURL}/>);
 
       default:
         return (<MergeErrorScreen/>);
