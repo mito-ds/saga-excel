@@ -5,7 +5,8 @@ export const taskpaneStatus = {
     MERGE: 'merge',
     OFFLINE: 'offline',
     DEVELOPMENT: 'development',
-    DIFF: 'diff'
+    DIFF: 'diff',
+    CELL_EDITTING_MODE: 'editting_mode'
 };
 
 /*
@@ -23,7 +24,6 @@ export const mergeState = {
     MERGE_ERROR: 'merge_error',
     MERGE_FORKED: 'merge_forked'
 };
-
 
 /*
     Given two commit ids, A and B, this enum represents 

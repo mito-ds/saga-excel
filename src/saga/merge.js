@@ -6,7 +6,7 @@ import { checkoutCommitID } from "./checkout";
 import Project from "./Project";
 import { runOperation, runOperationHandleError } from './runOperation';
 import { makeClique } from "./commit";
-import { mergeState, branchState } from '../constants';
+import { mergeState, branchState, errorType, taskpaneStatus } from '../constants';
 
 /* global Excel */
 
@@ -543,7 +543,7 @@ export async function merge(context, formattingEvents) {
 */
 function makeHandleMergeError(previousPersonalCommitID) {
     return async (error) => {
-        console.log("Handling error")
+        console.log("Handling error");
         try {
             await Excel.run(async (context) => {
                 const project = new Project(context);
@@ -563,17 +563,20 @@ function makeHandleMergeError(previousPersonalCommitID) {
                     await checkoutCommitID(context, personalHeadCommit);
                 }
             });
-            return {status: mergeState.MERGE_ERROR, mergeConflictData: null};;
+            return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
         } catch (error) {
             // TODO: we should change so it returns a "critical error here"
-    
             console.log(error);
+
+            // Handle cell editting mode error
+            if (error.debugInfo.code === "InvalidOperationInCellEditMode") {
+                console.log("error is cell editting mode");
+                return {status: taskpaneStatus.CELL_EDITTING_MODE, mergeConflictData: null};
+            }
         }
         return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
     }
 }
-
-
 
 export async function runMerge(formattingEvents) {
     const previousPersonalCommitID = await runOperation(async (context) => {
