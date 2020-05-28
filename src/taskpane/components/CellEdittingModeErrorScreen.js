@@ -10,13 +10,13 @@ export default class CellEdittingModeErrorScreen extends React.Component {
 
     render () {
         return (
-            <Taskpane header={headerSize.Small} title="Error - It looks like you were still editting the spreadsheet">
+            <Taskpane header={headerSize.Small} title="Sorry, we can't perform that operation while you're editing the spreadsheet.">
                 <div className="card-div">
                     <p>
-                        Pleaes make sure you're not in cell edditng mode. <b>Single clicking on any cell should do the trick!</b> 
+                        Make sure you're not editing a cell. <b>Single clicking on any cell should do the trick!</b> 
                     </p>
                     <p>
-                        Hint: if the green checkmark next to the formula bar is colored, then you are still in cell editting mode. 
+                        Hint: If the green checkmark next to the formula bar is colored, then you're still editting. 
                     </p>
                 </div>
             </Taskpane>
