@@ -51,3 +51,16 @@ export async function runOperationNoSync(operation, ...rest) {
     }
     return result;
 }
+
+export async function runOperationHandleErrorNoSync(operation, errorHandler, ...rest) {
+    turnSyncOff();
+    var result;
+    try {
+        await Excel.run(async context => {
+            result = await operation(context, ...rest);
+        });
+    } catch (error) {
+        result = await errorHandler(error);
+    }
+    return result;
+}
