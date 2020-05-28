@@ -62,7 +62,7 @@ export async function createRemoteURL() {
   try {
     // Try and create a project
     response = await axios.post(
-        "https://excel.sagacollab.com/project/create",
+        "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Stage/create",
     );
   } catch (e) {
     // If we are offline or can't connect, return null
@@ -148,12 +148,19 @@ export async function runReplaceFromBase64(fileContents) {
 async function createFromURL(context, url, email) {
   // TODO: make a branch w/ email, and check it out.
 
-  url = url.trim();
+  /*
+    Note: the URLs we use on the outside are just a display, we
+    don't actually send or receive data from this URL. This is just
+    a workaround until we can move sagacollab.com to AWS.
+  */
+ const urlArray = url.trim().split("/");
+ const id = urlArray[urlArray.length - 1];
 
   const response = await axios.get(
-    url, 
+    "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Stage/getProject", 
     {
       params: {
+        id: id,
         headCommitID: ``,
         parentCommitID: ``
       }
