@@ -1,7 +1,3 @@
-require('dotenv').config();
-require('./src/models/ProjectSchema');
-require('./src/models/EmailSchema');
-require('./src/models/FeedbackSchema');
 const express = require('express');
 const logger = require('morgan');
 const app = express();
