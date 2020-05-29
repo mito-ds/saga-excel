@@ -167,6 +167,7 @@ async function writeDataToSheet(context, sheetName, data) {
     const rangeAddress = `A${1}:${endColumn}${rectData.length}`;
 
     // Finially, write the values
+
     sheet.getRange(rangeAddress).values = rectData;
 
     await context.sync();
@@ -183,6 +184,10 @@ async function copyFormatting(context, srcSheetName, dstSheetName, formattingEve
     const events = formattingEventsMap[sheetID] || []; 
     for (let i = 0; i < events.length; i++) {
         const address = events[i].address;
+        // Skip any empty formatting events
+        if (address === "1:1048576") {
+            continue;
+        }
 
         dstFormatting.getRange(address).copyFrom(srcFormatting.getRange(address), Excel.RangeCopyType.formats);
         
@@ -204,6 +209,7 @@ function replaceReferencesInData(data, srcString, dstString) {
         }
     });
 }
+
 
 
 const doMerge = async (context, formattingEvents) => {
@@ -409,12 +415,14 @@ const doMerge = async (context, formattingEvents) => {
     console.log("Copied over inserted", insertedSheetsNames);
     
     console.log(mergedData);
-    mergedData.forEach(async function(sheetMergeResult) {
+    for (let i = 0; i < mergedData.length; i++) {
         // TODO: we have to not copy over the sheets that were deleted on master
+        const sheetMergeResult = mergedData[i];
         console.log(sheetMergeResult);
         console.log("Trying to write to ", sheetMergeResult.sheet, "with", sheetMergeResult.result);
         await writeDataToSheet(context, newCommitPrefix + sheetMergeResult.sheet, sheetMergeResult.result);
-    });
+    }
+
 
     console.log("Wrote data to all sheets");
 
@@ -427,7 +435,6 @@ const doMerge = async (context, formattingEvents) => {
         formattingEventsMap[event.worksheetId].push(event);
     });
 
-
     if (mergeSheets.length > 0) {
         // This code fixes a merge bug where the first formatting event was not handled
         // because the ID of the sheet was not defined. It becomes defined if we sync first.
@@ -437,7 +444,8 @@ const doMerge = async (context, formattingEvents) => {
         for (let i = 0; i < mergeSheets.length; i++) {
             const personalSheetName = mergeSheets[i].name;
             const mergeSheetName = newCommitPrefix + personalSheetName;
-            await copyFormatting(context, personalPrefix + personalSheetName, mergeSheetName, formattingEventsMap);
+            console.log(`Running the formatting code on sheet ${newCommitPrefix + personalSheetName}`);
+            await copyFormatting(context, personalSheetName, mergeSheetName, formattingEventsMap);
         }
     }
     
@@ -523,6 +531,8 @@ export async function merge(context, formattingEvents) {
 
     // Make a commit on the personal branch    
     await commit(context, `check in of ${personalBranch}`, "", personalBranch);
+    
+    console.log("done check in commit on personal");
 
     // Merge this commit into the shared branch
     const mergeData = await doMerge(context, formattingEvents);
@@ -561,7 +571,8 @@ export async function merge(context, formattingEvents) {
 */
 function makeHandleMergeError(previousPersonalCommitID) {
     return async (error) => {
-        console.log("Handling error")
+        console.log("Handling error");
+        console.log(error);
         try {
             await Excel.run(async (context) => {
                 const project = new Project(context);
@@ -588,7 +599,7 @@ function makeHandleMergeError(previousPersonalCommitID) {
             console.log(error);
         }
         return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
-    }
+    };
 }
 
 
