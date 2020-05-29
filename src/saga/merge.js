@@ -26,6 +26,7 @@ function toColumnName(num) {
 // Resolve merge conflicts by updating the given cells with their given values
 async function resolveMergeConflicts(context, resolutions) {
     const worksheets = context.workbook.worksheets;
+    const project = new Project(context);
 
     const sheetsResolutionsArray = Object.entries(resolutions);
     
@@ -36,7 +37,6 @@ async function resolveMergeConflicts(context, resolutions) {
         const personalWorksheet = worksheets.getItem(sheetName);
 
         // Get the master version of the worksheet
-        const project = new Project(context);
         const headCommit = await project.getCommitIDFromBranch("master");
         const masterWorksheetName = "saga-" + headCommit + "-" + sheetName;
         const masterWorksheet = worksheets.getItem(masterWorksheetName);
@@ -60,10 +60,12 @@ async function resolveMergeConflicts(context, resolutions) {
         } 
     }
 
+    const personalBranchName = await project.getPersonalBranch();
     // make resolution commit on master
-    await commit(context, "resolved merge conflicts", "resolved merge conflicts", "master");
+    await commit(context, "resolved merge conflicts", "resolved merge conflicts", personalBranchName);
 
-    return runMerge([]);
+    return await merge(context, []);
+
 } 
 
 const getNonsagaSheets = (sheets) => {
@@ -467,15 +469,26 @@ const doMerge = async (context, formattingEvents) => {
     tmpSheet.delete();
     console.log("Copied new commit sheets to personal branch", newCommitSheets);
 
-    // And then we update the commits and stuff in the proper places
-    await project.updateBranchCommitID(`master`, newCommitID);
-    await project.addCommitID(newCommitID, masterCommitID, `Merged in ${personalBranch}`, "");
-    // And we update the last commit you caught up till
-    await project.setLastCatchUpCommitID(newCommitID);
+    // Check for merge conflicts
+    const mergedSheets = Object.entries(mergedData);
+    let mergeConflict = false;
+    mergedSheets.forEach((sheet) => {
+        if (sheet[1].conflicts.length !== 0) {
+            mergeConflict = true;
+        }
+    });
 
-    // Finially, we update your personal commit id
-    await project.updateBranchCommitID(personalBranch, newCommitID); // we commit on both of these branches
-    
+    // only commit if a merge conflict does not exist
+    if (!mergeConflict) {
+            // And then we update the commits and stuff in the proper places
+        await project.updateBranchCommitID(`master`, newCommitID);
+        await project.addCommitID(newCommitID, masterCommitID, `Merged in ${personalBranch}`, "");
+        // And we update the last commit you caught up till
+        await project.setLastCatchUpCommitID(newCommitID);
+
+        // Finially, we update your personal commit id
+        await project.updateBranchCommitID(personalBranch, newCommitID); // we commit on both of these branches
+    }
 
     return mergedData;
 };
@@ -511,17 +524,8 @@ export async function merge(context, formattingEvents) {
     // Make a commit on the personal branch    
     await commit(context, `check in of ${personalBranch}`, "", personalBranch);
 
-
     // Merge this commit into the shared branch
     const mergeData = await doMerge(context, formattingEvents);
-
-
-    // Try and update the server with this newly merged sheets
-    const updatedWithMerge = await updateShared(context);
-
-    if (updatedWithMerge !== branchState.BRANCH_STATE_HEAD) {
-        return updatedWithMerge === branchState.BRANCH_STATE_FORKED ? {status: mergeState.MERGE_FORKED, mergeConflictData: null} : {status: mergeState.MERGE_ERROR, mergeConflictData: null};
-    }
 
     // Check for merge conflicts
     const mergedSheets = Object.entries(mergeData);
@@ -532,7 +536,21 @@ export async function merge(context, formattingEvents) {
         }
     });
 
-    return mergeConflict ? {status: mergeState.MERGE_CONFLICT, mergeConflictData: mergeData} : {status: mergeState.MERGE_SUCCESS, mergeConflictData: null};
+    // If there is a merge conflict, don't update shared and return mergeState.MERGE_CONFLICT
+    if (mergeConflict) {
+        console.log("found a merge conflict");
+        return {status: mergeState.MERGE_CONFLICT, mergeConflictData: mergeData};
+    }
+
+    console.log("updating shared");
+    // Try and update the server with this newly merged sheets
+    const updatedWithMerge = await updateShared(context);
+
+    if (updatedWithMerge !== branchState.BRANCH_STATE_HEAD) {
+        return updatedWithMerge === branchState.BRANCH_STATE_FORKED ? {status: mergeState.MERGE_FORKED, mergeConflictData: null} : {status: mergeState.MERGE_ERROR, mergeConflictData: null};
+    }
+
+    return {status: mergeState.MERGE_SUCCESS, mergeConflictData: null};
 }
 
 /*
@@ -582,7 +600,9 @@ export async function runMerge(formattingEvents) {
         return await project.getCommitIDFromBranch(personalBranch);
     });
     const handleMergeError = makeHandleMergeError(previousPersonalCommitID);
-    return runOperationHandleError(merge, handleMergeError, formattingEvents);
+    const mergeResult = await runOperationHandleError(merge, handleMergeError, formattingEvents);
+    return mergeResult;
+
 }
 
 export async function runResolveMergeConflicts(resolutions) {

@@ -17,12 +17,14 @@ export default class LoginScreen extends React.Component {
         const email = document.getElementById('email-input').value
         try {
             // Send the signup to the server
+            // TODO: make a route for posting the server.
+            /*
             axios.post(
                 "https://excel.sagacollab.com/postemail",
                 {
                     email: email
                 }
-            )
+            ) */
         } catch {
             console.error("Failed to post email.")
         }

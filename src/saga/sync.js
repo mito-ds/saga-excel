@@ -15,9 +15,13 @@ async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
     return sheet.name.startsWith(`saga-${headCommitID}`);
   }).map(sheet => sheet.name);
 
+  const urlArray = remoteURL.trim().split("/");
+  const id = urlArray[urlArray.length - 1];
+
   const updateResponse = await axios.post(
-    remoteURL,
+    "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Stage/postProject",
     {
+      id: id,
       headCommitID: headCommitID,
       parentCommitID: parentCommitID,
       fileContents: fileContents,
@@ -34,13 +38,20 @@ async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
 
 async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID) {
 
+  const urlArray = remoteURL.trim().split("/");
+  const id = urlArray[urlArray.length - 1];
+
   // Merge in the sheet
-  const response = await axios.get(remoteURL, {
-    params: {
-      headCommitID: headCommitID,
-      parentCommitID: parentCommitID
+  const response = await axios.get(
+    "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Stage/getProject", 
+    {
+      params: {
+        id: id,
+        headCommitID: headCommitID,
+        parentCommitID: parentCommitID
+      }
     }
-  });
+  );
   // TODO: error check!
   if (response.status === 404) {
     // TODO: we need to handle the case where there is no remote!
@@ -82,6 +93,8 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
   return true;
 }
 
+
+
 export async function updateShared(context) {
     const project = new Project(context);
 
@@ -94,18 +107,28 @@ export async function updateShared(context) {
       return branchState.BRANCH_STATE_HEAD;
     }
 
-    const response = await axios.get(`${remoteURL}/checkhead`, {
-      params: {
-        headCommitID: headCommitID,
-        parentCommitID: parentCommitID
+    const urlArray = remoteURL.trim().split("/");
+    const id = urlArray[urlArray.length - 1];
+
+    console.log(`Remote URL: ${remoteURL} ID: ${id}`);
+
+
+    const response = await axios.get(
+      `https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Stage/checkhead`, 
+      {
+        params: {
+          id: id,
+          headCommitID: headCommitID,
+          parentCommitID: parentCommitID
+        }
       }
-    });
+    );
 
     if (response.status === 404) {
       return branchState.BRANCH_STATE_ERROR;
     }
 
-    const currBranchState = response.data.branch_state;
+    const currBranchState = response.data.branchState;
 
     if (currBranchState === branchState.BRANCH_STATE_HEAD) {
       console.log(`Already up to date with server`);
