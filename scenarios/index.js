@@ -12,7 +12,7 @@ import addingColumnUnmerged from "./addingColumnUnmerged.json";
 import acrossSheetsDiff from "./acrossSheetsDiff.json";
 import switchVersionDoesNotDeletePersonal from "./switchVersionDoesNotDeletePersonal.json";
 import multipleMergeConflictsPerSheet from "./multipleMergeConflictsPerSheet.json";
-
+import formattingInMaster from "./formattingInMaster.json";
 
 export {
     empty, 
@@ -28,5 +28,6 @@ export {
     addingColumnUnmerged,
     acrossSheetsDiff,
     switchVersionDoesNotDeletePersonal,
-    multipleMergeConflictsPerSheet
+    multipleMergeConflictsPerSheet,
+    formattingInMaster
 };
