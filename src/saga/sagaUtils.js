@@ -140,10 +140,10 @@ export async function sagaProjectExists() {
             const sagaSheet = context.workbook.worksheets.getItemOrNullObject("saga");
 
             await context.sync();
-            console.log("sagasheet")
-            console.log(sagaSheet.isNullObject)
+            console.log("sagasheet");
+            console.log(sagaSheet.isNullObject);
             exists = !sagaSheet.isNullObject;
-        })
+        });
     } catch (e) {
         return false;
     }

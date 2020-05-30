@@ -175,6 +175,7 @@ async function writeDataToSheet(context, sheetName, data) {
 
 async function copyFormatting(context, srcSheetName, dstSheetName, formattingEventsMap) {
     console.log(`copying formatting from ${srcSheetName} to ${dstSheetName}`);
+    console.log(await getSheetsWithNames(context));
     const srcFormatting = context.workbook.worksheets.getItem(srcSheetName);
     const dstFormatting = context.workbook.worksheets.getItem(dstSheetName);
     // We sync here to get the sheet IDs
@@ -285,11 +286,21 @@ const doMerge = async (context, formattingEvents) => {
     // TODO: we should be merging conflict sheets together
 
     // Sheets that have been removed from the head branch, but where in the origin branch
-    
-    const deletedSheets = personalSheets.filter(sheet => {
+
+
+    /*
+        A sheet is deleted if it is deleted from the personal branch, or 
+        if it is deleted from the shared branch.
+    */
+    // if it was deleted in master
+    let deletedInMasterSheets = personalSheets.filter(sheet => {
         const ex = checkExistance(sheet);
         return !ex.inMaster && ex.inOrigin;
     });
+    // or if it was deleted in the personal branch
+
+
+
 
     // Now, we actually need to merge the sheets 
     const mergeSheets = personalSheets.filter(sheet => {
@@ -390,8 +401,13 @@ const doMerge = async (context, formattingEvents) => {
 
     // Now, we copy over master sheets, to get their formatting
     const masterNonDeletedNames = masterSheets.filter(sheet => {
-        return !deletedSheets.some(deleted => deleted.name === sheet.name);
+        const originalSheetName = sheet.name.split("-")[2];
+        const deletedInMaster = deletedInMasterSheets.some(deleted => deleted.name === originalSheetName);
+        const deletedInPersonal = !personalSheets.some(personalSheet => personalSheet.name === originalSheetName);
+        return !deletedInMaster && !deletedInPersonal;
     }).map(sheet => sheet.name);
+
+    console.log("masterNonDeletedNames", masterNonDeletedNames);
 
     await makeClique(
         context,

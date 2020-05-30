@@ -13,6 +13,8 @@ import acrossSheetsDiff from "./acrossSheetsDiff.json";
 import switchVersionDoesNotDeletePersonal from "./switchVersionDoesNotDeletePersonal.json";
 import multipleMergeConflictsPerSheet from "./multipleMergeConflictsPerSheet.json";
 import formattingInMaster from "./formattingInMaster.json";
+import unmergedLocalSheetDelete from "./unmergedLocalSheetDelete.json";
+
 
 export {
     empty, 
@@ -29,5 +31,6 @@ export {
     acrossSheetsDiff,
     switchVersionDoesNotDeletePersonal,
     multipleMergeConflictsPerSheet,
-    formattingInMaster
+    formattingInMaster,
+    unmergedLocalSheetDelete
 };
