@@ -19,7 +19,7 @@ export default function TaskpaneFooter(props) {
 
     return (
         <div className="footer">
-            <p className="FAQ-text"> <b>Q's? See our <a href="https://sagacollab.com/howto">FAQ</a> or shoot us a message at founders@sagacollab.com</b></p>
+            <p className="FAQ-text"> <b>Q's? See our <a href="https://sagacollab.com/instructions">instructions</a> or shoot us a message at founders@sagacollab.com</b></p>
             <p className="subtext-disclaimer"> Saga is in pre-alpha. Make sure to back up your work! </p>
             <button onClick={() => {setStatus(buttonText);}}>{buttonText}</button>
         </div>
