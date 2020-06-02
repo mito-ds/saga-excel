@@ -4,7 +4,7 @@ import { turnSyncOff, turnSyncOn } from "./sync";
 /* global Excel, OfficeExtension */
 
 export async function runOperation(operation, ...rest) {
-    turnSyncOff();
+    const turnedOff = turnSyncOff();
     var result;
     try {
         await Excel.run(async context => {
@@ -17,12 +17,15 @@ export async function runOperation(operation, ...rest) {
         }
         result = false;
     }
-    turnSyncOn();
+    // we only turn sync on if it was on originally
+    if (turnedOff) {
+        turnSyncOn();
+    }
     return result;
 }
 
 export async function runOperationHandleError(operation, errorHandler, ...rest) {
-    turnSyncOff();
+    const turnedOff = turnSyncOff();
     var result;
     try {
         await Excel.run(async context => {
@@ -31,7 +34,9 @@ export async function runOperationHandleError(operation, errorHandler, ...rest) 
     } catch (error) {
         result = await errorHandler(error);
     }
-    turnSyncOn();
+    if (turnedOff) {
+        turnSyncOn();
+    }
     return result;
 }
 

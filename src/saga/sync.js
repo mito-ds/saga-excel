@@ -154,9 +154,12 @@ export async function updateShared(context) {
 // TODO: move the sync function here
 
 async function sync() {
-  console.log("syncing...", g.syncInt);
-  turnSyncOff();
-  console.log("turned sync off", g.syncInt);
+  console.log("Syncing:");
+  const turnedOff = turnSyncOff();
+  if (turnedOff) {
+    console.log("Turned sync off");
+  }
+
   try {
     await Excel.run(async context => {
         // We do not use runOperation here, as sync shouldn't reload itself
@@ -168,8 +171,10 @@ async function sync() {
         console.error(error.debugInfo);
     }
   }
-  turnSyncOn();
-  console.log("turned sync back on", g.syncInt);
+  const turnedOn = turnSyncOn();
+  if (turnedOn) {
+    console.log("Turned sync back on");
+  }
 }
 
 function getGlobal() {
@@ -185,17 +190,27 @@ function getGlobal() {
 
 var g = getGlobal();
 
+/*
+  If syncing is off, turn it on, and report that it was turned on successfully.
+  Otherwise, return false (as it was not turned on, because it was already on).
+*/
 export function turnSyncOn() {
-  // If sync is not on, turn it on.
   if (!g.syncInt) {
     g.syncInt = setInterval(sync, 5000);
+    return true;
   }
+  return false;
 }
 
+/*
+  If syncing is on, turn it off, and report that it was successfully turned off.
+  Otherwise, return false (it was not turned off b/c it as not on).
+*/
 export function turnSyncOff() {
-  // If syncing is on, turn it off.
   if (g.syncInt) {
     clearInterval(g.syncInt);
     g.syncInt = null;
+    return true;
   }
+  return false;
 }
