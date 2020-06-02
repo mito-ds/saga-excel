@@ -48,7 +48,7 @@ export default function DevScreen(props) {
 
     let testSuiteArray = [];
     Object.keys(testSuites).forEach(function(testSuite) {
-        testSuiteArray.push(<option value={testSuite}>{testSuite}</option>)
+        testSuiteArray.push(<option key={testSuite} value={testSuite}>{testSuite}</option>)
     });
 
 
