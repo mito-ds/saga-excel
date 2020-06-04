@@ -1,6 +1,6 @@
 import { strict as assert } from 'assert';
 import { runReplaceFromBase64 } from "../../saga/create";
-import * as scenarios from "../../../scenarios";
+import * as scenarios from "../scenarios";
 import { getGlobal } from "../../commands/commands";
 import { runResolveMergeConflicts }  from "../../saga/merge";
 import { runOperation } from "../../saga/runOperation";

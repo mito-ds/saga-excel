@@ -1,6 +1,6 @@
 import { runOperation } from "./runOperation";
 import { TEST_URL } from "../constants";
-import * as scenarios from "../../scenarios";
+import * as scenarios from "../tests/scenarios";
 import { replaceFromBase64 } from "./create";
 import { getFileContents } from "./fileUtils";
 import Project from "./Project";

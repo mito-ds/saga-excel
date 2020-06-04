@@ -4,7 +4,7 @@ import { runOperation } from "../../saga/runOperation";
 import { item, TEST_URL, mergeState, taskpaneStatus } from "../../constants";
 import { getSheetsWithNames } from "../../saga/sagaUtils";
 import { getGlobal } from "../../commands/commands";
-import * as scenarios from "../../../scenarios";
+import * as scenarios from "../scenarios";
 import Project from "../../saga/Project";
 import { getItemRangeValues, getFormulas, getValues } from "../testHelpers";
 

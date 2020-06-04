@@ -8,7 +8,7 @@ import { headerSize, TEST_URL } from "../../constants";
 import { upgradeAllScenarios } from "../../saga/upgrade";
 
 import { getFileContents } from "../../saga/fileUtils";
-import * as scenarios from "../../../scenarios";
+import * as scenarios from "../../tests/scenarios";
 import { runReplaceFromBase64 } from "../../saga/create";
 import Project from "../../saga/Project";
 

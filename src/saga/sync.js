@@ -2,6 +2,7 @@ import Project from "./Project";
 import axios from "axios";
 import { getFileContents } from "./fileUtils";
 import { branchState, TEST_URL } from "../constants";
+import { mergeConflictSimpleEmptyOrigin } from "../tests/scenarios";
 
 /* global Excel, OfficeExtension */
 
@@ -34,6 +35,31 @@ async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
   }
 
   return false;
+}
+
+async function addUpdateToProject(context, headCommitID, fileContents, commitIDs, commitSheets) {
+
+  const project = new Project(context);
+
+  const worksheets = context.workbook.worksheets;
+
+  worksheets.addFromBase64(
+    fileContents,
+    commitSheets,
+    Excel.WorksheetPositionType.end
+  );
+
+  // Then, we add the commit IDs to the commit database
+  var parentID = headCommitID;
+  for (let i = 0; i < commitIDs.length; i++) {
+    const commitID = commitIDs[i];
+    await project.updateBranchCommitID("master", commitID);
+    await project.addCommitID(commitID, parentID, "from remote", "from remote");
+    parentID = commitID;
+  }
+
+
+
 }
 
 async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID) {
@@ -70,25 +96,9 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
   const commitIDs = response.data.commitIDs;
   const commitSheets = response.data.commitSheets;
 
-  // TODO: we should change the head commit here...
+  // Actually add this to the project
+  await addUpdateToProject(project.context, headCommitID, fileContents, commitIDs, commitSheets);
 
-
-  // We only merge in the commit sheets
-  const worksheets = project.context.workbook.worksheets;
-  worksheets.addFromBase64(
-    fileContents,
-    commitSheets,
-    Excel.WorksheetPositionType.end
-  );
-
-  // Then, we add the commit IDs to the commit database
-  var parentID = headCommitID;
-  for (let i = 0; i < commitIDs.length; i++) {
-    const commitID = commitIDs[i];
-    await project.updateBranchCommitID("master", commitID);
-    await project.addCommitID(commitID, parentID, "from remote", "from remote");
-    parentID = commitID;
-  }
   console.log(`Local updated from server.`);
   return true;
 }
@@ -102,7 +112,21 @@ export async function updateShared(context) {
     const parentCommitID = await project.getParentCommitID(headCommitID);
     const remoteURL = await project.getRemoteURL();
 
-    if (remoteURL === TEST_URL) {
+    /*
+      If we are in a test, then we figure out if there is anything to pull during this step,
+      and we pull it into the project if so.
+    */
+    if (remoteURL.startsWith(TEST_URL)) {
+
+
+
+      // If we are in a test, then we figure out if there's anything we should pull during this step, 
+      // and pull it if so
+
+    
+
+
+
       console.log("using test url, done syncing");
       return branchState.BRANCH_STATE_HEAD;
     }
