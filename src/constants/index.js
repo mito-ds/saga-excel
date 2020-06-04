@@ -81,4 +81,14 @@ export const changeType = {
     DELETED: "Deleted"
 };
 
+
+/*
+    Returned by runOperationSafetyCommit to let add-in know if the operation was a success
+*/
+export const operationStatus = {
+    SUCCESS: "success",
+    ERROR_AUTOMATICALLY_FIXED: "error_automatic_fix",
+    ERROR_MANUAL_FIX: "error_manual_fix"
+};
+
 export const TEST_URL = "test_url";

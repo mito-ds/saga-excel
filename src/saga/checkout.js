@@ -19,7 +19,6 @@ export async function switchVersionFromRibbon(context) {
         await checkoutBranch(context, personalBranchName);
     } else {
         // First, we commit on the personal branch
-        await runCommit("commit before switch version to master", "", currentBranch);
         await checkoutBranch(context, "master");
         // If master, lock sheets
         await lockWorksheets(context);
