@@ -1,13 +1,14 @@
 import { getSheetsWithNames, deleteNonsagaSheets } from "./sagaUtils";
 import Project from './Project';
 import { runCommit } from "./commit";
-import { runOperation } from "./runOperation";
+import { runOperation, runOperationSafetyCommit } from "./runOperation";
 import { makeClique } from "./commit";
 
 /* global Excel */
 
 
 export async function switchVersionFromRibbon(context) {
+    console.log("swtiching verisons");
     const project = new Project(context);
 
     // Get current branch
@@ -15,13 +16,15 @@ export async function switchVersionFromRibbon(context) {
 
     // Switch Branches
     if (currentBranch === 'master') {
+        console.log("checking out personal");
         const personalBranchName = await project.getPersonalBranch();
         await checkoutBranch(context, personalBranchName);
+        console.log("checked out personal");
     } else {
-        // First, we commit on the personal branch
         await checkoutBranch(context, "master");
-        // If master, lock sheets
+        // lock master sheets
         await lockWorksheets(context);
+        console.log("checked out master");
     }
 }
 
@@ -124,5 +127,5 @@ export async function runCheckoutBranch(branch) {
 }
 
 export async function runSwitchVersionFromRibbon() {
-    await runOperation(switchVersionFromRibbon);
+    await runOperationSafetyCommit(switchVersionFromRibbon);
 }

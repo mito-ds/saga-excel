@@ -77,10 +77,21 @@ export async function runOperationSafetyCommit(operation, ...rest) {
     try {
         await Excel.run(async context => {
             const project = new Project(context);
-            const personalBranchName = await project.getPersonalBranch();
-            safetyCommit = await commit(context, `safety commit`, `comitting before running ${operation}`, personalBranchName);
+            const currentBranch = await project.getHeadBranch();
+
+            // if current branch is master, save master commit as safety commit
+            if (currentBranch === "master") {
+                safetyCommit = await project.getCommitIDFromBranch("master");
+                
+            } else {
+                // if personal branch is checked out, make a safety commit
+                const personalBranchName = await project.getPersonalBranch();
+                safetyCommit = await commit(context, `safety commit`, `comitting before running ${operation}`, personalBranchName);
+            }
+
+            // run operation
             const operationResult = await operation(context, ...rest);
-            result = {status: operationStatus.SUCCESS, operationResult: operationResult};
+            result = {status: operationStatus.SUCCESS, operationResult: operationResult}; 
         });
     } catch (error) {
         console.error(error);
