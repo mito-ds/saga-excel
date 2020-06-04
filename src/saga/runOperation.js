@@ -2,7 +2,7 @@ import { turnSyncOff, turnSyncOn } from "./sync";
 import { commit } from "./commit";
 import Project from "./Project";
 import { operationStatus } from '../constants';
-import { checkoutCommitID } from "./checkout";
+import { checkoutCommitID, checkoutBranch } from "./checkout";
 
 
 /* global Excel, OfficeExtension */
@@ -86,7 +86,7 @@ export async function runOperationSafetyCommit(operation, ...rest) {
             } else {
                 // if personal branch is checked out, make a safety commit
                 const personalBranchName = await project.getPersonalBranch();
-                safetyCommit = await commit(context, `safety commit`, `comitting before running ${operation}`, personalBranchName);
+                safetyCommit = await commit(context, `safety commit`, `comitting before running operation`, personalBranchName);
             }
 
             // run operation
@@ -94,24 +94,35 @@ export async function runOperationSafetyCommit(operation, ...rest) {
             result = {status: operationStatus.SUCCESS, operationResult: operationResult}; 
         });
     } catch (error) {
-        console.error(error);
+        
+        console.log(error);
 
-        // print information about the error
-        if (error instanceof OfficeExtension.Error) {
-            console.error(error.debugInfo);
-        }
-
-        // If the error pauses execution, so that a manual roll back is required
+        // If the error pauses execution, so that a manual rollback is required
         if (error.debugInfo.code === "InvalidOperationInCellEditMode") {
             console.log("error is cell editting mode");
-            return {status: operationStatus.ERROR_MANUAL_FIX, safetyCommit: safetyCommit};
+            result = {status: operationStatus.ERROR_MANUAL_FIX, safetyCommit: safetyCommit};
+        } else {
+            console.log("here");
+            // If none of the above errors occured, we should be able to revert to safety commit
+            await Excel.run(async context => {
+                console.log(`checking out safety commit ${safetyCommit}`);
+                const project = new Project(context);
+
+                // Checkout personal branch if not already checked out
+                const branch = await project.getHeadBranch();
+                const personalBranchName = await project.getPersonalBranch();
+                console.log(branch);
+                if (branch !== personalBranchName) {
+                    await checkoutBranch(context, personalBranchName);
+                }
+
+                // revert to safety commit
+                await checkoutCommitID(safetyCommit);
+
+                // return after automatically fixing
+                result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED};
+            });
         }
-        
-        // If we can automatically rollback
-        await checkoutCommitID(safetyCommit);
-    
-        // return after automatically fixing
-        return {status: operationStatus.ERROR_AUTOMATICALLY_FIXED};
     }
     turnSyncOn();
     return result;

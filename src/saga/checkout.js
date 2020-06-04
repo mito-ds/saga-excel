@@ -1,6 +1,5 @@
 import { getSheetsWithNames, deleteNonsagaSheets } from "./sagaUtils";
 import Project from './Project';
-import { runCommit } from "./commit";
 import { runOperation, runOperationSafetyCommit } from "./runOperation";
 import { makeClique } from "./commit";
 
@@ -23,6 +22,7 @@ export async function switchVersionFromRibbon(context) {
     } else {
         await checkoutBranch(context, "master");
         // lock master sheets
+
         await lockWorksheets(context);
         console.log("checked out master");
     }
