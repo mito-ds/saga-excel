@@ -24,14 +24,15 @@ While a scenario is the state of a specific workbook, a multi-player testing sce
 The format of a multi-player testing scenario is a JSON object with the following structure:
 ```
 {
-    scenarioName: "<multi-player test scenario name>",
-    syncSteps: [
+    "scenarioName": "<multi-player test scenario name>",
+    "fileContents": "<original file contents>",
+    "syncSteps": [
         {
-            scenarioName: "<multi-player test scenario name>",
-            stepNumber: 0,
-            fileContents: "<file contents base 64 string to sync>",
-            commitIDs: [<commit id 1>, ...],
-            commitSheets: [<commit sheet name 1>, ...]
+            "scenarioName": "<multi-player test scenario name>",
+            "stepNumber": 0,
+            "fileContents": "<file contents base 64 string to sync>",
+            "commitIDs": [<commit id 1>, ...],
+            "commitSheets": [<commit sheet name 1>, ...]
         },
         ...
     ]
@@ -39,3 +40,5 @@ The format of a multi-player testing scenario is a JSON object with the followin
 ```
 
 Scenario generation coming soon!
+
+When you're writing a test using this scenario, simply call the `nextStep` function provided in the test runner to advance to the next step (and sync as well).

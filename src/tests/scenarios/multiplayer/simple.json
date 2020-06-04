@@ -1,0 +1,13 @@
+{
+    "scenarioName": "simple",
+    "fileContents": "abc123",
+    "syncSteps": [
+        {
+            "scenarioName": "simple",
+            "stepNumber": 0,
+            "fileContents": "def456",
+            "commitIDs": ["commit123"],
+            "commitSheets": ["saga-commit123-Sheet1"]
+        },
+    ]
+}
