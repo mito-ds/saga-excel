@@ -2,12 +2,8 @@ import Project from "./Project";
 import axios from "axios";
 import { getFileContents } from "./fileUtils";
 import { branchState, TEST_URL } from "../constants";
-import { mergeConflictSimpleEmptyOrigin } from "../tests/scenarios";
 
 /* global Excel, OfficeExtension */
-
-
-
 
 async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
   const fileContents = await getFileContents();
