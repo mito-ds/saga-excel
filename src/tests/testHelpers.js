@@ -49,7 +49,6 @@ export class MultiplayerScenario {
     }
 
     async start() {
-        console.log("Starting");
         await runReplaceFromBase64(this.scenario.fileContents);
     }
 
