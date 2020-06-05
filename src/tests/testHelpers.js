@@ -1,6 +1,8 @@
-
 import Project from "../saga/Project";
 import { addUpdateToProject } from "../saga/sync";
+import * as multiplayer from "./scenarios/multiplayer";
+import { runReplaceFromBase64 } from "../saga/create";
+
 
 /* global Excel */
 
@@ -32,31 +34,41 @@ export async function getFormulas(context, sheetName, rangeAddr) {
 }
 
 
-export async function nextSyncStep(scenario) {
+export class MultiplayerScenario {
 
-    // We add it to the file
-    await Excel.run(async (context) => {
-        const project = new Project(context);
-        const remoteURL = await project.getRemoteURL();
-        const remoteSplit = remoteURL.split("/");
-        const currStep = parseInt(remoteSplit[2]);
+    constructor(scenarioName) {
+        // First, check that such a scenario exists
+        if (!(scenarioName in multiplayer)) {
+            console.error(`Error: no multiplayer scenario ${scenarioName} exists`);
+            return null;
+        }
 
-        console.log("On step", currStep);
+        this.scenarioName = scenarioName;
+        this.scenario = multiplayer[scenarioName];
+        this.currStep = 0;
+    }
 
-        const syncStep = scenario.syncSteps[currStep];
+    async start() {
+        console.log("Starting");
+        await runReplaceFromBase64(this.scenario.fileContents);
+    }
 
-        const headCommitID = await project.getCommitIDFromBranch("master");
+    async nextSyncStep() {
+        console.log(`In scenario ${this.scenarioName}, on step ${this.currStep}`);
 
-        await addUpdateToProject(
-            context, 
-            headCommitID, 
-            syncStep.fileContents, 
-            syncStep.commitIDs, 
-            syncStep.commitSheets
-        );
+        await Excel.run(async (context) => {
+            const project = new Project(context);
+            const syncStep = this.scenario.syncSteps[this.currStep];
+            const headCommitID = await project.getCommitIDFromBranch("master");
+            await addUpdateToProject(
+                context, 
+                headCommitID, 
+                syncStep.fileContents, 
+                syncStep.commitIDs, 
+                syncStep.commitSheets
+            );
+        });
 
-        
-        const nextURL = `${remoteSplit.slice(0, 2).join("/")}/${currStep + 1}`;
-        await project.setRemoteURL(nextURL);
-    });
+        this.currStep++;
+    }
 }

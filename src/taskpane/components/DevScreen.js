@@ -68,7 +68,7 @@ export default class DevScreen extends React.Component {
         await Excel.run(async (context) => {
             const project = new Project(context);
             remoteURL = await project.getRemoteURL();
-            await project.setRemoteURL(`${TEST_URL}/${scenarioName}/0`);
+            await project.setRemoteURL(`${TEST_URL}/${scenarioName}`);
         });
 
         // Then, we get the file contents with the testing url
@@ -200,6 +200,6 @@ export default class DevScreen extends React.Component {
 
 const devScreenStyle = {
     'display': 'flex',
-    'flex-direction': 'column',
-    'text-align': 'center',
+    'flexDirection': 'column',
+    'textAlign': 'center',
 };

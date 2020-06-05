@@ -1,33 +1,37 @@
-import * as mulitplayer from "../scenarios/multiplayer";
-import { runReplaceFromBase64 } from "../../saga/create";
-import { nextSyncStep } from "../testHelpers";
+import { item } from "../../constants";
+import { strict as assert } from 'assert';
+import { MultiplayerScenario, getItemRangeValues } from "../testHelpers";
+import { getSheetsWithNames } from "../../saga/sagaUtils";
 
-export async function simpleTests() {
+/* global Excel */
+
+export async function testUpdatesSagaSheetCommitIDs() {
     // First, we set up the basic scenario
-    const simple = mulitplayer.simple;
-    await runReplaceFromBase64(simple.fileContents);
+    const scenario = new MultiplayerScenario("updatesSagaSheetCommitIDs");
+    await scenario.start();
 
-    await new Promise(resolve => setTimeout(resolve, 20000));
-
-    let currStep = 0;
-    // Then, we call the next step function
-    currStep = await nextSyncStep(simple, currStep);
-    console.log("Uh, done");
-
-    await new Promise(resolve => setTimeout(resolve, 20000));
-
-
-
-
-
+    console.log("Started");
+    // First, we should have just three sheets (saga, checked-out, commit), and just two commits (first and one real)
+    let numSheets;
+    let numCommits;
+    await Excel.run(async (context) => {
+        numSheets = (await getSheetsWithNames(context)).length;
+        numCommits = (await getItemRangeValues(context, item.COMMITS)).length;
+    });
+    console.log(numCommits);
+    assert.equal(numSheets, 3, "Wrong number of sheets initally in scenario");
+    assert.equal(numCommits, 2, "Wrong number of commits initally in scenario");
 
 
+    // Then sync, and show we updated the commit sheet appropriately
+    await scenario.nextSyncStep();
 
+    await Excel.run(async (context) => {
+        numSheets = (await getSheetsWithNames(context)).length;
+        numCommits = (await getItemRangeValues(context, item.COMMITS)).length;
+    });
+    assert.equal(numSheets, 4, "Wrong number of sheets initally in scenario");
+    assert.equal(numCommits, 3, "Wrong number of commits initally in scenario");
 
-
-    // Then, we call sync
-
-
-
-
+    return true;
 }
