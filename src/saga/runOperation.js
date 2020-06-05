@@ -101,10 +101,6 @@ export async function runOperationSafetyCommit(operation, ...rest) {
         // if the error requires manual resolution
         if (error.debugInfo !== undefined) {
             if (error.debugInfo.code === "InvalidOperationInCellEditMode") {
-                console.log("error is cell editting mode");
-                console.log(safetyCommit);
-                console.log(safetyBranch);
-
                 result = {status: operationStatus.ERROR_MANUAL_FIX, safetyCommit: safetyCommit, safetyBranch: safetyBranch};
             }
         } else {
@@ -112,13 +108,11 @@ export async function runOperationSafetyCommit(operation, ...rest) {
             await Excel.run(async context => {
 
                 await revertToCommitAndBranch(context, safetyCommit, safetyBranch);
-                console.log("returned here");
 
                 // return after automatically fixing
                 result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED};
                 return;
             });
-            console.log("out of excel context");
         }
     }
     turnSyncOn();

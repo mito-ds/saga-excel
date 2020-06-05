@@ -72,7 +72,6 @@ async function catchUp(event) {
 
 // If the operation errored and requires manual resolution, display screen
 function showManualFixErrorScreen(safetyCommit, safetyBranch) {
-  console.log("running helper function");
   window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
   window.app.setSafetyValues(safetyCommit, safetyBranch);
   Office.addin.showAsTaskpane();
@@ -82,14 +81,7 @@ async function switchVersion(event) {
   // Todo: render message saying which branch they are on
   const result = await runSwitchVersionFromRibbon();
 
-  console.log(result);
-
-  console.log(result.status);
-
   if (result.status === operationStatus.ERROR_MANUAL_FIX) {
-    console.log(result.safetyCommit);
-    console.log(result.safetyBranch);
-
     showManualFixErrorScreen(result.safetyCommit, result.safetyBranch);
   }
   

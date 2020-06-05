@@ -245,7 +245,6 @@ export async function revertToCommitAndBranch(context, commit, branch) {
             
     // revert to safety commit
     await checkoutCommitID(context, commit);
-    console.log("finished reverting");
 }
 
 export async function runRevertToCommitAndBranch(commit, branch) {

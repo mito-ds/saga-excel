@@ -295,7 +295,6 @@ export default class Project {
     setCheckedOutBranch = async (headCommit) => {
         const headRange = await this.getHeadRange();
         headRange.values = [[headCommit]]
-        console.log("finished checking out branch");
         return this.context.sync();
     }
 }
