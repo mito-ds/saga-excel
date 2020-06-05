@@ -288,5 +288,15 @@ export default class Project {
         await this.context.sync();
         return sheets.items;
     }
+
+    /*
+    Updates checked out branch item without checking out the branch
+    */
+    setCheckedOutBranch = async (headCommit) => {
+        const headRange = await this.getHeadRange();
+        headRange.values = [[headCommit]]
+        console.log("finished checking out branch");
+        return this.context.sync();
+    }
 }
 

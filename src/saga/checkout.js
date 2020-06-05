@@ -83,6 +83,7 @@ export async function checkoutCommitID(context, commitID) {
         Excel.SheetVisibility.visible
     );
     tmpSheet.delete();
+    console.log("finished deleting sheets");
 }
 
 
@@ -127,5 +128,5 @@ export async function runCheckoutBranch(branch) {
 }
 
 export async function runSwitchVersionFromRibbon() {
-    await runOperationSafetyCommit(switchVersionFromRibbon);
+    return await runOperationSafetyCommit(switchVersionFromRibbon);
 }

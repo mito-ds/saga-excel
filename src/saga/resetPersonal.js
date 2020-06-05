@@ -18,7 +18,7 @@ export async function resetPersonalVersion(context) {
     if (branch !== personalBranchName) {
         await checkoutBranch(context, personalBranchName);
     }
-    
+        
     // Get commitID of master's head commit
     const masterCommitID = await project.getCommitIDFromBranch('master');
     await checkoutCommitID(context, masterCommitID);

@@ -7,7 +7,7 @@ import { runSwitchVersionFromRibbon } from "../saga/checkout.js";
 import { runResetPersonalVersion } from "../saga/resetPersonal.js";
 import { runMerge } from "../saga/merge.js";
 import { runCatchUp } from "../saga/diff.js";
-import { taskpaneStatus, mergeState } from "../constants";
+import { taskpaneStatus, mergeState, operationStatus } from "../constants";
 
 /* global global, Office, Excel */
 
@@ -70,9 +70,28 @@ async function catchUp(event) {
   return sheetDiffs;
 }
 
+// If the operation errored and requires manual resolution, display screen
+function showManualFixErrorScreen(safetyCommit, safetyBranch) {
+  console.log("running helper function");
+  window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
+  window.app.setSafetyValues(safetyCommit, safetyBranch);
+  Office.addin.showAsTaskpane();
+}
+
 async function switchVersion(event) {
   // Todo: render message saying which branch they are on
-  await runSwitchVersionFromRibbon();
+  const result = await runSwitchVersionFromRibbon();
+
+  console.log(result);
+
+  console.log(result.status);
+
+  if (result.status === operationStatus.ERROR_MANUAL_FIX) {
+    console.log(result.safetyCommit);
+    console.log(result.safetyBranch);
+
+    showManualFixErrorScreen(result.safetyCommit, result.safetyBranch);
+  }
   
   if (event) {
     event.completed();

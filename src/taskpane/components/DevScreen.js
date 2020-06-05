@@ -1,6 +1,5 @@
 import * as React from "react";
 import Taskpane from "./Taskpane";
-import { StatusContext } from "./StatusContext";
 import { runCleanup } from "../../saga/cleanup";
 import { runAllTests, runTestSuite } from "../../tests/runTests";
 import * as testSuites from "../../tests/";

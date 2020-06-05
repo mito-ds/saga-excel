@@ -1,9 +1,10 @@
 import * as React from "react";
 import Progress from "./Progress";
-import LinkScreen from "./LinkScreen"
-import LoginScreen from "./LoginScreen"
-import ProjectSourceScreen from "./ProjectSourceScreen"
-import { OutOfDateErrorScreen, logOutOfDate } from "./OutOfDateErrorScreen"
+import LinkScreen from "./LinkScreen";
+import LoginScreen from "./LoginScreen";
+import ProjectSourceScreen from "./ProjectSourceScreen";
+import ErrorRevertScreen from "./ErrorRevertScreen";
+import { OutOfDateErrorScreen, logOutOfDate } from "./OutOfDateErrorScreen";
 import DevScreen from "./DevScreen";
 import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
@@ -27,7 +28,9 @@ export default class App extends React.Component {
       taskpaneStatus: taskpaneStatus.CREATE,
       mergeState: mergeState.MERGE_SUCCESS,
       mergeConflicts: null,
-      sheetDiffs: null
+      sheetDiffs: null,
+      safetyCommit: null,
+      safetyBranch: null
     };
 
     this.getTaskpaneStatus = this.getTaskpaneStatus.bind(this);
@@ -39,6 +42,7 @@ export default class App extends React.Component {
     this.getMergeState = this.getMergeState.bind(this);
     this.setMergeState = this.setMergeState.bind(this);
     this.setSheetDiffs = this.setSheetDiffs.bind(this);
+    this.setSafetyValues = this.setSafetyValues.bind(this);
   }
 
   /*
@@ -85,6 +89,13 @@ export default class App extends React.Component {
 
   setSheetDiffs = (sheetDiffs) => {
     this.setState({sheetDiffs: sheetDiffs})
+  }
+
+  setSafetyValues = (safetyCommit, safetyBranch) => {
+    this.setState({
+      safetyCommit: safetyCommit,
+      safetyBranch: safetyBranch
+    });
   }
 
   offline = () => {
@@ -140,6 +151,9 @@ export default class App extends React.Component {
         toReturn = (<DiffScreen sheetDiffs={this.state.sheetDiffs}/>);
         break;
 
+      case taskpaneStatus.ERROR_MANUAL_FIX:
+        toReturn = (<ErrorRevertScreen safetyCommit={this.state.safetyCommit} safetyBranch={this.state.safetyBranch}/>);
+        break;
 
       case taskpaneStatus.CREATE:
         const step = this.state.step;

@@ -2,8 +2,7 @@ import { turnSyncOff, turnSyncOn } from "./sync";
 import { commit } from "./commit";
 import Project from "./Project";
 import { operationStatus } from '../constants';
-import { checkoutCommitID, checkoutBranch } from "./checkout";
-
+import { revertToCommitAndBranch } from "./sagaUtils";
 
 /* global Excel, OfficeExtension */
 
@@ -74,6 +73,7 @@ export async function runOperationSafetyCommit(operation, ...rest) {
     turnSyncOff();
     var result;
     var safetyCommit;
+    var safetyBranch;
     try {
         await Excel.run(async context => {
             const project = new Project(context);
@@ -82,11 +82,13 @@ export async function runOperationSafetyCommit(operation, ...rest) {
             // if current branch is master, save master commit as safety commit
             if (currentBranch === "master") {
                 safetyCommit = await project.getCommitIDFromBranch("master");
+                safetyBranch = "master";
                 
             } else {
                 // if personal branch is checked out, make a safety commit
                 const personalBranchName = await project.getPersonalBranch();
                 safetyCommit = await commit(context, `safety commit`, `comitting before running operation`, personalBranchName);
+                safetyBranch = personalBranchName;
             }
 
             // run operation
@@ -94,36 +96,32 @@ export async function runOperationSafetyCommit(operation, ...rest) {
             result = {status: operationStatus.SUCCESS, operationResult: operationResult}; 
         });
     } catch (error) {
-        
         console.log(error);
 
-        // If the error pauses execution, so that a manual rollback is required
-        if (error.debugInfo.code === "InvalidOperationInCellEditMode") {
-            console.log("error is cell editting mode");
-            result = {status: operationStatus.ERROR_MANUAL_FIX, safetyCommit: safetyCommit};
+        // if the error requires manual resolution
+        if (error.debugInfo !== undefined) {
+            if (error.debugInfo.code === "InvalidOperationInCellEditMode") {
+                console.log("error is cell editting mode");
+                console.log(safetyCommit);
+                console.log(safetyBranch);
+
+                result = {status: operationStatus.ERROR_MANUAL_FIX, safetyCommit: safetyCommit, safetyBranch: safetyBranch};
+            }
         } else {
-            console.log("here");
             // If none of the above errors occured, we should be able to revert to safety commit
             await Excel.run(async context => {
-                console.log(`checking out safety commit ${safetyCommit}`);
-                const project = new Project(context);
 
-                // Checkout personal branch if not already checked out
-                const branch = await project.getHeadBranch();
-                const personalBranchName = await project.getPersonalBranch();
-                console.log(branch);
-                if (branch !== personalBranchName) {
-                    await checkoutBranch(context, personalBranchName);
-                }
-
-                // revert to safety commit
-                await checkoutCommitID(safetyCommit);
+                await revertToCommitAndBranch(context, safetyCommit, safetyBranch);
+                console.log("returned here");
 
                 // return after automatically fixing
                 result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED};
+                return;
             });
+            console.log("out of excel context");
         }
     }
     turnSyncOn();
+    console.log("responding");
     return result;
 }
