@@ -101,6 +101,7 @@ export default class DevScreen extends React.Component {
                 const parentCommitID = await project.getParentCommitID(headCommitID);
                 const remoteURL = await project.getRemoteURL();
 
+                // If there is an update, we add the update to the local project, and add it to the scenario
                 const update = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
                 console.log(update);
                 if ("fileContents" in update) {
@@ -132,6 +133,7 @@ export default class DevScreen extends React.Component {
             })
         }
 
+        // We try to get new incoming sync data every second
         setInterval(fakeSync, 1000);
     }
 
