@@ -1,4 +1,4 @@
-import simple from "./simple.json";
-import updatesSagaSheetCommitIDs from "./updatesSagaSheetCommitIDs.json";
+import remoteUpdateEmpty from "./remoteUpdateEmpty.json";
+import remoteUpdateWithData from "./remoteUpdateWithData.json";
 
-export {simple, updatesSagaSheetCommitIDs};
+export {remoteUpdateWithData, remoteUpdateEmpty};
