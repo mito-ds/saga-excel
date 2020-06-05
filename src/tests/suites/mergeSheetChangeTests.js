@@ -13,9 +13,6 @@ export async function testMergeDeleteSheet() {
     const fileContents = scenarios["unmergedLocalSheetDelete"].fileContents;
     await runReplaceFromBase64(fileContents);
 
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
     const g = getGlobal();
     await g.merge();
 

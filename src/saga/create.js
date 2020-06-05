@@ -142,7 +142,7 @@ export async function replaceFromBase64(context, fileContents) {
 }
 
 export async function runReplaceFromBase64(fileContents) {
-  runOperationNoSync(replaceFromBase64, fileContents);
+  await runOperationNoSync(replaceFromBase64, fileContents);
 }
 
 async function createFromURL(context, url, email) {
