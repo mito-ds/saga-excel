@@ -109,21 +109,11 @@ export async function updateShared(context) {
     const remoteURL = await project.getRemoteURL();
 
     /*
-      If we are in a test, then we figure out if there is anything to pull during this step,
-      and we pull it into the project if so.
+      If we are in a test, then we don't do any syncing.
+      If you wish to test a mulitplayer scenario, see the testing documentation
+      in src/tests/README.md.
     */
     if (remoteURL.startsWith(TEST_URL)) {
-
-
-
-      // If we are in a test, then we figure out if there's anything we should pull during this step, 
-      // and pull it if so
-
-    
-
-
-
-      console.log("using test url, done syncing");
       return branchState.BRANCH_STATE_HEAD;
     }
 
