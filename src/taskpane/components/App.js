@@ -52,9 +52,9 @@ export default class App extends React.Component {
         this.setURL(projectObj["remoteURL"]);
         this.setEmail(projectObj["email"]);
         this.setTaskpaneStatus(taskpaneStatus.SHARE);
+        // Turn syncing if there is a saga project
+        turnSyncOn();
       }
-
-      turnSyncOn();
     }
   }
 

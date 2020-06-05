@@ -33,12 +33,11 @@ async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
   return false;
 }
 
-async function addUpdateToProject(context, headCommitID, fileContents, commitIDs, commitSheets) {
+export async function addUpdateToProject(context, headCommitID, fileContents, commitIDs, commitSheets) {
 
   const project = new Project(context);
 
   const worksheets = context.workbook.worksheets;
-
   worksheets.addFromBase64(
     fileContents,
     commitSheets,
@@ -53,12 +52,9 @@ async function addUpdateToProject(context, headCommitID, fileContents, commitIDs
     await project.addCommitID(commitID, parentID, "from remote", "from remote");
     parentID = commitID;
   }
-
-
-
 }
 
-async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID) {
+export async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID) {
 
   const urlArray = remoteURL.trim().split("/");
   const id = urlArray[urlArray.length - 1];
@@ -78,14 +74,14 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
   if (response.status === 404) {
     // TODO: we need to handle the case where there is no remote!
     console.error("Error getting update from server, project doesn't exist");
-    return false;
+    return null;
   } 
 
 
   const remoteBranchState = response.data.branchState;
   if (remoteBranchState !== branchState.BRANCH_STATE_BEHIND) {
     console.error(`Error getting update from server, branch state is ${remoteBranchState}.`);
-    return false;
+    return null;
   }
 
   const fileContents = response.data.fileContents;
@@ -96,7 +92,11 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
   await addUpdateToProject(project.context, headCommitID, fileContents, commitIDs, commitSheets);
 
   console.log(`Local updated from server.`);
-  return true;
+  return {
+    fileContents: fileContents,
+    commitIDs: commitIDs,
+    commitSheets: commitSheets
+  };
 }
 
 
@@ -163,8 +163,8 @@ export async function updateShared(context) {
         return branchState.BRANCH_STATE_AHEAD;
       }      
     } else if (currBranchState === branchState.BRANCH_STATE_BEHIND) {
-      const updated = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
-      return updated ? branchState.BRANCH_STATE_HEAD : branchState.BRANCH_STATE_BEHIND;
+      const update = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
+      return update !== null ? branchState.BRANCH_STATE_HEAD : branchState.BRANCH_STATE_BEHIND;
     } else {
       console.error("Cannot update shared as is forked from shared :(");
       return currBranchState;

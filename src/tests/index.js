@@ -10,6 +10,7 @@ import * as projectTests from "./suites/projectTests";
 import * as mergeFormattingTest from "./suites/mergeFormattingTests";
 import * as mergeConflictsTests from "./suites/mergeConflictsTests";
 import * as mergeSheetChangeTests from "./suites/mergeSheetChangeTests";
+import * as multiplayerTests from "./suites/multiplayerTests";
 export {
     creationTests,
     cleanupTests,
@@ -22,5 +23,6 @@ export {
     sagaUtilsTests,
     diffTests,
     projectTests,
-    mergeSheetChangeTests
+    mergeSheetChangeTests,
+    multiplayerTests
 };
