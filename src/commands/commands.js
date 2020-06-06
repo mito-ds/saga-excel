@@ -99,9 +99,7 @@ async function switchVersion(event) {
 async function resetPersonalVersion(event) {
   // Todo: If on master, tell them they can't
   const result = await runResetPersonalVersion();
-  console.log(result);
-
-
+  
   checkResultForError(result); 
 
   if (event) {

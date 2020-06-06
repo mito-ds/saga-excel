@@ -59,7 +59,7 @@ async function resolveMergeConflicts(context, resolutions) {
         } 
     }
 
-    
+
     const personalBranchName = await project.getPersonalBranch();
 
     // make resolution commit on personal

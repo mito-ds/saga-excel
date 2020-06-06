@@ -10,30 +10,30 @@ import { runResolveMergeConflicts }  from "../../../saga/merge";
 export default class MergeConflictResolutionErrorScreen extends React.Component {
     constructor(props) {
         super(props); 
-
         this.retryResolution = this.retryResolution.bind(this);
     }
 
     async retryResolution(e) {
         e.preventDefault();
-    
-        // reset state
-        await runRevertToCommitAndBranch(this.props.resolutionRetryObj.safetyCommit, this.props.resolutionRetryObj.safetyBranch);
-    
+
+        // if we are able to reset the state, do so
+        if (this.props.resolutionRetryObj.safetyCommit !== undefined && this.props.resolutionRetryObj.safetyBranch !== undefined) {
+            await runRevertToCommitAndBranch(this.props.resolutionRetryObj.safetyCommit, this.props.resolutionRetryObj.safetyBranch);
+        }
+        
         // display merge in progress
         window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
     
         // resolve merge conflicts
         const result = await runResolveMergeConflicts(this.props.resolutionRetryObj.resolutions);
+
+        // TODO: Decide what to do if it fails again!
     
         // display success screen
         window.app.setMergeState(result.operationResult);
       }
 
     render () {
-        console.log(this.props);
-        console.log(this.props.resolutionRetryObj);
-
         return (
             <Taskpane header={headerSize.Small} title="It looks like you were still editting the spreadsheet">
                 <div className="card-div">
@@ -46,7 +46,5 @@ export default class MergeConflictResolutionErrorScreen extends React.Component 
                 </div>
             </Taskpane>
         ); 
-
-        
     }
 }

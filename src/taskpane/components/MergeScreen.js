@@ -43,9 +43,8 @@ export default class MergeScreen extends React.Component {
   }
 
   render() {
-
-    console.log("Rendering Merge Screen ");
-    console.log(this.props.mergeState);
+    console.log(`Rendering Merge Screen in state ${this.props.mergeState}`);
+    
     // TODO: put this in a proper screen form
 
     switch(this.props.mergeState) {
