@@ -4,6 +4,7 @@ import { getGlobal } from "../../commands/commands";
 import * as scenarios from "../scenarios";
 import { mergeState } from "../../constants";
 
+/* global Excel */
 
 
 export async function testMergeBold() {
