@@ -13,9 +13,6 @@ export async function testOriginalEmptyMergeConflict() {
     const fileContents = scenarios["mergeConflictSimpleEmptyOrigin"].fileContents;
     await runReplaceFromBase64(fileContents);
 
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
     // Perform a merge
     const g = getGlobal();
     const mergeResult = await g.merge();
@@ -51,9 +48,6 @@ export async function testAddingColumnMergeConflict() {
     const fileContents = scenarios["addingColumnUnmerged"].fileContents;
     await runReplaceFromBase64(fileContents);
 
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
     // Perform a merge
     const g = getGlobal();
     const mergeResult = await g.merge();
@@ -71,9 +65,6 @@ export async function testMergeConflict() {
     // Load scenario
     const fileContents = scenarios["twoPageUnmergedConflict"].fileContents;
     await runReplaceFromBase64(fileContents);
-
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Perform a merge
     const g = getGlobal();
@@ -126,9 +117,6 @@ export async function testMultipleConflictsPerSheet() {
     // Load scenario
     const fileContents = scenarios["multipleMergeConflictsPerSheet"].fileContents;
     await runReplaceFromBase64(fileContents);
-
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Perform a merge
     const g = getGlobal();

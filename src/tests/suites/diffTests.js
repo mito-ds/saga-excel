@@ -9,9 +9,6 @@ export async function testDiffSimple() {
     const fileContents = scenarios["diffSimple"].fileContents;
     await runReplaceFromBase64(fileContents);
 
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
     // Perform a merge
     const g = getGlobal();
     const catchUpResult = await g.catchUp();
@@ -38,9 +35,6 @@ export async function acrossSheetsDiff() {
     const fileContents = scenarios["acrossSheetsDiff"].fileContents;
     await runReplaceFromBase64(fileContents);
 
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
     // Then, we get the diffs
     const g = getGlobal();
     const newDiffs = await g.catchUp();
@@ -59,9 +53,6 @@ export async function testNoDiffAfterMerge() {
     // Load scenario
     const fileContents = scenarios["unmergedNoConflict"].fileContents;
     await runReplaceFromBase64(fileContents);
-
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Perform a merge
     const g = getGlobal();
@@ -82,9 +73,6 @@ export async function testDiffMedium() {
     // Load scenario
     const fileContents = scenarios["diffMedium"].fileContents;
     await runReplaceFromBase64(fileContents);
-
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Perform a merge
     const g = getGlobal();
