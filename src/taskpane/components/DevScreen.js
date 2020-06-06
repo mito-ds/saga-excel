@@ -162,7 +162,7 @@ export default class DevScreen extends React.Component {
                     testName: testName
                 });
 
-                testArray.push(<option key={testName} value={value}>{testName}</option>)
+                testArray.push(<option key={testName} value={value}>{testSuiteName + " : " + testName}</option>)
             });
         });
 
