@@ -5,6 +5,8 @@ import MergeProgressScreen from "./MergeComponents/MergeProgressScreen";
 import MergeForkedScreen from "./MergeComponents/MergeForkedScreen";
 import MergeSuccessScreen from "./MergeComponents/MergeSuccessScreen";
 import MergeConflictScreen from "./MergeComponents/MergeConflictScreen";
+import MergeConflictResolutionErrorScreen from "./MergeComponents/MergeConflictResolutionErrorScreen";
+
 
 /* global  */
 
@@ -30,12 +32,20 @@ export default class MergeScreen extends React.Component {
     this.state = {
         processingStep: 0,
         firstRender: true, 
+        resolutionRetryObj: {}
     };
+
+    this.setResolutionRetryObj = this.setResolutionRetryObj.bind(this);
   }
 
+  setResolutionRetryObj = (resolutionRetryObj) => {
+    this.setState({ resolutionRetryObj: resolutionRetryObj });
+  }
 
   render() {
 
+    console.log("Rendering Merge Screen ");
+    console.log(this.props.mergeState);
     // TODO: put this in a proper screen form
 
     switch(this.props.mergeState) {
@@ -47,7 +57,10 @@ export default class MergeScreen extends React.Component {
         return (<MergeSuccessScreen/>);
 
       case mergeState.MERGE_CONFLICT:
-        return (<MergeConflictScreen mergeConflictData={this.props.mergeConflictData}></MergeConflictScreen>);
+        return (<MergeConflictScreen mergeConflictData={this.props.mergeConflictData} setResolutionRetryObj={this.setResolutionRetryObj}></MergeConflictScreen>);
+
+      case mergeState.MERGE_CONFLICT_RESOLUTION_ERROR:
+        return (<MergeConflictResolutionErrorScreen resolutionRetryObj={this.state.resolutionRetryObj}/>);
 
       case mergeState.MERGE_ERROR:
         return (<MergeErrorScreen/>);

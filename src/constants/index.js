@@ -22,7 +22,8 @@ export const mergeState = {
     MERGE_SUCCESS: 'merge_success',
     MERGE_CONFLICT: 'merge_conflict',
     MERGE_ERROR: 'merge_error',
-    MERGE_FORKED: 'merge_forked'
+    MERGE_FORKED: 'merge_forked',
+    MERGE_CONFLICT_RESOLUTION_ERROR: 'merge_conflict_resolution_error'
 };
 
 

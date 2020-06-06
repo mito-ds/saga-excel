@@ -1,10 +1,11 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import Taskpane from "../Taskpane";
-import { headerSize, mergeState, taskpaneStatus, operationStatus } from "../../../constants";
+import { headerSize, mergeState, operationStatus } from "../../../constants";
 import MergeConflict from "./MergeConflict";
 import { runResolveMergeConflicts }  from "../../../saga/merge";
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
+import { runRevertToCommitAndBranch } from "../../../saga/sagaUtils";
 
 
 import './MergeConflictScreen.css';
@@ -19,7 +20,11 @@ export default class MergeConflictScreen extends React.Component {
     this.state = {
         mergeConflictData: this.props.mergeConflictData,
         resolutions: {},
-        default: "default"
+        default: "default", 
+        safetyCommit: null,
+        safetyBranch: null,
+        mergeConflictResolutionError: false
+
     };
 
     this.collectResolutions = this.collectResolutions.bind(this);
@@ -27,6 +32,7 @@ export default class MergeConflictScreen extends React.Component {
     this.hideWarningBox = this.hideWarningBox.bind(this);
     this.onChanged = this.onChanged.bind(this);
   }
+
 
   // Highlights the conflict options on batch select
   onChanged(checked) {
@@ -110,7 +116,6 @@ export default class MergeConflictScreen extends React.Component {
 
   async executeResolutions (resolutions) {
 
-    // Send resolution data to update the sheets
     document.getElementById("warning-div").style.display = "none";
 
     // display merge in progress
@@ -119,8 +124,43 @@ export default class MergeConflictScreen extends React.Component {
     // resolve merge conflicts
     const result = await runResolveMergeConflicts(resolutions);
 
-    // display success screen
-    window.app.setMergeState(result);
+    console.log(result);
+
+    // if conflict resolution was successful, show success screen
+    if (result.status === operationStatus.SUCCESS) {
+        window.app.setMergeState(result.operationResult);
+        return;
+    }
+    
+    console.log("made it here");
+
+    console.log(result.status);
+    console.log(operationStatus.ERROR_MANUAL_FIX);
+
+    // if manual fix is required, display retry screen
+    if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
+        console.log("need manual fixing");
+
+        this.props.setResolutionRetryObj({
+            resolutions: resolutions,
+            safetyCommit: result.safetyCommit,
+            safetyBranch: result.safetyBranch
+        });
+
+        console.log("setting state becaue of manaul fix required")
+        window.app.setMergeState({ status: mergeState.MERGE_CONFLICT_RESOLUTION_ERROR});
+        return;
+
+    }
+
+    console.log("last chance");
+
+    // otherwise, promt user to retry merge conflict resolution
+    window.app.setMergeState({
+        status: mergeState.MERGE_CONFLICT,
+        mergeConflictData: this.state.mergeConflictData
+    });
+    
   }
 
   hideWarningBox (e) {
@@ -137,6 +177,20 @@ export default class MergeConflictScreen extends React.Component {
             mergeConflictComponentsArray.push(<MergeConflict conflict={conflict}></MergeConflict>);
         });
     });
+
+    if (this.state.mergeConflictResolutionError) {
+        return (
+            <Taskpane header={headerSize.SMALL} title="We wern't able to resolve your merge conflicts">
+                <div className="card-div">
+                    <p> 1. Make sure you're not in cell edittng mode. Hint: clicking on this text should do the trick!</p>
+                    <p> 2. Click on the retry button below. </p>
+                    <div className="reset-button-div"> 
+                        <PrimaryButton className="reset-button" type="button" onClick={(e) => this.retryResolution(e)}>Retry</PrimaryButton> 
+                    </div>
+                </div>
+            </Taskpane>
+        );
+    }
 
     return (
       <Taskpane header={headerSize.SMALL} title="You need to resolve merge conflicts before your merge can finish">
