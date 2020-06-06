@@ -5,7 +5,6 @@ import { headerSize, mergeState, operationStatus } from "../../../constants";
 import MergeConflict from "./MergeConflict";
 import { runResolveMergeConflicts }  from "../../../saga/merge";
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
-import { runRevertToCommitAndBranch } from "../../../saga/sagaUtils";
 
 
 import './MergeConflictScreen.css';
