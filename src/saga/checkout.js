@@ -7,7 +7,6 @@ import { makeClique } from "./commit";
 
 
 export async function switchVersionFromRibbon(context) {
-    console.log("swtiching verisons");
     const project = new Project(context);
 
     // Get current branch

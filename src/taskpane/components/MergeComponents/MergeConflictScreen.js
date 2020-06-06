@@ -1,7 +1,7 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import Taskpane from "../Taskpane";
-import { headerSize, mergeState } from "../../../constants";
+import { headerSize, mergeState, taskpaneStatus, operationStatus } from "../../../constants";
 import MergeConflict from "./MergeConflict";
 import { runResolveMergeConflicts }  from "../../../saga/merge";
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
@@ -117,10 +117,10 @@ export default class MergeConflictScreen extends React.Component {
     window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
 
     // resolve merge conflicts
-    const mergeResult = await runResolveMergeConflicts(resolutions);
+    const result = await runResolveMergeConflicts(resolutions);
 
     // display success screen
-    window.app.setMergeState(mergeResult);
+    window.app.setMergeState(result);
   }
 
   hideWarningBox (e) {

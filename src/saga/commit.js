@@ -1,6 +1,5 @@
 import { getSheetsWithNames, getRandomID } from "./sagaUtils";
 import { getFileContents } from "./fileUtils";
-import { checkBranchPermission } from "./branch";
 import Project from "./Project";
 import { runOperation } from "./runOperation";
 
@@ -40,10 +39,8 @@ export async function makeClique(context, sheetNames, getNewName, worksheetPosit
             await context.sync();
         }
     }
-
     return context.sync();
 }
-
 
 /*
 Create Commit

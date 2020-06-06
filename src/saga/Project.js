@@ -290,7 +290,7 @@ export default class Project {
     }
 
     /*
-    Updates checked out branch item without checking out the branch
+    changes the checked out branch saved in the saga sheet, without changing what sheets are visible
     */
     setCheckedOutBranch = async (headCommit) => {
         const headRange = await this.getHeadRange();

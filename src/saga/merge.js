@@ -4,7 +4,7 @@ import { simpleMerge2D } from "./mergeUtils";
 import { updateShared } from "./sync";
 import { checkoutCommitID } from "./checkout";
 import Project from "./Project";
-import { runOperation, runOperationHandleError } from './runOperation';
+import { runOperation, runOperationSafetyCommit } from './runOperation';
 import { makeClique } from "./commit";
 import { mergeState, branchState } from '../constants';
 
@@ -54,14 +54,14 @@ async function resolveMergeConflicts(context, resolutions) {
             
             // Set cell value on master Branch
             const cellRangeMaster = masterWorksheet.getRange(cell);
-            console.log(`Resolving ${cell} to ${value}`);
             cellRangeMaster.values = [[value]];
             await context.sync();
         } 
     }
 
     const personalBranchName = await project.getPersonalBranch();
-    // make resolution commit on master
+
+    // make resolution commit on personal
     await commit(context, "resolved merge conflicts", "resolved merge conflicts", personalBranchName);
 
     return await merge(context, []);
@@ -545,12 +545,7 @@ export async function merge(context, formattingEvents) {
         return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
     }
 
-    // Make a commit on the personal branch    
-    await commit(context, `check in of ${personalBranch}`, "", personalBranch);
-    
-    console.log("done check in commit on personal");
-
-    // Merge this commit into the shared branch
+    // Merge safety commit into the shared branch
     const mergeData = await doMerge(context, formattingEvents);
 
     // Check for merge conflicts
@@ -618,18 +613,8 @@ function makeHandleMergeError(previousPersonalCommitID) {
     };
 }
 
-
-
 export async function runMerge(formattingEvents) {
-    const previousPersonalCommitID = await runOperation(async (context) => {
-        const project = new Project(context);
-        const personalBranch = await project.getPersonalBranch();
-        return await project.getCommitIDFromBranch(personalBranch);
-    });
-    const handleMergeError = makeHandleMergeError(previousPersonalCommitID);
-    const mergeResult = await runOperationHandleError(merge, handleMergeError, formattingEvents);
-    return mergeResult;
-
+    return await runOperationSafetyCommit(merge, formattingEvents);
 }
 
 export async function runResolveMergeConflicts(resolutions) {

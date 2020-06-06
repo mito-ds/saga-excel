@@ -14,7 +14,6 @@ export default class ErrorRevertScreen extends React.Component {
 
     async reset(e) {
         e.preventDefault();
-        console.log("HERE");
         await runRevertToCommitAndBranch(this.props.safetyCommit, this.props.safetyBranch);
     }
 
@@ -22,7 +21,7 @@ export default class ErrorRevertScreen extends React.Component {
         return (
             <Taskpane header={headerSize.SMALL} title="Something went wrong while we were working on your request">
                 <div className="card-div">
-                    <p> 1. Make sure you're not in cell edditng mode. Hint: clicking on this text should do the trick!</p>
+                    <p> 1. Make sure you're not in cell edittng mode. Hint: clicking on this text should do the trick!</p>
                     <p> 2. Click on the reset button below. </p>
                     <p> 3. Try your operation again. </p>
                     <div className="reset-button-div"> 

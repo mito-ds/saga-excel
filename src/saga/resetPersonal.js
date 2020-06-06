@@ -1,6 +1,6 @@
 import Project from "./Project";
 import { checkoutBranch } from "./checkout";
-import { runOperation } from "./runOperation";
+import { runOperationSafetyCommit } from "./runOperation";
 import { commit } from "./commit";
 import { checkoutCommitID } from "./checkout";
 
@@ -31,7 +31,6 @@ export async function resetPersonalVersion(context) {
     return context.sync();
 }
 
-
 export async function runResetPersonalVersion() {
-    await runOperation(resetPersonalVersion);
+    return await runOperationSafetyCommit(resetPersonalVersion);
 }

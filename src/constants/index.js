@@ -84,7 +84,7 @@ export const changeType = {
 
 
 /*
-    Returned by runOperationSafetyCommit to let add-in know if the operation was a success
+    status field returned by runOperationSafetyCommit to let add-in know if the operation was a success
 */
 export const operationStatus = {
     SUCCESS: "success",

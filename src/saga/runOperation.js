@@ -111,7 +111,6 @@ export async function runOperationSafetyCommit(operation, ...rest) {
 
                 // return after automatically fixing
                 result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED};
-                return;
             });
         }
     }

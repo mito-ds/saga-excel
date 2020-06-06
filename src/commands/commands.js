@@ -18,6 +18,19 @@ function formattingHandler(event) {
   events.push(event);
 }
 
+// If the operation errored and requires manual resolution, display screen
+function checkResultForError(result) {
+  // if the safetyCommit and safetyBranch are undefined, then we are in the correct state if the user deletes extra sheets
+  if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
+    //TODO: handle the case where you edit cells before the safety commit occurs.
+    window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
+    window.app.setSafetyValues(result.safetyCommit, result.safetyBranch);
+    Office.addin.showAsTaskpane();
+    return true;
+  }
+  return false;
+}
+
 async function openShareTaskpane(event) {
   window.app.setTaskpaneStatus(taskpaneStatus.SHARE);
   Office.addin.showAsTaskpane();
@@ -45,23 +58,25 @@ async function merge(event) {
 
   // update UI and execute merge
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
-  var mergeResult = await runMerge(events);
-  window.app.setMergeState(mergeResult);
+  var result = await runMerge(events);
+
+  if (! await (checkResultForError(result))) {
+    window.app.setMergeState(result.operationResult);
+  }
 
   // If this function was called by clicking the button, let Excel know it's done
   if (event) {
     event.completed();
   }
   events = [];
-  return mergeResult;
+  return result.operationResult;
 }
 
 async function catchUp(event) {
   const sheetDiffs = await runCatchUp();
-  console.log("Sheetdiffs", sheetDiffs);
+
   // We set the diff state as well
   window.app.setSheetDiffs(sheetDiffs);
-  console.log("catching up in commands");
   window.app.setTaskpaneStatus(taskpaneStatus.DIFF);
   
   if (event) {
@@ -70,20 +85,11 @@ async function catchUp(event) {
   return sheetDiffs;
 }
 
-// If the operation errored and requires manual resolution, display screen
-function showManualFixErrorScreen(safetyCommit, safetyBranch) {
-  window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
-  window.app.setSafetyValues(safetyCommit, safetyBranch);
-  Office.addin.showAsTaskpane();
-}
-
 async function switchVersion(event) {
   // Todo: render message saying which branch they are on
   const result = await runSwitchVersionFromRibbon();
 
-  if (result.status === operationStatus.ERROR_MANUAL_FIX) {
-    showManualFixErrorScreen(result.safetyCommit, result.safetyBranch);
-  }
+  checkResultForError(result); 
   
   if (event) {
     event.completed();
@@ -92,7 +98,12 @@ async function switchVersion(event) {
 
 async function resetPersonalVersion(event) {
   // Todo: If on master, tell them they can't
-  await runResetPersonalVersion();
+  const result = await runResetPersonalVersion();
+  console.log(result);
+
+
+  checkResultForError(result); 
+
   if (event) {
     event.completed();
   }
