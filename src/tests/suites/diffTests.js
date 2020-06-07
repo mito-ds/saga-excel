@@ -2,7 +2,7 @@ import { strict as assert } from 'assert';
 import { changeType } from "../../constants";
 import { runReplaceFromBase64 } from "../../saga/create";
 import { getGlobal } from "../../commands/commands";
-import * as scenarios from "../../../scenarios";
+import * as scenarios from "../scenarios";
 
 export async function testDiffSimple() {
     // Load scenario

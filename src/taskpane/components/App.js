@@ -9,7 +9,7 @@ import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
 import { taskpaneStatus, mergeState } from "../../constants";
 import { sagaProjectJSON } from "../../saga/sagaUtils";
-
+import { turnSyncOn }from "../../saga/sync";
 
 import './App.css';
 import DiffScreen from "./DiffComponents/DiffScreen";
@@ -42,7 +42,8 @@ export default class App extends React.Component {
   }
 
   /*
-  If there is a saga project already, we load it into the taskpane
+    If there is a saga project already, we load it into the taskpane,
+    and turn sync on
   */
   async componentDidUpdate(prevProps) {
     if (!prevProps.isOfficeInitialized && this.props.isOfficeInitialized) {
@@ -51,6 +52,8 @@ export default class App extends React.Component {
         this.setURL(projectObj["remoteURL"]);
         this.setEmail(projectObj["email"]);
         this.setTaskpaneStatus(taskpaneStatus.SHARE);
+        // Turn syncing if there is a saga project
+        turnSyncOn();
       }
     }
   }
@@ -60,8 +63,8 @@ export default class App extends React.Component {
   }
 
   setTaskpaneStatus = (taskpaneStatus) => {
-    console.log(`setting the value of taskpaneState to ${taskpaneStatus}`)
-    this.setState({taskpaneStatus: taskpaneStatus})
+    console.log(`setting the value of taskpaneState to ${taskpaneStatus}`);
+    this.setState({taskpaneStatus: taskpaneStatus});
   }
 
   getMergeState = () => {
@@ -72,28 +75,28 @@ export default class App extends React.Component {
     this.setState({
       mergeState: mergeState.status, 
       mergeConflictData: mergeState.mergeConflictData
-    })
+    });
   }
 
   setEmail = (email) => {
-    this.setState({email: email})
+    this.setState({email: email});
   }
     
   setURL = (remoteURL) => {
-    this.setState({remoteURL: remoteURL})
+    this.setState({remoteURL: remoteURL});
   }
 
   setSheetDiffs = (sheetDiffs) => {
-    this.setState({sheetDiffs: sheetDiffs})
+    this.setState({sheetDiffs: sheetDiffs});
   }
 
   offline = () => {
-    this.setState({offline: true})
+    this.setState({offline: true});
   }
   
   nextStep = () => {
     this.setState(state => {
-      return {step: state.step + 1}
+      return {step: state.step + 1};
     })
   }
 

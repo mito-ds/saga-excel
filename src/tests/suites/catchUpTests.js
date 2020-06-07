@@ -3,7 +3,7 @@ import { runCreateSaga, runReplaceFromBase64 } from "../../saga/create";
 import { runOperation } from "../../saga/runOperation";
 import { TEST_URL } from "../../constants";
 import { getGlobal } from "../../commands/commands";
-import * as scenarios from "../../../scenarios";
+import * as scenarios from "../scenarios";
 import Project from "../../saga/Project";
 
 

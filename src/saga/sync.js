@@ -5,9 +5,6 @@ import { branchState, TEST_URL } from "../constants";
 
 /* global Excel, OfficeExtension */
 
-
-
-
 async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
   const fileContents = await getFileContents();
   const sheets = await project.getSheetsWithNames();
@@ -36,7 +33,28 @@ async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
   return false;
 }
 
-async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID) {
+export async function addUpdateToProject(context, headCommitID, fileContents, commitIDs, commitSheets) {
+
+  const project = new Project(context);
+
+  const worksheets = context.workbook.worksheets;
+  worksheets.addFromBase64(
+    fileContents,
+    commitSheets,
+    Excel.WorksheetPositionType.end
+  );
+
+  // Then, we add the commit IDs to the commit database
+  var parentID = headCommitID;
+  for (let i = 0; i < commitIDs.length; i++) {
+    const commitID = commitIDs[i];
+    await project.updateBranchCommitID("master", commitID);
+    await project.addCommitID(commitID, parentID, "from remote", "from remote");
+    parentID = commitID;
+  }
+}
+
+export async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID) {
 
   const urlArray = remoteURL.trim().split("/");
   const id = urlArray[urlArray.length - 1];
@@ -56,41 +74,29 @@ async function getUpdateFromServer(project, remoteURL, headCommitID, parentCommi
   if (response.status === 404) {
     // TODO: we need to handle the case where there is no remote!
     console.error("Error getting update from server, project doesn't exist");
-    return false;
+    return null;
   } 
 
 
   const remoteBranchState = response.data.branchState;
   if (remoteBranchState !== branchState.BRANCH_STATE_BEHIND) {
     console.error(`Error getting update from server, branch state is ${remoteBranchState}.`);
-    return false;
+    return null;
   }
 
   const fileContents = response.data.fileContents;
   const commitIDs = response.data.commitIDs;
   const commitSheets = response.data.commitSheets;
 
-  // TODO: we should change the head commit here...
+  // Actually add this to the project
+  await addUpdateToProject(project.context, headCommitID, fileContents, commitIDs, commitSheets);
 
-
-  // We only merge in the commit sheets
-  const worksheets = project.context.workbook.worksheets;
-  worksheets.addFromBase64(
-    fileContents,
-    commitSheets,
-    Excel.WorksheetPositionType.end
-  );
-
-  // Then, we add the commit IDs to the commit database
-  var parentID = headCommitID;
-  for (let i = 0; i < commitIDs.length; i++) {
-    const commitID = commitIDs[i];
-    await project.updateBranchCommitID("master", commitID);
-    await project.addCommitID(commitID, parentID, "from remote", "from remote");
-    parentID = commitID;
-  }
   console.log(`Local updated from server.`);
-  return true;
+  return {
+    fileContents: fileContents,
+    commitIDs: commitIDs,
+    commitSheets: commitSheets
+  };
 }
 
 
@@ -102,8 +108,12 @@ export async function updateShared(context) {
     const parentCommitID = await project.getParentCommitID(headCommitID);
     const remoteURL = await project.getRemoteURL();
 
-    if (remoteURL === TEST_URL) {
-      console.log("using test url, done syncing");
+    /*
+      If we are in a test, then we don't do any syncing.
+      If you wish to test a mulitplayer scenario, see the testing documentation
+      in src/tests/README.md.
+    */
+    if (remoteURL.startsWith(TEST_URL)) {
       return branchState.BRANCH_STATE_HEAD;
     }
 
@@ -143,8 +153,8 @@ export async function updateShared(context) {
         return branchState.BRANCH_STATE_AHEAD;
       }      
     } else if (currBranchState === branchState.BRANCH_STATE_BEHIND) {
-      const updated = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
-      return updated ? branchState.BRANCH_STATE_HEAD : branchState.BRANCH_STATE_BEHIND;
+      const update = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
+      return update !== null ? branchState.BRANCH_STATE_HEAD : branchState.BRANCH_STATE_BEHIND;
     } else {
       console.error("Cannot update shared as is forked from shared :(");
       return currBranchState;
@@ -154,9 +164,12 @@ export async function updateShared(context) {
 // TODO: move the sync function here
 
 async function sync() {
-  console.log("syncing...", g.syncInt);
-  turnSyncOff();
-  console.log("turned sync off", g.syncInt);
+  console.log("Syncing:");
+  const turnedOff = turnSyncOff();
+  if (turnedOff) {
+    console.log("Turned sync off");
+  }
+
   try {
     await Excel.run(async context => {
         // We do not use runOperation here, as sync shouldn't reload itself
@@ -168,8 +181,10 @@ async function sync() {
         console.error(error.debugInfo);
     }
   }
-  turnSyncOn();
-  console.log("turned sync back on", g.syncInt);
+  const turnedOn = turnSyncOn();
+  if (turnedOn) {
+    console.log("Turned sync back on");
+  }
 }
 
 function getGlobal() {
@@ -185,17 +200,27 @@ function getGlobal() {
 
 var g = getGlobal();
 
+/*
+  If syncing is off, turn it on, and report that it was turned on successfully.
+  Otherwise, return false (as it was not turned on, because it was already on).
+*/
 export function turnSyncOn() {
-  // If sync is not on, turn it on.
   if (!g.syncInt) {
     g.syncInt = setInterval(sync, 5000);
+    return true;
   }
+  return false;
 }
 
+/*
+  If syncing is on, turn it off, and report that it was successfully turned off.
+  Otherwise, return false (it was not turned off b/c it as not on).
+*/
 export function turnSyncOff() {
-  // If syncing is on, turn it off.
   if (g.syncInt) {
     clearInterval(g.syncInt);
     g.syncInt = null;
+    return true;
   }
+  return false;
 }
