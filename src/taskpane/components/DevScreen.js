@@ -145,9 +145,23 @@ export default class DevScreen extends React.Component {
     }
 
     render() {
+        // We build an option for each 
         let testSuiteArray = [];
-        Object.keys(testSuites).forEach(function(testSuite) {
-            testSuiteArray.push(<option key={testSuite} value={testSuite}>{testSuite}</option>)
+        Object.keys(testSuites).forEach(function(testSuiteName) {
+            testSuiteArray.push(<option key={testSuiteName} value={testSuiteName}>{testSuiteName}</option>)
+        });
+
+        let testArray = [];
+        Object.keys(testSuites).forEach((testSuiteName) => {
+            let testSuite = testSuites[testSuiteName];
+            Object.keys(testSuite).forEach(testName => {
+                let value = JSON.stringify({
+                    testSuiteName: testSuiteName,
+                    testName: testName
+                });
+
+                testArray.push(<option key={testName} value={value}>{testSuiteName + " : " + testName}</option>)
+            });
         });
 
 
@@ -169,6 +183,13 @@ export default class DevScreen extends React.Component {
                         <select onChange={async (e) => {await runTestSuite(e.target.value);}}>
                             <option> Select Test Suite</option>
                             {testSuiteArray}                
+                        </select>
+                        <select onChange={async (e) => {
+                                let testObj = JSON.parse(e.target.value);
+                                await runTestSuite(testObj.testSuiteName, testObj.testName);
+                            }}>
+                            <option> Select Individual Test</option>
+                            {testArray}                
                         </select>
                     </div>
                     <div className="floating-card" style={devScreenStyle}>

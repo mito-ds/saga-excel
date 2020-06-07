@@ -3,12 +3,23 @@ import { runCleanup } from "../saga/cleanup";
 
 /* global */
 
-export async function runTestSuite(testSuiteName) {
+export async function runTestSuite(testSuiteName, testName) {
 
     console.log(`%cRunning test suites ${testSuiteName}:\n`, "color: orange;");
 
+    if (!(testSuiteName in testSuites)) {
+        console.log(`%cNo test suite ${testSuiteName} exists`, "color: red;");
+        return;
+    }
+
     const tests = testSuites[testSuiteName];
-    const testNames = Object.keys(tests);
+    let testNames = Object.keys(tests);
+
+    // If a single test name was given, only run that test
+    if (testName !== undefined) {
+        testNames = [testName];
+    }
+
 
     var results = "";
     var numFailed = 0;
