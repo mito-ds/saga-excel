@@ -82,3 +82,5 @@ export const changeType = {
 };
 
 export const TEST_URL = "test_url";
+
+export const LONGEST_SHEET_NAME = "this_is_the_maximum_num_of_char";
