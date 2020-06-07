@@ -15,6 +15,7 @@ import multipleMergeConflictsPerSheet from "./multipleMergeConflictsPerSheet.jso
 import formattingInMaster from "./formattingInMaster.json";
 import unmergedLocalSheetDelete from "./unmergedLocalSheetDelete.json";
 import longSheetName from "./longSheetName.json";
+import existingSheetCopies from "./existingSheetCopies.json";
 
 export {
     empty, 
@@ -33,5 +34,6 @@ export {
     multipleMergeConflictsPerSheet,
     formattingInMaster,
     unmergedLocalSheetDelete,
-    longSheetName
+    longSheetName,
+    existingSheetCopies
 };

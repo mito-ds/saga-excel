@@ -22,6 +22,21 @@ export default class Project {
         return branchRange;
     }
 
+    getSheetNamesRange = async () => {
+        const worksheet = this.context.workbook.worksheets.getItem(`saga`);
+        const sheetNamesItem = worksheet.names.getItem(item.SHEET_NAMES);
+        sheetNamesItem.load(`value`);
+        await this.context.sync();
+        return worksheet.getRange(sheetNamesItem.value);
+    }
+    
+    getSheetNamesRangeWithValues = async () => {
+        const sheetNamesRange = await this.getSheetNamesRange(this.context);
+        sheetNamesRange.load("values");
+        await this.context.sync();
+        return sheetNamesRange;
+    }
+
     getLastCatchUpRange = async () => {
         const worksheet = this.context.workbook.worksheets.getItem(`saga`);
         const lastCatchUpItem = worksheet.names.getItem(item.LAST_CATCH_UP);
@@ -246,6 +261,45 @@ export default class Project {
         await this.context.sync();
 
         return newRange;
+    }
+
+    getShortSheetName = async (sheetName) => {
+        const sheetNamesRange = await this.getSheetNamesRangeWithValues(this.context);
+
+        for (let i = 0; i < sheetNamesRange.values.length; i++) {
+            let short = sheetNamesRange.values[i][0];
+            let long = sheetNamesRange.values[i][1];
+
+            if (long === sheetName) {
+                return short;
+            }
+        }
+
+        return null;
+    }
+
+    getSheetName = async (shortSheetName) => {
+        const sheetNamesRange = await this.getSheetNamesRangeWithValues(this.context);
+
+        for (let i = 0; i < sheetNamesRange.values.length; i++) {
+            let short = sheetNamesRange.values[i][0];
+            let long = sheetNamesRange.values[i][1];
+
+            if (short === shortSheetName) {
+                return long;
+            }
+        }
+
+        return null;
+    }
+
+    addSheetName = async (sheetName, shortSheetName) => {
+        const sheetNamesRange = await this.getSheetNamesRangeWithValues(this.context);
+
+        // Insert the values into the sheet
+        const newRange = await this.insertRowBelowRange(sheetNamesRange, [[sheetName, shortSheetName]]);
+
+        await updateMetadataItem(this.context, item.SHEET_NAMES, newRange);
     }
 
 

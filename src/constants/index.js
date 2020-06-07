@@ -52,7 +52,8 @@ export const item = {
     PERSONAL_BRANCH: 'personalBranchName',
     REMOTE_URL: 'remote',
     LAST_CATCH_UP: "lastCatchUp",
-    VERSION: "version"
+    VERSION: "version",
+    SHEET_NAMES: "sheetNames",
 };
 
 /*
@@ -84,3 +85,4 @@ export const changeType = {
 export const TEST_URL = "test_url";
 
 export const LONGEST_SHEET_NAME = "this_is_the_maximum_num_of_char";
+export const LONGEST_SHEET_NAME_LENGTH = 31;
