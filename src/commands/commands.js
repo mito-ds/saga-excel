@@ -31,6 +31,7 @@ function checkResultForError(result) {
   // if cell editting mode error occurs before safety commit and safety branch
   if (result.status === operationStatus.ERROR_MANUAL_FIX || result.status === operationStatus.ERROR_AUTOMATICALLY_FIXED) {
     // TODO take to notification
+    Office.context.ui.displayDialogAsync('/src/notifications/errorDialog.html', {height: 10, width: 60});
     return true;
   }
   return false;
