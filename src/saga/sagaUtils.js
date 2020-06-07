@@ -1,5 +1,7 @@
 import { runOperation } from './runOperation';
 import Project from "./Project";
+import { checkoutCommitID } from "./checkout";
+
 
 /* global Excel */
 
@@ -197,7 +199,6 @@ export async function runSelectCell(sheet, cell) {
     return runOperation(selectCell, sheet, cell);
 }
 
-
 export async function getFirstAncestorOnMaster (context, masterHead, commitID) {
     const commitRange = await (new Project(context)).getCommitRangeWithValues();
     const commits = commitRange.values;
@@ -233,4 +234,19 @@ export async function getFirstAncestorOnMaster (context, masterHead, commitID) {
     }
 
     return 'firstcommit';
-};
+}
+
+export async function revertToCommitAndBranch(context, commit, branch) {
+    // get project
+    const project = new Project(context);
+
+    // set checked out branch to correct value
+    await project.setCheckedOutBranch(branch);
+            
+    // revert to safety commit
+    await checkoutCommitID(context, commit);
+}
+
+export async function runRevertToCommitAndBranch(commit, branch) {
+    return runOperation(revertToCommitAndBranch, commit, branch);
+}

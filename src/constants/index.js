@@ -5,7 +5,8 @@ export const taskpaneStatus = {
     MERGE: 'merge',
     OFFLINE: 'offline',
     DEVELOPMENT: 'development',
-    DIFF: 'diff'
+    DIFF: 'diff',
+    ERROR_MANUAL_FIX: 'error_manual_fix'
 };
 
 /*
@@ -21,7 +22,8 @@ export const mergeState = {
     MERGE_SUCCESS: 'merge_success',
     MERGE_CONFLICT: 'merge_conflict',
     MERGE_ERROR: 'merge_error',
-    MERGE_FORKED: 'merge_forked'
+    MERGE_FORKED: 'merge_forked',
+    MERGE_CONFLICT_RESOLUTION_ERROR: 'merge_conflict_resolution_error'
 };
 
 
@@ -79,6 +81,16 @@ export const changeType = {
     MODIFIED: "Modified",
     INSERTED: "Inserted",
     DELETED: "Deleted"
+};
+
+
+/*
+    status field returned by runOperationSafetyCommit to let add-in know if the operation was a success
+*/
+export const operationStatus = {
+    SUCCESS: "success",
+    ERROR_AUTOMATICALLY_FIXED: "error_automatic_fix",
+    ERROR_MANUAL_FIX: "error_manual_fix"
 };
 
 export const TEST_URL = "test_url";

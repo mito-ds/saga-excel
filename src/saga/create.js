@@ -198,9 +198,9 @@ async function createFromURL(context, url, email) {
 
 
 export async function runCreateFromURL(remoteURL, email) {
-  await runOperation(createFromURL, remoteURL, email);
+  return await runOperation(createFromURL, remoteURL, email);
 }
 
 export async function runCreateSaga(remoteURL, email) {
-  await runOperation(createSaga, remoteURL, email);
+  return await runOperation(createSaga, remoteURL, email);
 }

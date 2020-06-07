@@ -2,7 +2,7 @@ import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import {runCreateSaga, runCreateFromURL, createRemoteURL}  from "../../saga/create";
 import Taskpane from "./Taskpane";
-import { headerSize } from "../../constants";
+import { headerSize, operationStatus, taskpaneStatus } from "../../constants";
 
 /* global */
   
@@ -31,12 +31,22 @@ export default class LoginScreen extends React.Component {
         const email = this.props.email;
 
         // Create the project with this remote URL and email
-        await runCreateSaga(remoteURL, email);
+        const result = await runCreateSaga(remoteURL, email);
 
+        console.log(result);
 
-        // update the state of react component
-        this.props.setURL(remoteURL);
-        this.props.nextStep();
+        // if creation was successful, move to share screen
+        if (result.status === operationStatus.SUCCESS) {
+            console.log("successful");
+
+            // update the state of react component
+            this.props.setURL(remoteURL);
+            this.props.nextStep();
+        } else {
+            // TODO: revert state to pre creation state encase saga project was created
+            window.app.setStep(1);
+        }
+ 
     }
 
     async downloadSagaProject(e) {
@@ -45,10 +55,16 @@ export default class LoginScreen extends React.Component {
         this.props.nextStep();
 
         const url = document.getElementById('url-input').value;
-        await runCreateFromURL(url, this.props.email);
+        const result = await runCreateFromURL(url, this.props.email);
 
-        this.props.setURL(url);
-        this.props.nextStep();
+        // if download was successful, move to share screen
+        if (result.status === operationStatus.SUCCESS) {
+            this.props.setURL(url);
+            this.props.nextStep();
+        } else {
+            // TODO: revert state to pre creation state encase saga project was created
+            window.app.setStep(1);
+        }
     }
 
     render () {

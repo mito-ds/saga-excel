@@ -52,6 +52,7 @@ export default class Project {
         const headItem = worksheet.names.getItem(item.HEAD);
         headItem.load(`value`);
         await this.context.sync();
+
         // Uh, i dont' know why, but have to call this twice sometimes???
         // TODO: figure out why, lol
         headItem.load(`value`);
@@ -64,6 +65,7 @@ export default class Project {
         const headRange = await this.getHeadRange(this.context);
         headRange.load("values");
         await this.context.sync();
+
         return headRange;
     }
 
@@ -287,6 +289,15 @@ export default class Project {
         sheets.items.forEach(sheet => sheet.load("name"));
         await this.context.sync();
         return sheets.items;
+    }
+
+    /*
+    changes the checked out branch saved in the saga sheet, without changing what sheets are visible
+    */
+    setCheckedOutBranch = async (headCommit) => {
+        const headRange = await this.getHeadRange();
+        headRange.values = [[headCommit]]
+        return this.context.sync();
     }
 }
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { PrimaryButton } from '@fluentui/react';
 import Taskpane from "../Taskpane";
-import { headerSize, mergeState } from "../../../constants";
+import { headerSize, mergeState, operationStatus } from "../../../constants";
 import MergeConflict from "./MergeConflict";
 import { runResolveMergeConflicts }  from "../../../saga/merge";
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
@@ -19,7 +19,11 @@ export default class MergeConflictScreen extends React.Component {
     this.state = {
         mergeConflictData: this.props.mergeConflictData,
         resolutions: {},
-        default: "default"
+        default: "default", 
+        safetyCommit: null,
+        safetyBranch: null,
+        mergeConflictResolutionError: false
+
     };
 
     this.collectResolutions = this.collectResolutions.bind(this);
@@ -27,6 +31,7 @@ export default class MergeConflictScreen extends React.Component {
     this.hideWarningBox = this.hideWarningBox.bind(this);
     this.onChanged = this.onChanged.bind(this);
   }
+
 
   // Highlights the conflict options on batch select
   onChanged(checked) {
@@ -110,17 +115,28 @@ export default class MergeConflictScreen extends React.Component {
 
   async executeResolutions (resolutions) {
 
-    // Send resolution data to update the sheets
     document.getElementById("warning-div").style.display = "none";
 
     // display merge in progress
     window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
 
     // resolve merge conflicts
-    const mergeResult = await runResolveMergeConflicts(resolutions);
+    const result = await runResolveMergeConflicts(resolutions);
 
-    // display success screen
-    window.app.setMergeState(mergeResult);
+    // if conflict resolution was successful, show success screen
+    if (result.status === operationStatus.SUCCESS) {
+        window.app.setMergeState(result.operationResult);
+        return;
+    }
+    
+    this.props.setResolutionRetryObj({
+        resolutions: resolutions,
+        safetyCommit: result.safetyCommit,
+        safetyBranch: result.safetyBranch
+    });
+
+    window.app.setMergeState({ status: mergeState.MERGE_CONFLICT_RESOLUTION_ERROR});
+
   }
 
   hideWarningBox (e) {

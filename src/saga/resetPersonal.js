@@ -1,6 +1,6 @@
 import Project from "./Project";
 import { checkoutBranch } from "./checkout";
-import { runOperation } from "./runOperation";
+import { runOperationSafetyCommit } from "./runOperation";
 import { commit } from "./commit";
 import { checkoutCommitID } from "./checkout";
 
@@ -18,7 +18,7 @@ export async function resetPersonalVersion(context) {
     if (branch !== personalBranchName) {
         await checkoutBranch(context, personalBranchName);
     }
-    
+        
     // Get commitID of master's head commit
     const masterCommitID = await project.getCommitIDFromBranch('master');
     await checkoutCommitID(context, masterCommitID);
@@ -26,12 +26,11 @@ export async function resetPersonalVersion(context) {
     // Update the last checked out value
     await project.setLastCatchUpCommitID(masterCommitID);
 
-    //Commit to personal branch
+    // Commit to personal branch
     await commit(context, "Automatic reset commit", `Reset personal branch from ${masterCommitID}`, personalBranchName);
     return context.sync();
 }
 
-
 export async function runResetPersonalVersion() {
-    await runOperation(resetPersonalVersion);
+    return await runOperationSafetyCommit(resetPersonalVersion);
 }

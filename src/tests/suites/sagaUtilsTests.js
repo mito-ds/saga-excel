@@ -36,14 +36,14 @@ export async function testGetSagaObject() {
 
 export async function testGetAncestorOnMasterNoHop() {
     await runCreateSaga(TEST_URL, "email");
-    const masterHead = await runOperation(async (context) => {
+    const masterHead = (await runOperation(async (context) => {
         return await (new Project(context)).getCommitIDFromBranch("master");
-    });
-    const personalHead = await runOperation(async (context) => {
+    })).operationResult;
+    const personalHead = (await runOperation(async (context) => {
         return await (new Project(context)).getCommitIDFromBranch("email");
-    });
+    })).operationResult;
 
-    const commitID = await runOperation(getFirstAncestorOnMaster, masterHead, personalHead);
+    const commitID = (await runOperation(getFirstAncestorOnMaster, masterHead, personalHead)).operationResult;
 
     assert.equal(commitID, masterHead);
 
@@ -55,14 +55,14 @@ export async function testGetAncestorOnMasterOneHop() {
     // Make a commit on personal branch
     await runCommit("", "", "email");
 
-    const masterHead = await runOperation(async (context) => {
+    const masterHead = (await runOperation(async (context) => {
         return await (new Project(context)).getCommitIDFromBranch("master");
-    });
-    const personalHead = await runOperation(async (context) => {
+    })).operationResult;
+    const personalHead = (await runOperation(async (context) => {
         return await (new Project(context)).getCommitIDFromBranch("email");
-    });
+    })).operationResult;
 
-    const commitID = await runOperation(getFirstAncestorOnMaster, masterHead, personalHead);
+    const commitID = (await runOperation(getFirstAncestorOnMaster, masterHead, personalHead)).operationResult;
 
     assert.equal(commitID, masterHead);
 
@@ -76,18 +76,18 @@ export async function testGetAncestorOnMasterDivergeOne() {
     // And make a commit on master
     await runCommit("", "", "master");
 
-    const masterHead = await runOperation(async (context) => {
+    const masterHead = (await runOperation(async (context) => {
         return await (new Project(context)).getCommitIDFromBranch("master");
-    });
-    const personalHead = await runOperation(async (context) => {
+    })).operationResult;
+    const personalHead = (await runOperation(async (context) => {
         return await (new Project(context)).getCommitIDFromBranch("email");
-    });
+    })).operationResult;
 
-    const commitID = await runOperation(getFirstAncestorOnMaster, masterHead, personalHead);
+    const commitID = (await runOperation(getFirstAncestorOnMaster, masterHead, personalHead)).operationResult;
 
-    const masterParent = await runOperation(async (context) => {
+    const masterParent = (await runOperation(async (context) => {
         return await (new Project(context)).getParentCommitID(masterHead);
-    });
+    })).operationResult;
     assert.equal(commitID, masterParent);
 
     return true;
@@ -105,21 +105,21 @@ export async function testGetAncestorOnMasterDivergeMany() {
     await runCommit("", "", "master");
 
 
-    const masterHead = await runOperation(async (context) => {
+    const masterHead = (await runOperation(async (context) => {
         return await (new Project(context)).getCommitIDFromBranch("master");
-    });
-    const personalHead = await runOperation(async (context) => {
+    })).operationResult;
+    const personalHead = (await runOperation(async (context) => {
         return await (new Project(context)).getCommitIDFromBranch("email");
-    });
-    const commitID = await runOperation(getFirstAncestorOnMaster, masterHead, personalHead);
+    })).operationResult;
+    const commitID = (await runOperation(getFirstAncestorOnMaster, masterHead, personalHead)).operationResult;
 
-    const lcsCommit = await runOperation(async (context) => {
+    const lcsCommit = (await runOperation(async (context) => {
         const project = new Project(context);
         let parent = await project.getParentCommitID(masterHead);
         parent = await project.getParentCommitID(parent);
         parent = await project.getParentCommitID(parent);
         return parent;
-    });
+    })).operationResult;
     assert.equal(commitID, lcsCommit);
 
     return true;

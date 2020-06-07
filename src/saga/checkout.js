@@ -1,7 +1,6 @@
 import { getSheetsWithNames, deleteNonsagaSheets } from "./sagaUtils";
 import Project from './Project';
-import { runCommit } from "./commit";
-import { runOperation } from "./runOperation";
+import { runOperation, runOperationSafetyCommit } from "./runOperation";
 import { makeClique } from "./commit";
 
 /* global Excel */
@@ -18,10 +17,8 @@ export async function switchVersionFromRibbon(context) {
         const personalBranchName = await project.getPersonalBranch();
         await checkoutBranch(context, personalBranchName);
     } else {
-        // First, we commit on the personal branch
-        await runCommit("commit before switch version to master", "", currentBranch);
         await checkoutBranch(context, "master");
-        // If master, lock sheets
+        // lock master sheets
         await lockWorksheets(context);
     }
 }
@@ -81,6 +78,7 @@ export async function checkoutCommitID(context, commitID) {
         Excel.SheetVisibility.visible
     );
     tmpSheet.delete();
+    console.log("finished deleting sheets");
 }
 
 
@@ -125,5 +123,5 @@ export async function runCheckoutBranch(branch) {
 }
 
 export async function runSwitchVersionFromRibbon() {
-    await runOperation(switchVersionFromRibbon);
+    return await runOperationSafetyCommit(switchVersionFromRibbon);
 }
