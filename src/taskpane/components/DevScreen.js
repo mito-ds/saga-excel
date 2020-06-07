@@ -49,7 +49,6 @@ export default class DevScreen extends React.Component {
 
     constructor(props) {
         super(props);
-        // Don't call this.setState() here!
         this.state = {
             multiplayerScenarioName: '',
             multiplayerScenario: {}
@@ -103,8 +102,7 @@ export default class DevScreen extends React.Component {
 
                 // If there is an update, we add the update to the local project, and add it to the scenario
                 const update = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
-                console.log(update);
-                if ("fileContents" in update) {
+                if (update) {
                     console.log(`Saving step ${stepNumber}`);
 
                     this.setState((state) => {
