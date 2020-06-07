@@ -1,9 +1,10 @@
 import assert from "assert";
-import { runCreateSaga } from "../../saga/create";
+import { runCreateSaga, runReplaceFromBase64 } from "../../saga/create";
 import { runOperation } from "../../saga/runOperation";
 import { item, TEST_URL } from "../../constants";
 import { getSheetsWithNames, createSheet } from "../../saga/sagaUtils";
 import { getItemRangeValues } from "../testHelpers";
+import * as scenarios from "../scenarios";
 
 /* global Excel */
 
@@ -27,17 +28,14 @@ export async function testCreateSaga() {
     return true;
 }
 
-const LONG_SHEET_NAME = "30characterswhichisamostthemax";
-
 export async function testCreateSagaLongSheetNames() {
 
-    // Create a sheet with a long name
-    await Excel.run(async (context) => {
-        await createSheet(context, LONG_SHEET_NAME, Excel.SheetVisibility.visible);
-    });
+    const scenario = scenarios["longSheetName"];
+    await runReplaceFromBase64(scenario.fileContents);
     
     // First, we create the project
-    await runCreateSaga(TEST_URL, "email");
+    let created = await runCreateSaga(TEST_URL, "email");
+    assert.ok(created, "Should have created a saga project successfully");
 
     // Then, we check that the sheets were created correctly
     const sheets = await runOperation(getSheetsWithNames);

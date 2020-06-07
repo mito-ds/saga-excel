@@ -8,6 +8,7 @@ import { headerSize, TEST_URL } from "../../constants";
 import { upgradeAllScenarios } from "../../saga/upgrade";
 
 import { getFileContents } from "../../saga/fileUtils";
+import { sagaProjectExists } from "../../saga/sagaUtils";
 import * as scenarios from "../../tests/scenarios";
 import { runReplaceFromBase64 } from "../../saga/create";
 import Project from "../../saga/Project";
@@ -25,10 +26,14 @@ async function loadScenario(e) {
 }
 
 async function createScenario() {
+    console.log("Creating scenario");
     // First, we make sure we're using the test url, so we don't sync things to the scenario
     await Excel.run(async (context) => {
-        const project = new Project(context);
-        await project.setRemoteURL(TEST_URL);
+        const isSagaProject = await sagaProjectExists(context);
+        if (isSagaProject) {
+            const project = new Project(context);
+            await project.setRemoteURL(TEST_URL);
+        }
     });
 
     // We just get the 
