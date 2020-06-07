@@ -21,8 +21,8 @@ export async function testEmptyMerge() {
     const mergeResult = await g.merge();
 
     assert.equal(mergeResult.status, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
-    const sheets = await runOperation(getSheetsWithNames);
-    assert.equal(sheets.length, 5, "Should have created 3 commit sheets, 1 checked out sheet, and one saga sheet");
+    const result = await runOperation(getSheetsWithNames);
+    assert.equal(result.operationResult.length, 5, "Should have created 3 commit sheets, 1 checked out sheet, and one saga sheet");
 
     // Check that the taskpane is in the right state and merge state
     assert.equal(taskpaneStatus.MERGE, window.app.getTaskpaneStatus(), "Should be in a merge state");
@@ -43,17 +43,20 @@ export async function testMergeThenSwitchVersions() {
     assert.equal(mergeResult.status, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
 
     // Then, we make sure the personal branch is checked out
-    const head = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
+    let result = await runOperation(getItemRangeValues, item.HEAD);
+    const head = result.operationResult[0][0];
     assert.equal("email", head, "Personal branch should be checked out");
 
     // Then, we switch versions
     await g.switchVersion();
 
-    const newHead = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
+    result = await runOperation(getItemRangeValues, item.HEAD);
+    const newHead = result.operationResult[0][0];
     assert.equal("master", newHead, "Master branch should be checked out");
 
     await g.switchVersion();
-    const newNewHead = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
+    result = await runOperation(getItemRangeValues, item.HEAD);
+    const newNewHead = result.operationResult[0][0];
     assert.equal("email", newNewHead, "Personal branch should be checked out again");
 
     return true;
@@ -86,8 +89,8 @@ export async function testMergePreservesCrossSheetReferences() {
     assert.equal(mergeResult.status, mergeState.MERGE_SUCCESS, "Empty merge should be successful");
 
     // Then, we check to make sure that the values are correctly set
-    const sheet1A1 = (await runOperation(getValues, "Sheet1", "A1"))[0][0];
-    const sheet2A1 = (await runOperation(getFormulas, "Sheet2", "A1"))[0][0];
+    const sheet1A1 = (await runOperation(getValues, "Sheet1", "A1")).operationResult[0][0];
+    const sheet2A1 = (await runOperation(getFormulas, "Sheet2", "A1")).operationResult[0][0];
 
     assert.equal(sheet1A1, 10, "Wrong value in Sheet1!A1");
     assert.equal(sheet2A1, "=Sheet1!A1", "Wrong formula in Sheet2!A1");

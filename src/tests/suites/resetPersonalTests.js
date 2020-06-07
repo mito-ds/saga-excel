@@ -20,7 +20,8 @@ export async function testResetPersonal() {
     const g = getGlobal();
     await g.resetPersonalVersion();
 
-    const A1 = (await runOperation(getValues, "Sheet1", "A1"))[0][0];
+    const result = await runOperation(getValues, "Sheet1", "A1");
+    const A1 = result.operationResult[0][0];
 
     assert.equal(A1, "master change", "switch versions should not delete personal");
     

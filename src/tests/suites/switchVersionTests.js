@@ -15,18 +15,18 @@ export async function testSwitchVersions() {
     await runCreateSaga(TEST_URL, "email");
 
     // Then, we make sure the personal branch is checked out
-    const head = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
+    const head = (await runOperation(getItemRangeValues, item.HEAD)).operationResult[0][0];
     assert.equal("email", head, "Personal branch should be checked out");
 
     // Then, we switch versions
     const g = getGlobal();
     await g.switchVersion();
 
-    const newHead = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
+    const newHead = (await runOperation(getItemRangeValues, item.HEAD)).operationResult[0][0];
     assert.equal("master", newHead, "Master branch should be checked out");
 
     await g.switchVersion();
-    const newNewHead = (await runOperation(getItemRangeValues, item.HEAD))[0][0];
+    const newNewHead = (await runOperation(getItemRangeValues, item.HEAD)).operationResult[0][0];
     assert.equal("email", newNewHead, "Personal branch should be checked out again");
 
     return true;
@@ -50,7 +50,7 @@ export async function testSwitchVersionsDoesNotDeletePersonal() {
     await g.switchVersion();
 
     // get remaining value at A1
-    const A1 = (await runOperation(getValues, "Sheet1", "A1"))[0][0];
+    const A1 = (await runOperation(getValues, "Sheet1", "A1")).operationResult[0][0];
 
     assert.equal(A1, 5, "switch versions should not delete personal");
 

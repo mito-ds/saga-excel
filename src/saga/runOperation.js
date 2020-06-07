@@ -11,14 +11,16 @@ export async function runOperation(operation, ...rest) {
     var result;
     try {
         await Excel.run(async context => {
-            result = await operation(context, ...rest);
+            const operationResult = await operation(context, ...rest);
+            result = {status: operationStatus.SUCCESS, operationResult: operationResult}; 
+
         });
     } catch (error) {
         console.error(error);
         if (error instanceof OfficeExtension.Error) {
             console.error(error.debugInfo);
         }
-        result = false;
+        result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED}; 
     }
     turnSyncOn();
     return result;
@@ -29,10 +31,12 @@ export async function runOperationHandleError(operation, errorHandler, ...rest) 
     var result;
     try {
         await Excel.run(async context => {
-            result = await operation(context, ...rest);
+            const operationResult = await operation(context, ...rest);
+            result = {status: operationStatus.SUCCESS, operationResult: operationResult}; 
         });
     } catch (error) {
-        result = await errorHandler(error);
+        const operationResult = await errorHandler(error);
+        result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED, operationResult: operationResult}; 
     }
     turnSyncOn();
     return result;
@@ -44,14 +48,15 @@ export async function runOperationNoSync(operation, ...rest) {
     var result;
     try {
         await Excel.run(async context => {
-            result = await operation(context, ...rest);
+            const operationResult = await operation(context, ...rest);
+            result = {status: operationStatus.SUCCESS, operationResult: operationResult}; 
         });
     } catch (error) {
         console.error(error);
         if (error instanceof OfficeExtension.Error) {
             console.error(error.debugInfo);
         }
-        result = false;
+        result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED}; 
     }
     return result;
 }
@@ -61,10 +66,12 @@ export async function runOperationHandleErrorNoSync(operation, errorHandler, ...
     var result;
     try {
         await Excel.run(async context => {
-            result = await operation(context, ...rest);
+            const operationResult = await operation(context, ...rest);
+            result = {status: operationStatus.SUCCESS, operationResult: operationResult}; 
         });
     } catch (error) {
-        result = await errorHandler(error);
+        const operationResult = await errorHandler(error);
+        result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED, operationResult: operationResult}; 
     }
     return result;
 }

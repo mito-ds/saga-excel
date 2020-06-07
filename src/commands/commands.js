@@ -22,10 +22,15 @@ function formattingHandler(event) {
 function checkResultForError(result) {
   // if the safetyCommit and safetyBranch are undefined, then we are in the correct state if the user deletes extra sheets
   if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
-    //TODO: handle the case where you edit cells before the safety commit occurs.
     window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
     window.app.setSafetyValues(result.safetyCommit, result.safetyBranch);
     Office.addin.showAsTaskpane();
+    return true;
+  }
+  
+  // if cell editting mode error occurs before safety commit and safety branch
+  if (result.status === operationStatus.ERROR_MANUAL_FIX || result.status === operationStatus.ERROR_AUTOMATICALLY_FIXED) {
+    // TODO take to notification
     return true;
   }
   return false;
@@ -60,7 +65,7 @@ async function merge(event) {
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
   var result = await runMerge(events);
 
-  if (! await (checkResultForError(result))) {
+  if (!checkResultForError(result)) {
     window.app.setMergeState(result.operationResult);
   }
 
@@ -73,16 +78,18 @@ async function merge(event) {
 }
 
 async function catchUp(event) {
-  const sheetDiffs = await runCatchUp();
+  const result = await runCatchUp();
 
-  // We set the diff state as well
-  window.app.setSheetDiffs(sheetDiffs);
-  window.app.setTaskpaneStatus(taskpaneStatus.DIFF);
+  if (!checkResultForError(result)) {
+    // We set the diff state as well
+    window.app.setSheetDiffs(result.operationResult);
+    window.app.setTaskpaneStatus(taskpaneStatus.DIFF);
+  }
   
   if (event) {
     event.completed();
   }
-  return sheetDiffs;
+  return result.operationResult;
 }
 
 async function switchVersion(event) {
@@ -99,6 +106,8 @@ async function switchVersion(event) {
 async function resetPersonalVersion(event) {
   // Todo: If on master, tell them they can't
   const result = await runResetPersonalVersion();
+
+  console.log(result);
   
   checkResultForError(result); 
 

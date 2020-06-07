@@ -40,7 +40,8 @@ export async function testOriginalEmptyMergeConflict() {
     await runResolveMergeConflicts(resolutions);
 
     // Check that merge conflicts are resolved correctly
-    const updatedValue= (await runOperation(getFormulas, "Sheet1", "A1"))[0][0];
+    const result = await runOperation(getFormulas, "Sheet1", "A1");
+    const updatedValue= result.operationResult[0][0];
     assert.equal(updatedValue, 10, "updated to the wrong value");
 
     return true;
@@ -106,12 +107,20 @@ export async function testMergeConflict() {
     await runResolveMergeConflicts(resolutions);
 
     // Check that merge conflicts are resolved correctly
-    const personalSheet1A1 = (await runOperation(getValues, "Sheet1", "A1"))[0][0];
-    const personalSheet2A1 = (await runOperation(getFormulas, "Sheet2", "A1"))[0][0];
+    let result = await runOperation(getValues, "Sheet1", "A1");
+    const personalSheet1A1 = result.operationResult[0][0];
 
-    const masterCommitID = (await runOperation(getFormulas, "saga", "C1"));
-    const masterSheet1A1 = (await runOperation(getValues, `saga-${masterCommitID}-Sheet1`, "A1"))[0][0];
-    const masterSheet2A1 = (await runOperation(getFormulas, `saga-${masterCommitID}-Sheet2`, "A1"))[0][0];
+    result = await runOperation(getFormulas, "Sheet2", "A1");
+    const personalSheet2A1 = result.operationResult[0][0];
+
+    result = await runOperation(getFormulas, "saga", "C1");
+    const masterCommitID = result.operationResult[0][0];
+
+    result = await runOperation(getValues, `saga-${masterCommitID}-Sheet1`, "A1");
+    const masterSheet1A1 = result.operationResult[0][0];
+
+    result = await runOperation(getFormulas, `saga-${masterCommitID}-Sheet2`, "A1");
+    const masterSheet2A1 = result.operationResult[0][0];
 
     assert.equal(personalSheet1A1, "O-S1-A1", "should have correctly updated the personal sheet1 A1");
     assert.equal(personalSheet2A1, "O-S2-A1", "should have correctly updated the personal sheet2 A1");
@@ -161,11 +170,13 @@ export async function testMultipleConflictsPerSheet() {
     await runResolveMergeConflicts(resolutions);
 
     // Check that merge conflicts are resolved correctly
-    const sheet1Values = await runOperation(getFormulas, "Sheet1", "A1:B1");
+    let result = await runOperation(getFormulas, "Sheet1", "A1:B1");
+    const sheet1Values = result.operationResult;
     assert.equal(sheet1Values[0][0], "P1", "should update Sheet 1 A1 to P1");
     assert.equal(sheet1Values[0][1], "P2", "should update Sheet 1 B1 to P2");
 
-    const sheet2Values = await runOperation(getFormulas, "Sheet2", "A1:B1");
+    result = await runOperation(getFormulas, "Sheet2", "A1:B1");
+    const sheet2Values = result.operationResult;
     assert.equal(sheet2Values[0][0], "P3", "should update Sheet 1 A1 to P3");
     assert.equal(sheet2Values[0][1], "P4", "should update Sheet 1 B1 to P4");
 

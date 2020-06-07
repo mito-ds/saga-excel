@@ -4,6 +4,7 @@ import LinkScreen from "./LinkScreen";
 import LoginScreen from "./LoginScreen";
 import ProjectSourceScreen from "./ProjectSourceScreen";
 import ErrorRevertScreen from "./ErrorRevertScreen";
+import DiffScreen from "./DiffComponents/DiffScreen";
 import { OutOfDateErrorScreen, logOutOfDate } from "./OutOfDateErrorScreen";
 import DevScreen from "./DevScreen";
 import MergeScreen from "./MergeScreen";
@@ -13,7 +14,6 @@ import { sagaProjectJSON } from "../../saga/sagaUtils";
 
 
 import './App.css';
-import DiffScreen from "./DiffComponents/DiffScreen";
 
 /* global Office */
 
@@ -33,6 +33,7 @@ export default class App extends React.Component {
       safetyBranch: null
     };
 
+    this.setStep = this.setStep.bind(this);
     this.getTaskpaneStatus = this.getTaskpaneStatus.bind(this);
     this.setTaskpaneStatus = this.setTaskpaneStatus.bind(this);
     this.setEmail = this.setEmail.bind(this);
@@ -59,13 +60,17 @@ export default class App extends React.Component {
     }
   }
 
+  setStep = (step) => {
+    this.setState({step: step});
+  }
+
   getTaskpaneStatus = () => {
     return this.state.taskpaneStatus;
   }
 
   setTaskpaneStatus = (taskpaneStatus) => {
-    console.log(`setting the value of taskpaneState to ${taskpaneStatus}`)
-    this.setState({taskpaneStatus: taskpaneStatus})
+    console.log(`setting the value of taskpaneState to ${taskpaneStatus}`);
+    this.setState({taskpaneStatus: taskpaneStatus});
   }
 
   getMergeState = () => {
@@ -76,19 +81,19 @@ export default class App extends React.Component {
     this.setState({
       mergeState: mergeState.status, 
       mergeConflictData: mergeState.mergeConflictData
-    })
+    });
   }
 
   setEmail = (email) => {
-    this.setState({email: email})
+    this.setState({email: email});
   }
     
   setURL = (remoteURL) => {
-    this.setState({remoteURL: remoteURL})
+    this.setState({remoteURL: remoteURL});
   }
 
   setSheetDiffs = (sheetDiffs) => {
-    this.setState({sheetDiffs: sheetDiffs})
+    this.setState({sheetDiffs: sheetDiffs});
   }
 
   setSafetyValues = (safetyCommit, safetyBranch) => {
@@ -99,13 +104,13 @@ export default class App extends React.Component {
   }
 
   offline = () => {
-    this.setState({offline: true})
+    this.setState({offline: true});
   }
   
   nextStep = () => {
     this.setState(state => {
       return {step: state.step + 1}
-    })
+    });
   }
 
   render() {
