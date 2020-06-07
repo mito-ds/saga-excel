@@ -19,7 +19,7 @@ function formattingHandler(event) {
 }
 
 // If the operation errored and requires manual resolution, display screen
-function checkResultForError(result) {
+function displayErrorIfError(result) {
   // if the safetyCommit and safetyBranch are undefined, then we are in the correct state if the user deletes extra sheets
   if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
     window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
@@ -65,7 +65,7 @@ async function merge(event) {
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
   var result = await runMerge(events);
 
-  if (!checkResultForError(result)) {
+  if (!displayErrorIfError(result)) {
     window.app.setMergeState(result.operationResult);
   }
 
@@ -80,7 +80,7 @@ async function merge(event) {
 async function catchUp(event) {
   const result = await runCatchUp();
 
-  if (!checkResultForError(result)) {
+  if (!displayErrorIfError(result)) {
     // We set the diff state as well
     window.app.setSheetDiffs(result.operationResult);
     window.app.setTaskpaneStatus(taskpaneStatus.DIFF);
@@ -96,7 +96,7 @@ async function switchVersion(event) {
   // Todo: render message saying which branch they are on
   const result = await runSwitchVersionFromRibbon();
 
-  checkResultForError(result); 
+  displayErrorIfError(result); 
   
   if (event) {
     event.completed();
@@ -109,7 +109,7 @@ async function resetPersonalVersion(event) {
 
   console.log(result);
   
-  checkResultForError(result); 
+  displayErrorIfError(result); 
 
   if (event) {
     event.completed();
