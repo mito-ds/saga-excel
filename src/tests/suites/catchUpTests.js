@@ -36,10 +36,8 @@ export async function testResetPersonalChangesLastCaughtUp() {
 
     // Load scenario
     const fileContents = scenarios["unmergedNoConflict"].fileContents;
-    await runReplaceFromBase64(fileContents)
+    await runReplaceFromBase64(fileContents);
 
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000))
 
     // Then, we check that the last catch up is the first commit.
     let originalLastCatchUp;
