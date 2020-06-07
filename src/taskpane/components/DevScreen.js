@@ -190,7 +190,7 @@ export default class DevScreen extends React.Component {
                                 let testObj = JSON.parse(e.target.value);
                                 await runTestSuite(testObj.testSuiteName, testObj.testName);
                             }}>
-                            <option> Select Indivigual Test</option>
+                            <option> Select Individual Test</option>
                             {testArray}                
                         </select>
                     </div>
