@@ -26,23 +26,6 @@ export async function runOperation(operation, ...rest) {
     return result;
 }
 
-export async function runOperationHandleError(operation, errorHandler, ...rest) {
-    turnSyncOff();
-    var result;
-    try {
-        await Excel.run(async context => {
-            const operationResult = await operation(context, ...rest);
-            result = {status: operationStatus.SUCCESS, operationResult: operationResult}; 
-        });
-    } catch (error) {
-        const operationResult = await errorHandler(error);
-        result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED, operationResult: operationResult}; 
-    }
-    turnSyncOn();
-    return result;
-}
-
-
 export async function runOperationNoSync(operation, ...rest) {
     turnSyncOff();
     var result;
@@ -57,21 +40,6 @@ export async function runOperationNoSync(operation, ...rest) {
             console.error(error.debugInfo);
         }
         result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED}; 
-    }
-    return result;
-}
-
-export async function runOperationHandleErrorNoSync(operation, errorHandler, ...rest) {
-    turnSyncOff();
-    var result;
-    try {
-        await Excel.run(async context => {
-            const operationResult = await operation(context, ...rest);
-            result = {status: operationStatus.SUCCESS, operationResult: operationResult}; 
-        });
-    } catch (error) {
-        const operationResult = await errorHandler(error);
-        result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED, operationResult: operationResult}; 
     }
     return result;
 }
