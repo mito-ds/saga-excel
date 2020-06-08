@@ -18,13 +18,6 @@ export default function DiffScreen(props) {
     });
 
     if (sheetComponents.length === 0) {
-        const div = `
-            <div>
-                <p>You've seen it all! Nothhing has changed since you last caught up</p>
-            </div>`;
-    }
-
-    if (sheetComponents.length === 0) {
         return (
             <Taskpane header={headerSize.SMALL} title="You've seen it all!">
                 <div className="title-subtext-div">
