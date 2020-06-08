@@ -18,18 +18,11 @@ function formattingHandler(event) {
   events.push(event);
 }
 
-function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-}
-
 // If the operation errored and requires manual resolution, display screen
-async function checkResultForError(result) {
+function checkResultForError(result) {
   // if the safetyCommit and safetyBranch are undefined, then we are in the correct state if the user deletes extra sheets
   if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
+    console.log("manufal fix required");
     window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
     window.app.setSafetyValues(result.safetyCommit, result.safetyBranch);
     Office.addin.showAsTaskpane();
@@ -38,11 +31,11 @@ async function checkResultForError(result) {
   
   // if cell editting mode error occurs before safety commit and safety branch
   if (result.status === operationStatus.ERROR_MANUAL_FIX || result.status === operationStatus.ERROR_AUTOMATICALLY_FIXED) {
-    // TODO take to notification
-    Office.context.ui.displayDialogAsync('/src/notifications/errorDialog.html', {height: 10, width: 60});
+    console.log("automatic fix");
+    Office.context.ui.displayDialogAsync('/src/notifications/errorDialog.html', {height: 10, width: 50});
     return true;
   }
-  console.log("no error");
+  console.log("no error found");
   return false;
 }
 
@@ -74,13 +67,18 @@ async function merge(event) {
   // update UI and execute merge
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
   var result = await runMerge(events);
+
   console.log(result);
 
-  if (!checkResultForError(result)) {
-    console.log("no error found");
-    window.app.setMergeState(result.operationResult);
+  if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
+    window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
+    window.app.setSafetyValues(result.safetyCommit, result.safetyBranch);
+    Office.addin.showAsTaskpane();
+  } else if (result.status !== operationStatus.SUCCESS) {
+    Office.context.ui.displayDialogAsync('/src/notifications/errorDialog.html', {height: 10, width: 50});
+    openShareTaskpane();
   } else {
-    // if an error was thrown, close the taskpane
+    window.app.setMergeState(result.operationResult);
   }
 
   // If this function was called by clicking the button, let Excel know it's done

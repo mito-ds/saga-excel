@@ -39,6 +39,7 @@ export default class MergeScreen extends React.Component {
   }
 
   setResolutionRetryObj = (resolutionRetryObj) => {
+    console.log("setting resolution object")
     this.setState({ resolutionRetryObj: resolutionRetryObj });
   }
 
