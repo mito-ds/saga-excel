@@ -1,10 +1,16 @@
 import { commit } from './commit';
-import { getSheetsWithNames, getRandomID, getFormulas, deleteNonsagaSheets, getCommitSheets, getFirstAncestorOnMaster } from "./sagaUtils";
+import {
+    getSheetsWithNames, 
+    getRandomID, 
+    getFormulas, 
+    deleteNonsagaSheets, 
+    getCommitSheets, 
+    getFirstAncestorOnMaster 
+} from "./sagaUtils";
 import { simpleMerge2D } from "./mergeUtils";
 import { updateShared } from "./sync";
-import { checkoutCommitID } from "./checkout";
 import Project from "./Project";
-import { runOperation, runOperationSafetyCommit } from './runOperation';
+import { runOperationSafetyCommit } from './runOperation';
 import { makeClique } from "./commit";
 import { mergeState, branchState } from '../constants';
 
