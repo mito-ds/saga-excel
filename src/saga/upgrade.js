@@ -1,7 +1,6 @@
 import { runOperation } from "./runOperation";
 import { TEST_URL } from "../constants";
 import * as scenarios from "../tests/scenarios";
-import { replaceFromBase64 } from "./create";
 import { getFileContents } from "./fileUtils";
 import Project from "./Project";
 /*
@@ -43,9 +42,7 @@ export async function upgradeAllScenarios() {
         const scenarioJSON = scenarios[scenarioName];
 
         // First, we load the scenario
-        await runOperation(replaceFromBase64, scenarioJSON.fileContents);
-
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await runReplaceFromBase64(scenarioJSON.fileContents);
 
         // Then, we run the upgrade function 
         let upgraded = false;

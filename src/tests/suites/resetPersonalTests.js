@@ -13,9 +13,6 @@ export async function testResetPersonal() {
     const fileContents = scenarios["unmergedConflict"].fileContents;
     await runReplaceFromBase64(fileContents);
 
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
     // Switch to master version
     const g = getGlobal();
     await g.resetPersonalVersion();

@@ -13,10 +13,6 @@ export async function testMergeBold() {
     const fileContents = scenarios["diffSimple"].fileContents;
     await runReplaceFromBase64(fileContents);
 
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-
     // Bold A1
     await Excel.run(async function (context) {
         var sheet = context.workbook.worksheets.getItem("Sheet1");
@@ -59,9 +55,6 @@ export async function testMergeMultipleBolds() {
     // Load scenario
     const fileContents = scenarios["diffSimple"].fileContents;
     await runReplaceFromBase64(fileContents);
-
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
     
 
     // Bold A1:B3
@@ -107,9 +100,6 @@ export async function testMultiPageBold() {
     // Load scenario
     const fileContents = scenarios["diffSimple"].fileContents;
     await runReplaceFromBase64(fileContents);
-
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Bold A1 in both sheets
     // Bold A1:B3
@@ -169,9 +159,6 @@ export async function testMergeKeepsFromattingInMaster() {
     // Load scenario
     const fileContents = scenarios["formattingInMaster"].fileContents;
     await runReplaceFromBase64(fileContents);
-
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Bold B1
     await Excel.run(async function (context) {
