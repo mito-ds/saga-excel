@@ -18,8 +18,16 @@ function formattingHandler(event) {
   events.push(event);
 }
 
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
+
 // If the operation errored and requires manual resolution, display screen
-function checkResultForError(result) {
+async function checkResultForError(result) {
   // if the safetyCommit and safetyBranch are undefined, then we are in the correct state if the user deletes extra sheets
   if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
     window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
@@ -34,6 +42,7 @@ function checkResultForError(result) {
     Office.context.ui.displayDialogAsync('/src/notifications/errorDialog.html', {height: 10, width: 60});
     return true;
   }
+  console.log("no error");
   return false;
 }
 
@@ -65,9 +74,13 @@ async function merge(event) {
   // update UI and execute merge
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
   var result = await runMerge(events);
+  console.log(result);
 
   if (!checkResultForError(result)) {
+    console.log("no error found");
     window.app.setMergeState(result.operationResult);
+  } else {
+    // if an error was thrown, close the taskpane
   }
 
   // If this function was called by clicking the button, let Excel know it's done
