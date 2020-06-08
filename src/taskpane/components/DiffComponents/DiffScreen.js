@@ -17,16 +17,33 @@ export default function DiffScreen(props) {
         );  
     });
 
-    return (
-        <Taskpane header={headerSize.SMALL} title="Recent Changes">
-        <div className="title-subtext-div">
-            <div className="title-subtext">Everything that has changed in the shared version since you last looked.</div>
-        </div>
-        <div className="diff-card-div">
-            <div className="scrollable-div">
-                {sheetComponents}
+    if (sheetComponents.length === 0) {
+        const div = `
+            <div>
+                <p>You've seen it all! Nothhing has changed since you last caught up</p>
+            </div>`;
+    }
+
+    if (sheetComponents.length === 0) {
+        return (
+            <Taskpane header={headerSize.SMALL} title="You've seen it all!">
+                <div className="title-subtext-div">
+                    <div className="title-subtext">Nothing has changed since you last caught up.</div>
+                </div>
+            </Taskpane>
+        );
+    } else {
+        return (
+            <Taskpane header={headerSize.SMALL} title="Recent Changes">
+            <div className="title-subtext-div">
+                <div className="title-subtext">Everything that has changed in the shared version since you last looked.</div>
             </div>
-        </div>
-        </Taskpane>
-    );
+            <div className="diff-card-div">
+                <div className="scrollable-div">
+                    {sheetComponents}
+                </div>
+            </div>
+            </Taskpane>
+        );
+    }
 }
