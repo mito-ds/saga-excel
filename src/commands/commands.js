@@ -22,7 +22,6 @@ function formattingHandler(event) {
 function checkResultForError(result) {
   // if the safetyCommit and safetyBranch are undefined, then we are in the correct state if the user deletes extra sheets
   if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
-    console.log("manufal fix required");
     window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
     window.app.setSafetyValues(result.safetyCommit, result.safetyBranch);
     Office.addin.showAsTaskpane();
@@ -31,12 +30,14 @@ function checkResultForError(result) {
   
   // if cell editting mode error occurs before safety commit and safety branch
   if (result.status === operationStatus.ERROR_MANUAL_FIX || result.status === operationStatus.ERROR_AUTOMATICALLY_FIXED) {
-    console.log("automatic fix");
-    Office.context.ui.displayDialogAsync('/src/notifications/errorDialog.html', {height: 10, width: 50});
+    displayDialogBox();
     return true;
   }
-  console.log("no error found");
   return false;
+}
+
+function displayDialogBox() {
+  Office.context.ui.displayDialogAsync('/src/notifications/errorDialog.html', {height: 20, width: 60});
 }
 
 async function openShareTaskpane(event) {
@@ -75,7 +76,7 @@ async function merge(event) {
     window.app.setSafetyValues(result.safetyCommit, result.safetyBranch);
     Office.addin.showAsTaskpane();
   } else if (result.status !== operationStatus.SUCCESS) {
-    Office.context.ui.displayDialogAsync('/src/notifications/errorDialog.html', {height: 10, width: 50});
+    displayDialogBox();
     openShareTaskpane();
   } else {
     window.app.setMergeState(result.operationResult);
