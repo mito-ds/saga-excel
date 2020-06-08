@@ -16,6 +16,7 @@ import formattingInMaster from "./formattingInMaster.json";
 import unmergedLocalSheetDelete from "./unmergedLocalSheetDelete.json";
 import longSheetName from "./longSheetName.json";
 import existingSheetCopies from "./existingSheetCopies.json";
+import longSheetNamesUnmerged from "./longSheetNamesUnmerged.json";
 
 export {
     empty, 
@@ -35,5 +36,6 @@ export {
     formattingInMaster,
     unmergedLocalSheetDelete,
     longSheetName,
-    existingSheetCopies
+    existingSheetCopies,
+    longSheetNamesUnmerged
 };

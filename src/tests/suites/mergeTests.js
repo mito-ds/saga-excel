@@ -102,9 +102,6 @@ export async function testMergeChangesLastCaughtUp() {
     const fileContents = scenarios["unmergedNoConflict"].fileContents;
     await runReplaceFromBase64(fileContents);
 
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
     // Then, we check that the last catch up is the first commit.
     let originalLastCatchUp;
     await runOperation(async (context) => {
@@ -136,9 +133,6 @@ export async function testNoDiffAfterMerge() {
     const fileContents = scenarios["unmergedNoConflict"].fileContents;
     await runReplaceFromBase64(fileContents);
 
-    // Give time for files to update properly 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
     // Catch up
     const g = getGlobal();
     const catchUpResult = await g.catchUp();
@@ -151,6 +145,20 @@ export async function testNoDiffAfterMerge() {
     const newDiffs = await g.catchUp();
     console.log("NEW DIFFS", newDiffs);
     assert.equal(newDiffs.length, 0, "There should be no diffs to catch up on after a merge");
+
+    return true;
+}
+
+export async function testMergeLongSheetNames() {
+    
+    // Load scenario
+    const scenario = scenarios["longSheetNamesUnmerged"];
+    await runReplaceFromBase64(scenario.fileContents);
+
+    // Then merge
+    const g = getGlobal();
+    const result = await g.merge();
+    console.log(result);
 
     return true;
 }

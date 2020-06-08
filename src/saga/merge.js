@@ -74,82 +74,6 @@ const getNonsagaSheets = (sheets) => {
     });
 };
 
-async function findOtherSheetReferencesAddr(context, sheetName, nonSagaSheets) {
-    // In a given non-saga sheet, will return an array of all the addresses of the
-    // cells that contain a reference to another non-saga sheet
-
-    const worksheet = context.workbook.worksheets.getItem(sheetName);
-
-    /*
-    1. Get all sheet names
-    */
-    var found = [];
-    for (let i = 0; i < nonSagaSheets.length; i++) {
-        console.log(`Looking for =${nonSagaSheets[i].name}`);
-        var foundRanges = worksheet.findAllOrNullObject(`=${nonSagaSheets[i].name}`, {
-            completeMatch: false, // findAll will match the whole cell value
-            matchCase: false // findAll will not match case
-        });
-        await context.sync();
-
-        if (foundRanges.isNullObject) {
-            console.log("No ranges contain this");
-        } else {
-            foundRanges.load("address");
-            await context.sync();
-            console.log(foundRanges.address);
-            found.push(...foundRanges.address.split(","));
-        }
-    }
-
-    return found;
-}
-
-async function updateReferences(context, sheetName, newCommitPrefix) {
-
-    const worksheet = context.workbook.worksheets.getItem(sheetName);
-
-    const nonSagaSheets = (await getSheetsWithNames(context)).filter(sheet => {return !sheet.name.startsWith("saga");});
-    const nonSagaSheetNames = nonSagaSheets.map(sheet => sheet.name);
-    const otherSheetReferences = await findOtherSheetReferencesAddr(context, nonSagaSheets);
-
-    // Loop over all of them, get the values, and 
-    var mapping = {};
-    for (let i = 0; i < otherSheetReferences.length; i++) {
-        const refRange = worksheet.getRange(otherSheetReferences[i]);
-        refRange.load("formulas");
-        await context.sync();
-            mapping[otherSheetReferences[i]] = refRange.formulas[0][0];
-    }
-    // TODO: fix this w/ a complicated algorithm so it works for when sheet names are substrings of eachother
-
-    var newMapping = {};
-    for (const addr in mapping) {
-        const formula = mapping[addr];
-        var newFormula = formula;
-        for (let i = 0; i < nonSagaSheetNames.length; i++) {
-            const sheetName = nonSagaSheetNames[i];
-            const newSheetName = newCommitPrefix + nonSagaSheetNames[i];
-            newFormula = newFormula.replace(sheetName, newSheetName);
-        }
-        newMapping[addr] = newFormula;
-    }
-
-    var count = 0;
-    for (const addr in newMapping) {
-        const newFormula = newMapping[addr];
-        worksheet.getRange(addr).value = newFormula;
-
-        count++;
-        // We can have at most 40 transactions
-        if (count % 40 === 0) {
-            await context.sync();
-        }
-    }
-
-    return newMapping;
-}
-
 async function writeDataToSheet(context, sheetName, data) {
     if (data.length === 0 || (data.length === 1 && data[0].length === 0)) {
         console.log(`No data to write to sheet ${sheetName}, returning`);
@@ -167,7 +91,6 @@ async function writeDataToSheet(context, sheetName, data) {
     const rangeAddress = `A${1}:${endColumn}${rectData.length}`;
 
     // Finially, write the values
-
     sheet.getRange(rangeAddress).values = rectData;
 
     await context.sync();
@@ -211,8 +134,6 @@ function replaceReferencesInData(data, srcString, dstString) {
     });
 }
 
-
-
 const doMerge = async (context, formattingEvents) => {
     const project = new Project(context);
 
@@ -221,13 +142,7 @@ const doMerge = async (context, formattingEvents) => {
         formattingEvents = [];
     }
 
-    const personalBranchRange = await project.getPersonalBranchWithValues();
-    const personalBranch = personalBranchRange.values[0][0];
-
-    if (personalBranch === ``) {
-        console.error(`Cannot checkin personal branch as it does not exist.`);
-        return;
-    }
+    const personalBranch = await project.getPersonalBranch();
 
     const masterCommitID = await project.getCommitIDFromBranch(`master`);
     const personalCommitID = await project.getCommitIDFromBranch(personalBranch);
