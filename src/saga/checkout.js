@@ -16,10 +16,12 @@ export async function switchVersionFromRibbon(context) {
     if (currentBranch === 'master') {
         const personalBranchName = await project.getPersonalBranch();
         await checkoutBranch(context, personalBranchName);
+        return "personal";
     } else {
         await checkoutBranch(context, "master");
         // lock master sheets
         await lockWorksheets(context);
+        return "master";
     }
 }
 

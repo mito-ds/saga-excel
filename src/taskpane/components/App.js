@@ -4,6 +4,7 @@ import LinkScreen from "./LinkScreen";
 import LoginScreen from "./LoginScreen";
 import ProjectSourceScreen from "./ProjectSourceScreen";
 import ErrorRevertScreen from "./ErrorRevertScreen";
+import SwitchScreen from "./SwitchScreen";
 import DiffScreen from "./DiffComponents/DiffScreen";
 import { OutOfDateErrorScreen, logOutOfDate } from "./OutOfDateErrorScreen";
 import DevScreen from "./DevScreen";
@@ -30,7 +31,8 @@ export default class App extends React.Component {
       mergeConflicts: null,
       sheetDiffs: null,
       safetyCommit: null,
-      safetyBranch: null
+      safetyBranch: null,
+      branch: "personal"
     };
 
     this.setStep = this.setStep.bind(this);
@@ -99,6 +101,10 @@ export default class App extends React.Component {
     this.setState({sheetDiffs: sheetDiffs});
   }
 
+  setBranch = (branch) => {
+    this.setState({branch: branch});
+  }
+
   setSafetyValues = (safetyCommit, safetyBranch) => {
     this.setState({
       safetyCommit: safetyCommit,
@@ -157,6 +163,10 @@ export default class App extends React.Component {
 
       case taskpaneStatus.DIFF:
         toReturn = (<DiffScreen sheetDiffs={this.state.sheetDiffs}/>);
+        break;
+
+      case taskpaneStatus.SWITCH:
+        toReturn = (<SwitchScreen branch={this.state.branch}/>);
         break;
 
       case taskpaneStatus.ERROR_MANUAL_FIX:

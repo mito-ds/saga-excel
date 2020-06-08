@@ -5,6 +5,7 @@ export const taskpaneStatus = {
     MERGE: 'merge',
     OFFLINE: 'offline',
     DEVELOPMENT: 'development',
+    SWITCH: 'switch',
     DIFF: 'diff',
     ERROR_MANUAL_FIX: 'error_manual_fix'
 };
