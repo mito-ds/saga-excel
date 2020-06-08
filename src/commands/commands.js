@@ -18,7 +18,7 @@ function formattingHandler(event) {
   events.push(event);
 }
 
-// If the operation errored and requires manual resolution, display screen
+// If the operation erred and requires manual resolution, display screen
 function checkResultForError(result) {
   // if the safetyCommit and safetyBranch are undefined, then we are in the correct state if the user deletes extra sheets
   if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
@@ -28,7 +28,7 @@ function checkResultForError(result) {
     return true;
   }
   
-  // if cell editting mode error occurs before safety commit and safety branch
+  // if cell editing mode error occurs before safety commit and safety branch
   if (result.status === operationStatus.ERROR_MANUAL_FIX || result.status === operationStatus.ERROR_AUTOMATICALLY_FIXED) {
     displayDialogBox();
     return true;

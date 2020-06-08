@@ -35,10 +35,10 @@ export default class MergeConflictResolutionErrorScreen extends React.Component 
 
     render () {
         return (
-            <Taskpane header={headerSize.Small} title="It looks like you were still editting the spreadsheet">
+            <Taskpane header={headerSize.Small} title="It looks like you were still editing the spreadsheet">
                 <div className="card-div">
                     <p> We can't understand the changes that you made if you're still making them! To continue working: </p>
-                    <p> 1. Make sure you're not in cell edditng mode. Hint: clicking on this text should do the trick!</p>
+                    <p> 1. Make sure you're not in cell editing mode. Hint: clicking on this text should do the trick!</p>
                     <p> 2. Click "Retry" below. </p>
                     <div className="reset-button-div"> 
                         <PrimaryButton className="reset-button" type="button" onClick={(e) => this.retryResolution(e)}>Retry</PrimaryButton> 
