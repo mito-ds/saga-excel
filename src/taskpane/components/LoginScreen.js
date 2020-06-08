@@ -9,24 +9,24 @@ import { headerSize } from "../../constants";
 export default class LoginScreen extends React.Component {
     constructor(props) {
         super(props); 
-        this.createSagaProject = this.createSagaProject.bind(this)
+        this.createSagaProject = this.createSagaProject.bind(this);
     }
 
     async createSagaProject (e) {
         e.preventDefault();
-        const email = document.getElementById('email-input').value
+        const email = document.getElementById('email-input').value;
         try {
             // Send the signup to the server
-            // TODO: make a route for posting the server.
-            /*
             axios.post(
-                "https://excel.sagacollab.com/postemail",
+                "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Stage/addEmail",
                 {
-                    email: email
+                    email: email,
+                    name: "signup",
+                    company: "signup"
                 }
-            ) */
-        } catch {
-            console.error("Failed to post email.")
+            );
+        } catch (e) {
+            console.error("Failed to post email.");
         }
 
         this.props.setEmail(email);
