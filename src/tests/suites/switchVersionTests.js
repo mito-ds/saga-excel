@@ -75,11 +75,14 @@ export async function testSwitchVersionLongSheetNames() {
     await g.switchVersion();
 
     // Then, we make sure the master version has the right sheet name
-    const sheets = await runOperation(getSheetsWithNames);
-    console.log(sheets);
-    const longNameSheet = sheets.find(sheet => sheet.name === LONGEST_SHEET_NAME);
-    console.log(longNameSheet);
+    let sheets = await runOperation(getSheetsWithNames);
+    let longNameSheet = sheets.find(sheet => sheet.name === LONGEST_SHEET_NAME);
+    assert.notEqual(longNameSheet, undefined, "Should have found a sheet with the long sheet name");
 
+    // Then, switch back to local and make sure that this is on personal too
+    await g.switchVersion();
+    sheets = await runOperation(getSheetsWithNames);
+    longNameSheet = sheets.find(sheet => sheet.name === LONGEST_SHEET_NAME);
     assert.notEqual(longNameSheet, undefined, "Should have found a sheet with the long sheet name");
     
     return true;

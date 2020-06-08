@@ -266,9 +266,11 @@ export default class Project {
     getShortSheetName = async (sheetName) => {
         const sheetNamesRange = await this.getSheetNamesRangeWithValues(this.context);
 
+        console.log(sheetNamesRange.values);
+
         for (let i = 0; i < sheetNamesRange.values.length; i++) {
-            let short = sheetNamesRange.values[i][0];
-            let long = sheetNamesRange.values[i][1];
+            let long = sheetNamesRange.values[i][0];
+            let short = sheetNamesRange.values[i][1];
 
             if (long === sheetName) {
                 return short;
@@ -281,9 +283,11 @@ export default class Project {
     getSheetName = async (shortSheetName) => {
         const sheetNamesRange = await this.getSheetNamesRangeWithValues(this.context);
 
+        console.log(sheetNamesRange.values);
+
         for (let i = 0; i < sheetNamesRange.values.length; i++) {
-            let short = sheetNamesRange.values[i][0];
-            let long = sheetNamesRange.values[i][1];
+            let long = sheetNamesRange.values[i][0];
+            let short = sheetNamesRange.values[i][1];
 
             if (short === shortSheetName) {
                 return long;

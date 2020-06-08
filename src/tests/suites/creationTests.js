@@ -6,8 +6,6 @@ import { getSheetsWithNames } from "../../saga/sagaUtils";
 import { getItemRangeValues } from "../testHelpers";
 import * as scenarios from "../scenarios";
 
-/* global Excel */
-
 export async function testCreateSaga() {
     
     // First, we create the project
@@ -46,7 +44,8 @@ export async function testCreateSagaLongSheetNames() {
     return true;
 }
 
-export async function testCreateSagaExistingSheetCopies() {
+// TODO
+async function testCreateSagaExistingSheetCopies() {
 
     const scenario = scenarios["existingSheetCopies"];
     await runReplaceFromBase64(scenario.fileContents);
