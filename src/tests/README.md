@@ -47,11 +47,11 @@ A `syncStep` represents a "pull from remote" - but as this information is store
 
 To create a multiplayer scenario, open (or create) any Saga project and copy its sharing link. Then, use the dev screen to enter a new multiplayer scenario name, and then press "start." This local instance will now record all incoming commits it pulls from remote. 
 
-Then, open a new Excel instance and copy in the sharing link from the existing Saga project. Now, you can make changes in this new Excel instance, and merge them into the shared version. After each merge, or whenever you want to create a new sync step, go back to the original Excel instance, and the console will show it has saved a new sync step.
+Then, open a new Excel instance and copy in the sharing link from the existing Saga project. Now, you can make changes in this new Excel instance, and merge them into the shared version. After each merge, or whenever you want to create a new sync step, go back to the original Excel instance. To confirm a new sync step has been created, you can check the console.
 
 When you are finished with the scenario, click `finish`, and then copy the output into the `scenarios/multiplayer` folder, and export it from the `index.js` file there.
 
-NOTE: due to limitations of the mulitplayer scenario process, you should not make changes to the original Excel instance that is recording the scenario creation process. Any operations you want to do to test must be done programmatically in the test case itself. Scenario creation is about remote changes
+NOTE: due to limitations of the mulitplayer scenario process, you should not make changes to the original Excel instance that is recording the scenario creation process. Any operations you want to do to test must be done programmatically in the test case itself. Scenario creation is about remote changes.
 
 ## Running a Multiplayer Scenario
 

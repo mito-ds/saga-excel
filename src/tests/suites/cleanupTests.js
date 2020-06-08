@@ -15,7 +15,8 @@ export async function testCleanup() {
     await runCleanup();
 
     // Then, we make sure there is only a single sheet
-    const sheets = await runOperation(getSheetsWithNames);
+    const result = await runOperation(getSheetsWithNames);
+    const sheets = result.operationResult;
     assert.equal(sheets.length, 1, "Should have created 3 sheets");
 
     return true;

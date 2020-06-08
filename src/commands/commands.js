@@ -7,7 +7,7 @@ import { runSwitchVersionFromRibbon } from "../saga/checkout.js";
 import { runResetPersonalVersion } from "../saga/resetPersonal.js";
 import { runMerge } from "../saga/merge.js";
 import { runCatchUp } from "../saga/diff.js";
-import { taskpaneStatus, mergeState } from "../constants";
+import { taskpaneStatus, mergeState, operationStatus } from "../constants";
 
 /* global global, Office, Excel */
 
@@ -16,6 +16,24 @@ var events = [];
 
 function formattingHandler(event) {
   events.push(event);
+}
+
+// If the operation errored and requires manual resolution, display screen
+function checkResultForError(result) {
+  // if the safetyCommit and safetyBranch are undefined, then we are in the correct state if the user deletes extra sheets
+  if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
+    window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
+    window.app.setSafetyValues(result.safetyCommit, result.safetyBranch);
+    Office.addin.showAsTaskpane();
+    return true;
+  }
+  
+  // if cell editting mode error occurs before safety commit and safety branch
+  if (result.status === operationStatus.ERROR_MANUAL_FIX || result.status === operationStatus.ERROR_AUTOMATICALLY_FIXED) {
+    // TODO take to notification
+    return true;
+  }
+  return false;
 }
 
 async function openShareTaskpane(event) {
@@ -45,34 +63,40 @@ async function merge(event) {
 
   // update UI and execute merge
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
-  var mergeResult = await runMerge(events);
-  window.app.setMergeState(mergeResult);
+  var result = await runMerge(events);
+
+  if (!checkResultForError(result)) {
+    window.app.setMergeState(result.operationResult);
+  }
 
   // If this function was called by clicking the button, let Excel know it's done
   if (event) {
     event.completed();
   }
   events = [];
-  return mergeResult;
+  return result.operationResult;
 }
 
 async function catchUp(event) {
-  const sheetDiffs = await runCatchUp();
-  console.log("Sheetdiffs", sheetDiffs);
-  // We set the diff state as well
-  window.app.setSheetDiffs(sheetDiffs);
-  console.log("catching up in commands");
-  window.app.setTaskpaneStatus(taskpaneStatus.DIFF);
+  const result = await runCatchUp();
+
+  if (!checkResultForError(result)) {
+    // We set the diff state as well
+    window.app.setSheetDiffs(result.operationResult);
+    window.app.setTaskpaneStatus(taskpaneStatus.DIFF);
+  }
   
   if (event) {
     event.completed();
   }
-  return sheetDiffs;
+  return result.operationResult;
 }
 
 async function switchVersion(event) {
   // Todo: render message saying which branch they are on
-  await runSwitchVersionFromRibbon();
+  const result = await runSwitchVersionFromRibbon();
+
+  checkResultForError(result); 
   
   if (event) {
     event.completed();
@@ -81,7 +105,12 @@ async function switchVersion(event) {
 
 async function resetPersonalVersion(event) {
   // Todo: If on master, tell them they can't
-  await runResetPersonalVersion();
+  const result = await runResetPersonalVersion();
+
+  console.log(result);
+  
+  checkResultForError(result); 
+
   if (event) {
     event.completed();
   }

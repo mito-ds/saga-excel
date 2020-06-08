@@ -86,10 +86,8 @@ export async function makeClique(context, sheetNames, getNewName, worksheetPosit
             await context.sync();
         }
     }
-
     return context.sync();
 }
-
 
 /*
 Create Commit

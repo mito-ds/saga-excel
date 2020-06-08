@@ -4,7 +4,7 @@ import { simpleMerge2D } from "./mergeUtils";
 import { updateShared } from "./sync";
 import { checkoutCommitID } from "./checkout";
 import Project from "./Project";
-import { runOperation, runOperationHandleError } from './runOperation';
+import { runOperation, runOperationSafetyCommit } from './runOperation';
 import { makeClique } from "./commit";
 import { mergeState, branchState } from '../constants';
 
@@ -54,14 +54,15 @@ async function resolveMergeConflicts(context, resolutions) {
             
             // Set cell value on master Branch
             const cellRangeMaster = masterWorksheet.getRange(cell);
-            console.log(`Resolving ${cell} to ${value}`);
             cellRangeMaster.values = [[value]];
             await context.sync();
         } 
     }
 
+
     const personalBranchName = await project.getPersonalBranch();
-    // make resolution commit on master
+
+    // make resolution commit on personal
     await commit(context, "resolved merge conflicts", "resolved merge conflicts", personalBranchName);
 
     return await merge(context, []);
@@ -460,12 +461,7 @@ export async function merge(context, formattingEvents) {
         return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
     }
 
-    // Make a commit on the personal branch    
-    await commit(context, `check in of ${personalBranch}`, "", personalBranch);
-    
-    console.log("done check in commit on personal");
-
-    // Merge this commit into the shared branch
+    // Merge safety commit into the shared branch
     const mergeData = await doMerge(context, formattingEvents);
 
     // Check for merge conflicts
@@ -494,59 +490,10 @@ export async function merge(context, formattingEvents) {
     return {status: mergeState.MERGE_SUCCESS, mergeConflictData: null};
 }
 
-/*
-    If there is an error during the execution of a merge, we hope it is after
-    the check in of the personal branch, and try to roll back to that commit. 
-
-    If that fails, we give up... TODO?
-*/
-function makeHandleMergeError(previousPersonalCommitID) {
-    return async (error) => {
-        console.log("Handling error");
-        console.log(error);
-        try {
-            await Excel.run(async (context) => {
-                const project = new Project(context);
-                const personalBranch = await project.getPersonalBranch();
-                const personalHeadCommit = await project.getCommitIDFromBranch(personalBranch);
-                console.log("Commits", previousPersonalCommitID, personalHeadCommit);
-
-                /*
-                    If we got to the checkin of personal, (which is the first thing to occur in the merge)
-                    then we can roll back to it. 
-
-                    Otherwise, if there isn't a new commit on personal, then we must have not have deleted
-                    any of the sheets, and so we don't need to do anything.
-                */
-                if (previousPersonalCommitID !== personalHeadCommit) {
-                    console.log("Rolling back to last commit");
-                    await checkoutCommitID(context, personalHeadCommit);
-                }
-            });
-            return {status: mergeState.MERGE_ERROR, mergeConflictData: null};;
-        } catch (error) {
-            // TODO: we should change so it returns a "critical error here"
-    
-            console.log(error);
-        }
-        return {status: mergeState.MERGE_ERROR, mergeConflictData: null};
-    };
-}
-
-
-
 export async function runMerge(formattingEvents) {
-    const previousPersonalCommitID = await runOperation(async (context) => {
-        const project = new Project(context);
-        const personalBranch = await project.getPersonalBranch();
-        return await project.getCommitIDFromBranch(personalBranch);
-    });
-    const handleMergeError = makeHandleMergeError(previousPersonalCommitID);
-    const mergeResult = await runOperationHandleError(merge, handleMergeError, formattingEvents);
-    return mergeResult;
-
+    return await runOperationSafetyCommit(merge, formattingEvents);
 }
 
 export async function runResolveMergeConflicts(resolutions) {
-    return runOperation(resolveMergeConflicts, resolutions);
+    return runOperationSafetyCommit(resolveMergeConflicts, resolutions);
 }
