@@ -96,7 +96,12 @@ async function switchVersion(event) {
   // Todo: render message saying which branch they are on
   const result = await runSwitchVersionFromRibbon();
 
-  checkResultForError(result); 
+
+  if (!checkResultForError(result)) {
+    window.app.setBranch(result.operationResult);
+    window.app.setTaskpaneStatus(taskpaneStatus.SWITCH);
+    Office.addin.showAsTaskpane();
+  }
   
   if (event) {
     event.completed();
