@@ -165,11 +165,7 @@ export async function updateShared(context) {
 
 async function sync() {
   console.log("Syncing:");
-  const turnedOff = turnSyncOff();
-  if (turnedOff) {
-    console.log("Turned sync off");
-  }
-
+  pauseSync();
   try {
     await Excel.run(async context => {
         // We do not use runOperation here, as sync shouldn't reload itself
@@ -181,10 +177,7 @@ async function sync() {
         console.error(error.debugInfo);
     }
   }
-  const turnedOn = turnSyncOn();
-  if (turnedOn) {
-    console.log("Turned sync back on");
-  }
+  resumeSync();
 }
 
 function getGlobal() {
@@ -200,27 +193,65 @@ function getGlobal() {
 
 var g = getGlobal();
 
-/*
-  If syncing is off, turn it on, and report that it was turned on successfully.
-  Otherwise, return false (as it was not turned on, because it was already on).
-*/
-export function turnSyncOn() {
-  if (!g.syncInt) {
-    g.syncInt = setInterval(sync, 5000);
-    return true;
-  }
-  return false;
-}
 
 /*
-  If syncing is on, turn it off, and report that it was successfully turned off.
-  Otherwise, return false (it was not turned off b/c it as not on).
+  Syncing is either on or off, which is represnted by isSyncOn.
+
+  If isSyncOn, then syncing can either be paused or not. It it 
+  paused if it is in the middle of an operation or another sync.
+  This is represented by isSyncPaused.
+
+  If !isSyncOn, then the value of isSyncPaused does not matter, 
+  as syncing is not occuring in the first place.
+
+  Finially, if the syncInterval is set, that means that there is
+  a waiting function that will actually run. This should only be
+  defined if isSyncOn && !isSyncPaused.
 */
-export function turnSyncOff() {
-  if (g.syncInt) {
-    clearInterval(g.syncInt);
-    g.syncInt = null;
-    return true;
+
+/*
+  Based on the state of isSyncOn and isSyncPaused, 
+  make sure there is actually an interval function running.
+*/
+function updateSyncInt() {
+  if (g.isSyncOn && !g.isSyncPaused) {
+    // If it is on and not paused, then we should be syncing
+    if (!g.syncInt) {
+      // So if we're not syncing, start syncing
+      g.syncInt = setInterval(sync, 5000);
+    }
+  } else {
+    // Otherwise, we certainly shouldn't be syncing
+    if (g.syncInt) {
+      clearInterval(g.syncInt);
+      g.syncInt = null;
+    }
   }
-  return false;
+}
+
+
+export function turnSyncOn() {
+  g.isSyncOn = true;
+  updateSyncInt();
+}
+
+export function turnSyncOff() {
+  g.isSyncOn = false;
+  updateSyncInt();
+}
+
+export function pauseSync() {
+  g.isSyncPaused = true;
+  updateSyncInt();
+}
+
+export function resumeSync() {
+  g.isSyncPaused = false;
+  updateSyncInt();
+}
+
+export function turnSyncOnAndUnpause() {
+  g.isSyncOn = true;
+  g.isSyncPaused = false;
+  updateSyncInt();
 }

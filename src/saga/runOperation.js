@@ -1,4 +1,4 @@
-import { turnSyncOff, turnSyncOn } from "./sync";
+import { pauseSync, resumeSync } from "./sync";
 import { commit } from "./commit";
 import Project from "./Project";
 import { operationStatus } from '../constants';
@@ -7,7 +7,7 @@ import { revertToCommitAndBranch } from "./sagaUtils";
 /* global Excel, OfficeExtension */
 
 export async function runOperation(operation, ...rest) {
-    const turnedOff = turnSyncOff();
+    pauseSync();
     var result;
     try {
         await Excel.run(async context => {
@@ -23,14 +23,12 @@ export async function runOperation(operation, ...rest) {
         result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED}; 
     }
     // we only turn sync on if it was on originally
-    if (turnedOff) {
-        turnSyncOn();
-    }
+    resumeSync();
     return result;
 }
 
 export async function runOperationHandleError(operation, errorHandler, ...rest) {
-    const turnedOff = turnSyncOff();
+    pauseSync();
     var result;
     try {
         await Excel.run(async context => {
@@ -41,15 +39,13 @@ export async function runOperationHandleError(operation, errorHandler, ...rest) 
         const operationResult = await errorHandler(error);
         result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED, operationResult: operationResult}; 
     }
-    if (turnedOff) {
-        turnSyncOn();
-    }
+    resumeSync();
     return result;
 }
 
 
 export async function runOperationNoSync(operation, ...rest) {
-    turnSyncOff();
+    pauseSync();
     var result;
     try {
         await Excel.run(async context => {
@@ -66,23 +62,8 @@ export async function runOperationNoSync(operation, ...rest) {
     return result;
 }
 
-export async function runOperationHandleErrorNoSync(operation, errorHandler, ...rest) {
-    turnSyncOff();
-    var result;
-    try {
-        await Excel.run(async context => {
-            const operationResult = await operation(context, ...rest);
-            result = {status: operationStatus.SUCCESS, operationResult: operationResult}; 
-        });
-    } catch (error) {
-        const operationResult = await errorHandler(error);
-        result = {status: operationStatus.ERROR_AUTOMATICALLY_FIXED, operationResult: operationResult}; 
-    }
-    return result;
-}
-
 export async function runOperationSafetyCommit(operation, ...rest) {
-    turnSyncOff();
+    pauseSync();
     var result;
     var safetyCommit;
     var safetyBranch;
@@ -124,6 +105,6 @@ export async function runOperationSafetyCommit(operation, ...rest) {
             });
         }
     }
-    turnSyncOn();
+    resumeSync();
     return result;
 }

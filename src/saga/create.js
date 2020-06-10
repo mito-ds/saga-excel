@@ -1,7 +1,7 @@
 import { createSheet, getRandomID } from "./sagaUtils";
 import { commit } from "./commit";
 import { createBranch } from "./branch";
-import { turnSyncOn, updateShared } from "./sync";
+import { turnSyncOnAndUnpause, updateShared } from "./sync";
 import Project from "./Project";
 import axios from "axios";
 import { runOperation, runOperationNoSync } from "./runOperation";
@@ -92,7 +92,7 @@ async function createSaga(context, remoteURL, email) {
   await updateShared(context);
 
   // Start syncing this with master
-  turnSyncOn();
+  turnSyncOnAndUnpause();
 
   return context.sync();
 }
@@ -191,7 +191,7 @@ async function createFromURL(context, url, email) {
   headRange.values = [[email]];
   await context.sync();
 
-  turnSyncOn();
+  turnSyncOnAndUnpause();
 
   await context.sync();
 }

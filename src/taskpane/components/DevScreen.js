@@ -1,14 +1,17 @@
-import * as React from "react";
+import React, { useState, useEffect } from 'react';
 import Taskpane from "./Taskpane";
 import { turnSyncOff, getUpdateFromServer } from "../../saga/sync";
 import { runCleanup } from "../../saga/cleanup";
 import { runAllTests, runTestSuite } from "../../tests/runTests";
+import { MultiplayerScenario } from "../../tests/testHelpers";
 import * as testSuites from "../../tests/";
 import { headerSize, TEST_URL } from "../../constants";
 import { upgradeAllScenarios } from "../../saga/upgrade";
+import { MultiplayerScenarioContext } from "./MultiplayerScenarioContext";
 
 import { getFileContents } from "../../saga/fileUtils";
 import * as scenarios from "../../tests/scenarios";
+import * as multiplayer from "../../tests/scenarios/multiplayer";
 import { runReplaceFromBase64 } from "../../saga/create";
 import Project from "../../saga/Project";
 
@@ -17,19 +20,26 @@ import Project from "../../saga/Project";
 async function loadScenario(e) {
     e.preventDefault();
 
-    const scenario = e.target.value;
-    const fileContents = scenarios[scenario].fileContents;
-
-    // Then, we replace the current workbook with this scenario
-    await runReplaceFromBase64(fileContents);
+    // Get the correct scenario, and insert it into the workbook
+    const scenario = scenarios[e.target.value];
+    await runReplaceFromBase64(scenario.fileContents);
 }
 
+
+
 async function createScenario() {
+    console.log("Making scenario");
     // First, we make sure we're using the test url, so we don't sync things to the scenario
-    await Excel.run(async (context) => {
-        const project = new Project(context);
-        await project.setRemoteURL(TEST_URL);
-    });
+    try {
+        await Excel.run(async (context) => {
+            const project = new Project(context);
+            await project.setRemoteURL(TEST_URL);
+        });
+        console.log("Setting test url.");
+    } catch (e) {
+        console.log("No saga project. No need to set test url");
+    }
+    
 
     // We just get the 
     const fileContents = await getFileContents();
@@ -45,30 +55,85 @@ async function createScenario() {
 }
  
 
-export default class DevScreen extends React.Component {
+export default function DevScreen(props) {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            multiplayerScenarioName: '',
-            multiplayerScenario: {}
-        }
-        this.handleMultiplayerChange = this.handleMultiplayerChange.bind(this);
-        this.createMultiplayerScenario = this.createMultiplayerScenario.bind(this);
-    }
+    const [multiplayerScenarioName, setMultiplayerScenarioName] = useState("");
+    const [multiplayerScenarioCreated, setMultiplayerScenarioCreated] = useState(null);
+    const [step, setStep] = useState(-1);
 
-    createMultiplayerScenario = async (event) => {
+    const { setScenario } = React.useContext(MultiplayerScenarioContext);
 
+    const loadMultiplayerScenario = async (e) => {
+        e.preventDefault();
+
+        const multiplayerScenarioName = e.target.value;
+        const newScenario = new MultiplayerScenario(multiplayerScenarioName);
+        await newScenario.start();
+
+        setScenario(newScenario);
+    };
+
+    // Taken from https://upmostly.com/tutorials/setinterval-in-react-components-using-hooks
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            console.log("running interval ons step", step);
+            // We just check to see if there is an update, and then update if we can
+
+            
+            let update;
+            await Excel.run(async (context) => {
+                const project = new Project(context);                
+                const headCommitID = await project.getCommitIDFromBranch(`master`);
+                const parentCommitID = await project.getParentCommitID(headCommitID);
+                const remoteURL = await project.getRemoteURL();
+
+                // If there is an update, we add the update to the local project, and add it to the scenario
+                update = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
+            });
+            
+
+            if (update) {
+                console.log(`Saving step ${step}`);
+
+                if (!multiplayerScenarioCreated) {
+                    return;
+                }
+                const newSyncStep = {
+                    "scenarioName": multiplayerScenarioName,
+                    "stepNumber": step,
+                    "fileContents": update.fileContents,
+                    "commitIDs": update.commitIDs,
+                    "commitSheets": update.commitSheets
+                };
+                
+                const newSyncSteps = multiplayerScenarioCreated.syncSteps.concat(newSyncStep); 
+
+                setStep(step + 1);
+                console.log(`Updated step`);
+
+                setMultiplayerScenarioCreated({
+                    "scenarioName": multiplayerScenarioCreated.scenarioName,
+                    "fileContents": multiplayerScenarioCreated.fileContents,
+                    "syncSteps": newSyncSteps
+                });
+            }
+          }, 1000);
+          return () => clearInterval(interval);
+
+    }, [step]);
+    
+    const createMultiplayerScenario = async (event) => {
         event.preventDefault();
-        const scenarioName = this.state.multiplayerScenarioName;
+        turnSyncOff();
 
         // First, we have to switch the remote URL to the TEST URL at the correct step
         let remoteURL;
         await Excel.run(async (context) => {
             const project = new Project(context);
             remoteURL = await project.getRemoteURL();
-            await project.setRemoteURL(`${TEST_URL}/${scenarioName}`);
+            await project.setRemoteURL(`${TEST_URL}/${multiplayerScenarioName}`);
         });
+
 
         // Then, we get the file contents with the testing url
         const originalFileContents = await getFileContents();
@@ -79,143 +144,120 @@ export default class DevScreen extends React.Component {
             await project.setRemoteURL(remoteURL);
         });
 
-        // Then, from now on, we intercept all incoming syncs, and append it onto the steps
-        turnSyncOff();
+        console.log("Restored old remote URL");
 
-        this.setState({
-            multiplayerScenario: {
-                "scenarioName": scenarioName,
-                "fileContents": originalFileContents,
-                "syncSteps": []
-            }
+        setMultiplayerScenarioCreated({
+            "scenarioName": multiplayerScenarioName,
+            "fileContents": originalFileContents,
+            "syncSteps": []
         });
 
-        let stepNumber = 0;
-
-        const fakeSync = async () => {
-            // We get the incomming data, and append it to the mulitplayer scenario
-            await Excel.run(async (context) => {
-                const project = new Project(context);                
-                const headCommitID = await project.getCommitIDFromBranch(`master`);
-                const parentCommitID = await project.getParentCommitID(headCommitID);
-                const remoteURL = await project.getRemoteURL();
-
-                // If there is an update, we add the update to the local project, and add it to the scenario
-                const update = await getUpdateFromServer(project, remoteURL, headCommitID, parentCommitID);
-                if (update) {
-                    console.log(`Saving step ${stepNumber}`);
-
-                    this.setState((state) => {
-
-                        const newSyncSteps = state.multiplayerScenario.syncSteps.concat(
-                            {
-                                "scenarioName": scenarioName,
-                                "stepNumber": stepNumber,
-                                "fileContents": update.fileContents,
-                                "commitIDs": update.commitIDs,
-                                "commitSheets": update.commitSheets
-                            }
-                        );
-
-                        return {
-                            multiplayerScenario: {
-                                "scenarioName": state.multiplayerScenario.scenarioName,
-                                "fileContents": state.multiplayerScenario.fileContents,
-                                "syncSteps": newSyncSteps
-                            }
-                        }
-                    });
-
-                    stepNumber++;
-                }
-            })
-        }
-
-        // We try to get new incoming sync data every second
-        setInterval(fakeSync, 1000);
-    }
+        // Finially, we update the step, to trigger useEffect
+        setStep(0);
+    };
 
 
-    finishMultiplayerScenario = () => {
-        console.log(JSON.stringify(this.state.multiplayerScenario));
-    }
+    const finishMultiplayerScenario = () => {
+        console.log(JSON.stringify(multiplayerScenarioCreated));
+    };
 
-    handleMultiplayerChange(event) {
-        this.setState({multiplayerScenarioName: event.target.value});
-    }
+    const handleMultiplayerChange = (event) => {
+        setMultiplayerScenarioName(event.target.value);
+    };
 
-    render() {
-        // We build an option for each 
-        let testSuiteArray = [];
-        Object.keys(testSuites).forEach(function(testSuiteName) {
-            testSuiteArray.push(<option key={testSuiteName} value={testSuiteName}>{testSuiteName}</option>)
-        });
 
-        let testArray = [];
-        Object.keys(testSuites).forEach((testSuiteName) => {
-            let testSuite = testSuites[testSuiteName];
-            Object.keys(testSuite).forEach(testName => {
-                let value = JSON.stringify({
-                    testSuiteName: testSuiteName,
-                    testName: testName
-                });
+    // We build an option for each 
+    let testSuiteArray = [];
+    Object.keys(testSuites).forEach(function(testSuiteName) {
+        testSuiteArray.push(<option key={testSuiteName} value={testSuiteName}>{testSuiteName}</option>)
+    });
 
-                testArray.push(<option key={testName} value={value}>{testSuiteName + " : " + testName}</option>)
+    let testArray = [];
+    Object.keys(testSuites).forEach((testSuiteName) => {
+        let testSuite = testSuites[testSuiteName];
+        Object.keys(testSuite).forEach(testName => {
+            const value = JSON.stringify({
+                testSuiteName: testSuiteName,
+                testName: testName
             });
+            const key = testSuiteName + " : " + testName;
+
+            testArray.push(<option key={key} value={value}>{key}</option>)
         });
+    });
 
+    let scenarioArray = [];
+    Object.keys(scenarios).forEach(function(scenario) {
+        scenarioArray.push(<option key={scenario} value={scenario}>{scenario}</option>);
+    });
 
-        let scenarioArray = [];
-        Object.keys(scenarios).forEach(function(scenario) {
-            scenarioArray.push(<option key={scenario} value={scenario}>{scenario}</option>);
-        });
-
-        return (
-            <Taskpane header={headerSize.LARGE} title="Development Mode. Careful there, power user.">
-                <div style={devScreenStyle}>
-                    <div className="floating-card" style={devScreenStyle}>
-                        Cleanup
-                        <button onClick={runCleanup}> Cleanup </button>
-                    </div>
-                    <div className="floating-card" style={devScreenStyle}>
-                        Testing
-                        <button onClick={runAllTests}> Run Tests </button>
-                        <select onChange={async (e) => {await runTestSuite(e.target.value);}}>
-                            <option> Select Test Suite</option>
-                            {testSuiteArray}                
-                        </select>
-                        <select onChange={async (e) => {
-                                let testObj = JSON.parse(e.target.value);
-                                await runTestSuite(testObj.testSuiteName, testObj.testName);
-                            }}>
-                            <option> Select Individual Test</option>
-                            {testArray}                
-                        </select>
-                    </div>
-                    <div className="floating-card" style={devScreenStyle}>
-                        Scenarios
-                        <button onClick={createScenario}> Create Scenario from Current Workbook </button>
-                        <form className="form" onSubmit={this.createMultiplayerScenario}>
-                            <label>
-                                Create Multiplayer Scenario:
-                                <input type="text" value={this.state.multiplayerScenarioName} onChange={this.handleMultiplayerChange} />        
-                            </label>
-                            <input type="submit" value="Start" />
-                            <button type="button" onClick={this.finishMultiplayerScenario}>Finish</button>
-                        </form>
-                        <select onChange={loadScenario}>
-                            <option> Select Secenario</option>
-                            {scenarioArray}                
-                        </select>
-                        <button onClick={upgradeAllScenarios}> Upgrade All Scenarios </button>
-                    </div>
-                    
-
-                </div>
-            </Taskpane>
+    let multiplayerScenarioArray = [];
+    Object.keys(multiplayer).forEach(function(multiplayerScenarioName) {
+        multiplayerScenarioArray.push(
+            <option 
+                key={multiplayerScenarioName} 
+                value={multiplayerScenarioName}>
+                    {multiplayerScenarioName}
+            </option>
         );
-    }
+    });
 
+    const cleanup = async (e) => {
+        e.preventDefault();
+        await runCleanup();
+
+        // Also, we make sure to clear any scenario that might be running
+        setScenario(null);
+    };
+
+    return (
+        <Taskpane header={headerSize.LARGE} title="Development Mode. Careful there, power user.">
+            <div style={devScreenStyle}>
+                <div className="floating-card" style={devScreenStyle}>
+                    Cleanup
+                    <button onClick={cleanup}> Cleanup </button>
+                </div>
+                <div className="floating-card" style={devScreenStyle}>
+                    Testing
+                    <button onClick={runAllTests}> Run Tests </button>
+                    <select onChange={async (e) => {await runTestSuite(e.target.value);}}>
+                        <option> Select Test Suite</option>
+                        {testSuiteArray}                
+                    </select>
+                    <select onChange={async (e) => {
+                            let testObj = JSON.parse(e.target.value);
+                            await runTestSuite(testObj.testSuiteName, testObj.testName);
+                        }}>
+                        <option> Select Individual Test</option>
+                        {testArray}                
+                    </select>
+                </div>
+                <div className="floating-card" style={devScreenStyle}>
+                    Scenarios
+                    <button onClick={createScenario}> Create Scenario from Current Workbook </button>
+                    <form className="form" onSubmit={createMultiplayerScenario}>
+                        <label>
+                            Create Multiplayer Scenario:
+                            <input type="text" value={multiplayerScenarioName} onChange={handleMultiplayerChange} />        
+                        </label>
+                        <input type="submit" value="Start" />
+                        <button type="button" onClick={finishMultiplayerScenario}>Finish</button>
+                    </form>
+                    <select onChange={loadScenario}>
+                        <option> Select Secenario</option>
+                        {scenarioArray}                
+                    </select>
+                    <select onChange={loadMultiplayerScenario}>
+                        <option> Select Mulitplayer Scenario</option>
+                        {multiplayerScenarioArray}                
+                    </select>
+                    <button onClick={upgradeAllScenarios}> Upgrade All Scenarios </button>
+                </div>
+                
+
+            </div>
+        </Taskpane>
+    );
 }
 
 
