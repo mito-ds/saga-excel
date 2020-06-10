@@ -73,7 +73,10 @@ export async function runTestSuite(testSuiteName, testName) {
     } else {
         console.log(`%cAll tests passed`, "color: green;");
     }
-    return results;
+    return {
+        results: results,
+        failedNames: Object.keys(failed)
+    };
 }
 
 
@@ -85,8 +88,11 @@ export async function runAllTests() {
     console.log(`%cRunning ${testSuiteNames.length} test suites:\n`, "color: orange;");
 
     let results = "";
+    let failedNames = [];
     for (let i = 0; i < testSuiteNames.length; i++) {
-        results += await runTestSuite(testSuiteNames[i]);
+        const res = await runTestSuite(testSuiteNames[i]);
+        results += res.results;
+        failedNames = failedNames.concat(...res.failedNames);
     }
     console.log(`%cAll tests ${results}`, "color: orange;");
 }

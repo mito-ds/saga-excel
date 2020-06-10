@@ -190,6 +190,8 @@ async function copyFormatting(context, srcSheetName, dstSheetName, formattingEve
         if (address === "1:1048576") {
             continue;
         }
+        
+        console.log(`Copy formatting from ${address} on ${srcSheetName} to ${dstSheetName}`);
 
         dstFormatting.getRange(address).copyFrom(srcFormatting.getRange(address), Excel.RangeCopyType.formats);
         

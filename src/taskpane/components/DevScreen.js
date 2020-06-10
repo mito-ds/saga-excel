@@ -75,6 +75,10 @@ export default function DevScreen(props) {
 
     // Taken from https://upmostly.com/tutorials/setinterval-in-react-components-using-hooks
     useEffect(() => {
+        if (!multiplayerScenarioCreated) {
+            return;
+        }
+
         const interval = setInterval(async () => {
             console.log("running interval ons step", step);
             // We just check to see if there is an update, and then update if we can
@@ -94,9 +98,7 @@ export default function DevScreen(props) {
             if (update) {
                 console.log(`Saving step ${step}`);
 
-                if (!multiplayerScenarioCreated) {
-                    return;
-                }
+                
                 const newSyncStep = {
                     "scenarioName": multiplayerScenarioName,
                     "stepNumber": step,

@@ -135,10 +135,11 @@ export async function replaceFromBase64(context, fileContents) {
     fileContents
   );
   await context.sync();
-
   sheets[0].delete();
-  
-  return context.sync();
+
+  await context.sync();
+
+  return;
 }
 
 export async function runReplaceFromBase64(fileContents) {

@@ -12,18 +12,17 @@ module.exports = async (env, options)  => {
   const config = {
     devtool: "source-map",
     entry: {
-    vendor: [
-        'react',
-        'react-dom',
-        'core-js',
-        'office-ui-fabric-react'
-    ],
-    polyfill: 'babel-polyfill',
-    taskpane: [
-      'react-hot-loader/patch',
-      './src/taskpane/index.js',
-    ],
-    commands: './src/commands/commands.js'
+      vendor: [
+          'react',
+          'react-dom',
+          'core-js',
+          'office-ui-fabric-react'
+      ],
+      polyfill: 'babel-polyfill',
+      taskpane: [
+        'react-hot-loader/patch',
+        './src/taskpane/index.js',
+      ],
     },
     resolve: {
       extensions: [".ts", ".tsx", ".html", ".js"]
@@ -65,7 +64,7 @@ module.exports = async (env, options)  => {
       new HtmlWebpackPlugin({
         filename: "taskpane.html",
           template: './src/taskpane/taskpane.html',
-          chunks: ['commands', 'taskpane', 'vendor', 'polyfill']
+          chunks: ['taskpane', 'vendor', 'polyfill']
       }),
       new CopyWebpackPlugin([
           {

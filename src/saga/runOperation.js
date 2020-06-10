@@ -63,7 +63,9 @@ export async function runOperationNoSync(operation, ...rest) {
 }
 
 export async function runOperationSafetyCommit(operation, ...rest) {
+    console.log("pausing sync");
     pauseSync();
+    console.log("done pausing sync");
     var result;
     var safetyCommit;
     var safetyBranch;
@@ -85,7 +87,9 @@ export async function runOperationSafetyCommit(operation, ...rest) {
             }
 
             // run operation
+            console.log("running operation");
             const operationResult = await operation(context, ...rest);
+            console.log("result");
             result = {status: operationStatus.SUCCESS, operationResult: operationResult}; 
         });
     } catch (error) {
