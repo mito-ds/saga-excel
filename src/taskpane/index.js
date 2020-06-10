@@ -26,6 +26,7 @@ function setupTaskpaneFunctions(app) {
   window.resetPersonalVersion = app.resetPersonalVersion;
   window.switchVersion = app.switchVersion;
   window.catchUp = app.catchUp;
+  window.openShareTaskpane = app.openShareTaskpane;
 }
 
 

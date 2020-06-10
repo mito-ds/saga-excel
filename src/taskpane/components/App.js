@@ -51,6 +51,7 @@ export default class App extends React.Component {
     this.merge = this.merge.bind(this);
     this.resetPersonalVersion = this.resetPersonalVersion.bind(this);
     this.switchVersion = this.switchVersion.bind(this);
+    this.openShareTaskpane = this.openShareTaskpane.bind(this);
     this.getMergeState = this.getMergeState.bind(this);
     this.setMergeState = this.setMergeState.bind(this);
     this.setSheetDiffs = this.setSheetDiffs.bind(this);
@@ -112,6 +113,15 @@ export default class App extends React.Component {
       event.completed();
     }
     return result.operationResult;
+  }
+
+
+  openShareTaskpane = async (event) => {
+    this.setState({
+      taskpaneStatus: taskpaneStatus.SHARE
+    })
+    Office.addin.showAsTaskpane();
+    event.completed();
   }
   
 
