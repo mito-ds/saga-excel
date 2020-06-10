@@ -16,7 +16,8 @@ import { sagaProjectJSON } from "../../saga/sagaUtils";
 import { turnSyncOnAndUnpause }from "../../saga/sync";
 import { runMerge } from "../../saga/merge";
 import { runResetPersonalVersion } from "../../saga/resetPersonal";
-import { runSwitchVersionFromRibbon } from "../../saga/checkout.js";
+import { runSwitchVersionFromRibbon } from "../../saga/checkout";
+import { runCatchUp } from "../../saga/diff";
 
 import './App.css';
 
@@ -94,6 +95,25 @@ export default class App extends React.Component {
     }
     return false;
   }
+
+  catchUp = async (event) => {
+    const result = await runCatchUp();
+  
+    if (!this.checkResultForError(result)) {
+      // We set the diff state as well
+      this.setState({
+        sheetDiffs: result.operationResult,
+        taskpaneStatus: taskpaneStatus.DIFF
+      });
+      Office.addin.showAsTaskpane();
+    }
+    
+    if (event) {
+      event.completed();
+    }
+    return result.operationResult;
+  }
+  
 
   setStep = (step) => {
     this.setState({step: step});

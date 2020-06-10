@@ -25,11 +25,7 @@ function setupTaskpaneFunctions(app) {
   window.merge = app.merge;
   window.resetPersonalVersion = app.resetPersonalVersion;
   window.switchVersion = app.switchVersion;
-
-
-
-
-
+  window.catchUp = app.catchUp;
 }
 
 
