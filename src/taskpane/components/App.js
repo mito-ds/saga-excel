@@ -16,6 +16,7 @@ import { sagaProjectJSON } from "../../saga/sagaUtils";
 import { turnSyncOnAndUnpause }from "../../saga/sync";
 import { runMerge } from "../../saga/merge";
 import { runResetPersonalVersion } from "../../saga/resetPersonal";
+import { runSwitchVersionFromRibbon } from "../../saga/checkout.js";
 
 import './App.css';
 
@@ -48,6 +49,7 @@ export default class App extends React.Component {
     this.offline = this.offline.bind(this);
     this.merge = this.merge.bind(this);
     this.resetPersonalVersion = this.resetPersonalVersion.bind(this);
+    this.switchVersion = this.switchVersion.bind(this);
     this.getMergeState = this.getMergeState.bind(this);
     this.setMergeState = this.setMergeState.bind(this);
     this.setSheetDiffs = this.setSheetDiffs.bind(this);
@@ -142,7 +144,6 @@ export default class App extends React.Component {
     return result.operationResult;
   }
 
-  // TODO: debug this...
   resetPersonalVersion = async (event) => {
     console.log("resetting personal");
     // Todo: If on master, tell them they can't
@@ -151,6 +152,23 @@ export default class App extends React.Component {
       
     this.checkResultForError(result); 
   
+    if (event) {
+      event.completed();
+    }
+  }
+
+  switchVersion = async (event) => {
+    // Todo: render message saying which branch they are on
+    const result = await runSwitchVersionFromRibbon();
+  
+    if (!this.checkResultForError(result)) {
+      this.setState({
+        branch: result.operationResult,
+        taskpaneStatus: taskpaneStatus.SWITCH
+      });
+      Office.addin.showAsTaskpane();
+    }
+    
     if (event) {
       event.completed();
     }

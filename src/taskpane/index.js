@@ -13,6 +13,26 @@ let isOfficeInitialized = false;
 
 const title = "Saga Version Control";
 
+/*
+  This sets the app functions in the global scope
+  so that the taskpane can call them.
+*/
+function setupTaskpaneFunctions(app) {
+  if (!app) {
+    return;
+  }
+
+  window.merge = app.merge;
+  window.resetPersonalVersion = app.resetPersonalVersion;
+  window.switchVersion = app.switchVersion;
+
+
+
+
+
+}
+
+
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
@@ -21,10 +41,7 @@ const render = Component => {
         isOfficeInitialized={isOfficeInitialized} 
         ref={(app) => {
           window.app = app;
-          if (app) {
-            window.merge = app.merge;
-            window.resetPersonalVersion = app.resetPersonalVersion;
-          }
+          setupTaskpaneFunctions(app);
         }
       } />
     </AppContainer>,
