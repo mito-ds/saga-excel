@@ -23,6 +23,7 @@ const render = Component => {
           window.app = app;
           if (app) {
             window.merge = app.merge;
+            window.resetPersonalVersion = app.resetPersonalVersion;
           }
         }
       } />

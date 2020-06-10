@@ -144,8 +144,10 @@ export default class App extends React.Component {
 
   // TODO: debug this...
   resetPersonalVersion = async (event) => {
+    console.log("resetting personal");
     // Todo: If on master, tell them they can't
     const result = await runResetPersonalVersion();
+    console.log("done resetting personal");
       
     this.checkResultForError(result); 
   
