@@ -113,31 +113,6 @@ export default class App extends React.Component {
     return result.operationResult;
   }
 
-  openShareTaskpane = async (event) => {
-    this.setState({
-      taskpaneStatus: taskpaneStatus.SHARE
-    })
-    Office.addin.showAsTaskpane();
-    event.completed();
-  }
-
-  setStep = (step) => {
-    this.setState({step: step});
-  }
-
-  getTaskpaneStatus = () => {
-    return this.state.taskpaneStatus;
-  }
-
-  setTaskpaneStatus = (taskpaneStatus) => {
-    console.log(`setting the value of taskpaneState to ${taskpaneStatus}`);
-    this.setState({taskpaneStatus: taskpaneStatus});
-  }
-
-  getMergeState = () => {
-    return this.state.mergeState;
-  }
-
   merge = async (event) => {
     // Update the state for the start of the merge
     this.setState({
@@ -195,6 +170,31 @@ export default class App extends React.Component {
     if (event) {
       event.completed();
     }
+  }
+
+  openShareTaskpane = async (event) => {
+    this.setState({
+      taskpaneStatus: taskpaneStatus.SHARE
+    })
+    Office.addin.showAsTaskpane();
+    event.completed();
+  }
+
+  setStep = (step) => {
+    this.setState({step: step});
+  }
+
+  getTaskpaneStatus = () => {
+    return this.state.taskpaneStatus;
+  }
+
+  setTaskpaneStatus = (taskpaneStatus) => {
+    console.log(`setting the value of taskpaneState to ${taskpaneStatus}`);
+    this.setState({taskpaneStatus: taskpaneStatus});
+  }
+
+  getMergeState = () => {
+    return this.state.mergeState;
   }
 
   setMergeState = (mergeState) => {
