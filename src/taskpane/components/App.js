@@ -39,7 +39,6 @@ export default class App extends React.Component {
       safetyBranch: null,
       branch: "personal",
       scenario: null,
-      formattingEvents: []
     };
 
     this.setStep = this.setStep.bind(this);
@@ -55,8 +54,6 @@ export default class App extends React.Component {
     this.openShareTaskpane = this.openShareTaskpane.bind(this);
     this.getMergeState = this.getMergeState.bind(this);
     this.setMergeState = this.setMergeState.bind(this);
-    this.setSheetDiffs = this.setSheetDiffs.bind(this);
-    this.setSafetyValues = this.setSafetyValues.bind(this);
   }
 
   /*
@@ -116,22 +113,12 @@ export default class App extends React.Component {
     return result.operationResult;
   }
 
-
   openShareTaskpane = async (event) => {
     this.setState({
       taskpaneStatus: taskpaneStatus.SHARE
     })
     Office.addin.showAsTaskpane();
     event.completed();
-  }
-
-  formattingHandler = (event) => {
-    console.log("old formatting events", this.state.formattingEvents);
-    const newFormattingEvents = this.state.formattingEvents.concat(event);
-    console.log("new formatting events", newFormattingEvents);
-    this.setState({
-      formattingEvents: newFormattingEvents
-    });
   }
 
   setStep = (step) => {
@@ -162,9 +149,7 @@ export default class App extends React.Component {
     // Then, make sure the taskpane is open
     Office.addin.showAsTaskpane();
 
-    console.log("running merge");
-    var result = await runMerge(this.state.formattingEvents);
-    console.log("done running merge");
+    var result = await runMerge(window.formattingEvents);
 
     if (!this.checkResultForError(result)) {
       console.log("Checked result for error, no error")
@@ -179,18 +164,14 @@ export default class App extends React.Component {
       event.completed();
     }
 
-    this.setState({
-      formattingEvents: []
-    });
+    window.formattingEvents = [];
 
     return result.operationResult;
   }
 
   resetPersonalVersion = async (event) => {
-    console.log("resetting personal");
     // Todo: If on master, tell them they can't
     const result = await runResetPersonalVersion();
-    console.log("done resetting personal");
       
     this.checkResultForError(result); 
   
@@ -229,21 +210,6 @@ export default class App extends React.Component {
     
   setURL = (remoteURL) => {
     this.setState({remoteURL: remoteURL});
-  }
-
-  setSheetDiffs = (sheetDiffs) => {
-    this.setState({sheetDiffs: sheetDiffs});
-  }
-
-  setBranch = (branch) => {
-    this.setState({branch: branch});
-  }
-
-  setSafetyValues = (safetyCommit, safetyBranch) => {
-    this.setState({
-      safetyCommit: safetyCommit,
-      safetyBranch: safetyBranch
-    });
   }
 
   offline = () => {

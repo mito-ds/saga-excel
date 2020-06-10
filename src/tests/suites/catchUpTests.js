@@ -2,7 +2,7 @@ import { strict as assert } from 'assert';
 import { runCreateSaga, runReplaceFromBase64 } from "../../saga/create";
 import { runOperation } from "../../saga/runOperation";
 import { TEST_URL } from "../../constants";
-import { getGlobal } from "../../commands/commands";
+import { getGlobal } from "../../utils";
 import * as scenarios from "../scenarios";
 import Project from "../../saga/Project";
 

@@ -2,6 +2,7 @@ import Project from "./Project";
 import axios from "axios";
 import { getFileContents } from "./fileUtils";
 import { branchState, TEST_URL } from "../constants";
+import { getGlobal } from "../utils";
 
 /* global Excel, OfficeExtension */
 
@@ -179,17 +180,6 @@ async function sync() {
   }
   resumeSync();
 }
-
-function getGlobal() {
-  return typeof self !== "undefined"
-    ? self
-    : typeof window !== "undefined"
-    ? window
-    : typeof global !== "undefined"
-    ? global
-    : undefined;
-}
-
 
 var g = getGlobal();
 

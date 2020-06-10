@@ -1,7 +1,7 @@
 import { strict as assert } from 'assert';
 import { changeType } from "../../constants";
 import { runReplaceFromBase64 } from "../../saga/create";
-import { getGlobal } from "../../commands/commands";
+import { getGlobal } from "../../utils";
 import * as scenarios from "../scenarios";
 
 export async function testDiffSimple() {

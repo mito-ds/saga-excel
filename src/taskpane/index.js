@@ -47,6 +47,12 @@ const render = Component => {
   );
 };
 
+window.formattingEvents = [];
+
+function formattingHandler(event) {
+  window.formattingEvents.push(event);
+}
+
 /* Render application after Office initializes */
 Office.initialize = () => {
   isOfficeInitialized = true;
@@ -54,7 +60,7 @@ Office.initialize = () => {
 
   // Also, register the formatting handler
   Excel.run(function (context) {
-    context.workbook.worksheets.onFormatChanged.add(window.formattingHandler);
+    context.workbook.worksheets.onFormatChanged.add(formattingHandler);
     return context.sync();
   });
 };

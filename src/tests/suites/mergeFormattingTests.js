@@ -1,10 +1,57 @@
 import { strict as assert } from 'assert';
 import { runReplaceFromBase64 } from "../../saga/create";
-import { getGlobal } from "../../commands/commands";
+import { getGlobal } from "../../utils";
 import * as scenarios from "../scenarios";
 import { mergeState } from "../../constants";
 
 /* global Excel */
+
+
+
+export async function testMergeWait() {
+    
+    // Load scenario
+    const fileContents = scenarios["diffSimple"].fileContents;
+    await runReplaceFromBase64(fileContents);
+
+    // Bold A1
+    await Excel.run(async function (context) {
+        var sheet = context.workbook.worksheets.getItem("Sheet1");
+    
+        var range = sheet.getRange("A1");
+        range.format.font.bold = true;
+    
+        return await context.sync();
+    });
+
+    return true;
+    
+    // Perform a merge
+    const g = getGlobal();
+    const mergeResult = await g.merge();
+
+    // Make sure merge was successful
+    assert.equal(mergeResult.status, mergeState.MERGE_SUCCESS, "Merge one bold event should succeed");
+
+    // Check for boldness
+    var isBold;
+    await Excel.run(async function (context) {
+        var sheet = context.workbook.worksheets.getItem("Sheet1");
+    
+        var range = sheet.getRange("A1");
+        range.load("format/font/bold");
+        await context.sync();
+
+        isBold = range.format.font.bold;
+
+        return;
+    });
+
+    assert.equal(isBold, true,  "A1 should be bold");
+
+    return true;
+    
+}
 
 
 export async function testMergeBold() {
