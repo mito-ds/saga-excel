@@ -42,10 +42,6 @@ async function openShareTaskpane(event) {
   event.completed();
 }
 
-function openMergeTaskpane() {
-  window.app.setTaskpaneStatus(taskpaneStatus.MERGE);
-  Office.addin.showAsTaskpane();
-}
 
 Office.onReady(() => {
   Excel.run(function (context) {
@@ -53,29 +49,6 @@ Office.onReady(() => {
     return context.sync();
   });
 });
-
-/**
- * Shows a notification when the add-in command is executed.
- * @param event {Office.AddinCommands.Event}
- */
-async function merge(event) {
-  openMergeTaskpane();
-
-  // update UI and execute merge
-  window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
-  var result = await runMerge(events);
-
-  if (!checkResultForError(result)) {
-    window.app.setMergeState(result.operationResult);
-  }
-
-  // If this function was called by clicking the button, let Excel know it's done
-  if (event) {
-    event.completed();
-  }
-  events = [];
-  return result.operationResult;
-}
 
 async function catchUp(event) {
   const result = await runCatchUp();
@@ -108,18 +81,7 @@ async function switchVersion(event) {
   }
 }
 
-async function resetPersonalVersion(event) {
-  // Todo: If on master, tell them they can't
-  const result = await runResetPersonalVersion();
 
-  console.log(result);
-  
-  checkResultForError(result); 
-
-  if (event) {
-    event.completed();
-  }
-}
 
 export function getGlobal() {
   return typeof self !== "undefined"
@@ -134,8 +96,8 @@ export function getGlobal() {
 const g = getGlobal();
 
 // the add-in command functions need to be available in global scope
-g.merge = merge;
+//g.merge = window.app.merge;
 g.switchVersion = switchVersion;
-g.resetPersonalVersion = resetPersonalVersion;
+//g.resetPersonalVersion = window.app.resetPersonalVersion;
 g.openShareTaskpane = openShareTaskpane;
 g.catchUp = catchUp;
