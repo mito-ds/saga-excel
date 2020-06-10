@@ -38,7 +38,8 @@ export default class App extends React.Component {
       safetyCommit: null,
       safetyBranch: null,
       branch: "personal",
-      scenario: null
+      scenario: null,
+      formattingEvents: []
     };
 
     this.setStep = this.setStep.bind(this);
@@ -123,7 +124,15 @@ export default class App extends React.Component {
     Office.addin.showAsTaskpane();
     event.completed();
   }
-  
+
+  formattingHandler = (event) => {
+    console.log("old formatting events", this.state.formattingEvents);
+    const newFormattingEvents = this.state.formattingEvents.concat(event);
+    console.log("new formatting events", newFormattingEvents);
+    this.setState({
+      formattingEvents: newFormattingEvents
+    });
+  }
 
   setStep = (step) => {
     this.setState({step: step});
@@ -154,7 +163,7 @@ export default class App extends React.Component {
     Office.addin.showAsTaskpane();
 
     console.log("running merge");
-    var result = await runMerge([]);
+    var result = await runMerge(this.state.formattingEvents);
     console.log("done running merge");
 
     if (!this.checkResultForError(result)) {
@@ -170,7 +179,10 @@ export default class App extends React.Component {
       event.completed();
     }
 
-    events = [];
+    this.setState({
+      formattingEvents: []
+    });
+
     return result.operationResult;
   }
 

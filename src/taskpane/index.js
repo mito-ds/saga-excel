@@ -5,7 +5,7 @@ import { initializeIcons } from "office-ui-fabric-react/lib/Icons";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-/* global Office, module, require */
+/* global Office, Excel, module, require */
 
 initializeIcons();
 
@@ -27,6 +27,7 @@ function setupTaskpaneFunctions(app) {
   window.switchVersion = app.switchVersion;
   window.catchUp = app.catchUp;
   window.openShareTaskpane = app.openShareTaskpane;
+  window.formattingHandler = app.formattingHandler;
 }
 
 
@@ -50,6 +51,12 @@ const render = Component => {
 Office.initialize = () => {
   isOfficeInitialized = true;
   render(App);
+
+  // Also, register the formatting handler
+  Excel.run(function (context) {
+    context.workbook.worksheets.onFormatChanged.add(window.formattingHandler);
+    return context.sync();
+  });
 };
 
 /* Initial render showing a progress bar */
