@@ -78,7 +78,6 @@ export default function DevScreen(props) {
         const interval = setInterval(async () => {
             console.log("running interval ons step", step);
             // We just check to see if there is an update, and then update if we can
-
             
             let update;
             await Excel.run(async (context) => {
@@ -105,8 +104,12 @@ export default function DevScreen(props) {
                     "commitIDs": update.commitIDs,
                     "commitSheets": update.commitSheets
                 };
-                
+
+                console.log("Old sync steps", multiplayerScenarioCreated.syncSteps);
+
                 const newSyncSteps = multiplayerScenarioCreated.syncSteps.concat(newSyncStep); 
+
+                console.log("New sync steps", newSyncSteps);
 
                 setStep(step + 1);
                 console.log(`Updated step`);
@@ -120,7 +123,7 @@ export default function DevScreen(props) {
           }, 1000);
           return () => clearInterval(interval);
 
-    }, [step]);
+    }, [step, multiplayerScenarioCreated]);
     
     const createMultiplayerScenario = async (event) => {
         event.preventDefault();
