@@ -18,7 +18,7 @@ export default class LoginScreen extends React.Component {
         try {
             // Send the signup to the server
             axios.post(
-                "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Stage/addEmail",
+                "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Prod/addEmail",
                 {
                     email: email,
                     name: "signup",
