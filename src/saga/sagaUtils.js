@@ -128,7 +128,19 @@ export async function deleteNonsagaSheets(context) {
         return !sheet.name.startsWith("saga");
     });
 
-    // TODO: make it be save w/ number of sheets
+    // TODO: make it be safe w/ number of sheets
+    sheets.forEach(sheet => sheet.delete());
+
+    await context.sync();
+}
+
+export async function deleteSagaSheets(context) {
+    let sheets = await getSheetsWithNames(context);
+    sheets = sheets.filter(sheet => {
+        return sheet.name.startsWith("saga");
+    });
+
+    // TODO: make it be safe w/ number of sheets
     sheets.forEach(sheet => sheet.delete());
 
     await context.sync();
