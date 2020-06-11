@@ -68,3 +68,4 @@ To do this:
 1. Go to the development part of the taskpane. 
 2. Click "Select Mulitplayer Scenario," and then navigate out of the development part of the taskpane. 
 3. Interact with the document normally, and anytime you want to sync the next step "from remote," press the "Advance Scenario" at the bottom of the taskpane.
+4. When you finish the scenario, the "Advance Scenario" button in the taskpane footer will turn into a "Add Share Link" button; clicking this will end the scenario, and turn the current state of your personal branch.
