@@ -54,6 +54,11 @@ async function setupSagaSheet(context, remoteURL, email, firstCommitID) {
     worksheet.names.add(item.VERSION, versionRange);
     versionRange.values = [["0.0.1"]];
 
+    // Setup the short_name -> long_name mapping 
+    const sheetNamesRange = worksheet.getRange("H1:I1");
+    worksheet.names.add(item.SHEET_NAMES, sheetNamesRange);
+    sheetNamesRange.values = [["", ""]];
+
     return context.sync();
 }
 
@@ -94,7 +99,9 @@ async function createSaga(context, remoteURL, email) {
   // Start syncing this with master
   turnSyncOn();
 
-  return context.sync();
+  await context.sync();
+
+  return true;
 }
 
 export async function setPersonalBranchName(personalBranchName) {

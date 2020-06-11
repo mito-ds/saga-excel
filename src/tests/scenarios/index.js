@@ -14,7 +14,9 @@ import switchVersionDoesNotDeletePersonal from "./switchVersionDoesNotDeletePers
 import multipleMergeConflictsPerSheet from "./multipleMergeConflictsPerSheet.json";
 import formattingInMaster from "./formattingInMaster.json";
 import unmergedLocalSheetDelete from "./unmergedLocalSheetDelete.json";
-
+import longSheetName from "./longSheetName.json";
+import existingSheetCopies from "./existingSheetCopies.json";
+import longSheetNamesUnmerged from "./longSheetNamesUnmerged.json";
 
 export {
     empty, 
@@ -32,5 +34,8 @@ export {
     switchVersionDoesNotDeletePersonal,
     multipleMergeConflictsPerSheet,
     formattingInMaster,
-    unmergedLocalSheetDelete
+    unmergedLocalSheetDelete,
+    longSheetName,
+    existingSheetCopies,
+    longSheetNamesUnmerged
 };

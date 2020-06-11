@@ -1,12 +1,14 @@
 import { strict as assert } from 'assert';
 import { runCreateSaga } from "../../saga/create";
 import { runOperation } from "../../saga/runOperation";
-import { item, TEST_URL } from "../../constants";
+import { item, TEST_URL, LONGEST_SHEET_NAME } from "../../constants";
 import { getItemRangeValues } from "../testHelpers";
 import { getGlobal } from "../../commands/commands";
 import * as scenarios from "../scenarios";
 import { runReplaceFromBase64 } from "../../saga/create";
 import { getValues } from "../testHelpers";
+import { getSheetsWithNames } from "../../saga/sagaUtils";
+
 
 
 export async function testSwitchVersions() {
@@ -51,5 +53,34 @@ export async function testSwitchVersionsDoesNotDeletePersonal() {
 
     assert.equal(A1, 5, "switch versions should not delete personal");
 
+    return true;
+}
+
+
+export async function testSwitchVersionLongSheetNames() {
+    
+    // Load scenario
+    const scenario = scenarios["longSheetName"];
+    await runReplaceFromBase64(scenario.fileContents);
+
+    // Then, we create a saga project here
+    let created = await runCreateSaga(TEST_URL, "email");
+    assert.ok(created, "Should have created a saga project successfully");
+
+    // Switch to master version
+    const g = getGlobal();
+    await g.switchVersion();
+
+    // Then, we make sure the master version has the right sheet name
+    let sheets = await runOperation(getSheetsWithNames);
+    let longNameSheet = sheets.find(sheet => sheet.name === LONGEST_SHEET_NAME);
+    assert.notEqual(longNameSheet, undefined, "Should have found a sheet with the long sheet name");
+
+    // Then, switch back to local and make sure that this is on personal too
+    await g.switchVersion();
+    sheets = await runOperation(getSheetsWithNames);
+    longNameSheet = sheets.find(sheet => sheet.name === LONGEST_SHEET_NAME);
+    assert.notEqual(longNameSheet, undefined, "Should have found a sheet with the long sheet name");
+    
     return true;
 }

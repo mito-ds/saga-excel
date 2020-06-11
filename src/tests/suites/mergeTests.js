@@ -152,3 +152,17 @@ export async function testNoDiffAfterMerge() {
     return true;
 }
 
+export async function testMergeLongSheetNames() {
+    
+    // Load scenario
+    const scenario = scenarios["longSheetNamesUnmerged"];
+    await runReplaceFromBase64(scenario.fileContents);
+
+    // Then merge
+    const g = getGlobal();
+    const result = await g.merge();
+    console.log(result);
+
+    return true;
+}
+

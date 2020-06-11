@@ -2,6 +2,7 @@ import { getSheetsWithNames, getRandomID } from "./sagaUtils";
 import { getFileContents } from "./fileUtils";
 import Project from "./Project";
 import { runOperation } from "./runOperation";
+import { LONGEST_SHEET_NAME_LENGTH } from "../constants";
 
 /* global Excel */
 
@@ -22,17 +23,63 @@ export async function makeClique(context, sheetNames, getNewName, worksheetPosit
 
     await context.sync();
 
-    // Then, we go through and rename all the newly inserted sheets, as well as set their visibility
-    // We need to find what their names are, which, for now, we assume will just be renamed + a (1)
+
+    /*
+        Now, we go about the process of renaming these sheets. The rename does the following:
+        
+            1.  Tries to find the name of the sheet that was inserted (TODO: make this more robust, it
+                currently doesn't handle if there is Sheet1 and Sheet1 (2) in the original file).
+            2.  Uses the getNewName function to get the proposed new name of the sheet. 
+                    -   If this is a commit and the new name is too long, then it will then come up with a shorter 
+                        name (and save this shorter name in the sheet so we can get the mapping back). 
+                        If a shorter name for this long sheet name already exists, it will just use this.
+                    -   If this is a checkout, then we check each of the names to make sure they are real names,
+                        and if they are shortened, then we go and get their real name.
+            3.  Update the names of the sheets.
+    */
+   const project = new Project(context);
+
     for (let i = 0; i < sheetNames.length; i++) {
-        // TODO: handle more complex renamings or inserts
-        const insertedName = sheetNames[i] + " (2)";
-        const newName = getNewName(sheetNames[i]);
-        console.log(`Getting sheet ${insertedName} and changing ${newName}`);
+        const originalName = sheetNames[i];
+
+        /*
+            If a sheet is inserted, then a (2) will be appended onto the end of it's name, 
+            unless that will cause the sheet to be more than 31 characters long, in which case
+            it will be chopped.
+        */
+
+        const insertedName = `${originalName.substring(0, 27)} (2)`;
+        let newName = getNewName(originalName);
+        
+        if (newName.length > LONGEST_SHEET_NAME_LENGTH) {
+            // If the sheet name has been extended past it's length limit, we check if we have a
+            // cached version of this longer name
+            const existingShortName = await project.getShortSheetName(originalName);
+
+            console.log(`For sheet ${originalName}: found ${existingShortName}`)
+            if (existingShortName !== null) {
+                newName = getNewName(existingShortName);
+            } else {
+                // If there is no existing short name, we create a new one
+                const newShortSheetName = `s&${getRandomID()}`;
+                // And save it in the mapping
+                await project.addSheetName(originalName, newShortSheetName);
+                newName = getNewName(newShortSheetName);
+            }
+        }
+
+        // If this was a shortened name, we go and get it's original name
+        if (newName.startsWith("s&")) {
+            console.log("old new name", newName);
+            newName = await project.getSheetName(newName);
+            console.log("new new name", newName);
+
+        }
+
+        console.log(`Changing ${insertedName} and changing ${newName}`);
         const sheet = worksheets.getItem(insertedName);
         sheet.name = newName;
         sheet.visibility = worksheetVisibility;
-        console.log("Setting worksheet visibility to", worksheetVisibility);
 
         // We can queue at most 50 transaction
         if (i % 40 === 0) {
@@ -76,14 +123,13 @@ export async function commit(context, commitName, commitMessage, branch, commitI
         Excel.SheetVisibility.hidden // TODO: change to very hidden, figure out deleting
     );
 
-    // save the commit id with it's parent
+    // save the commit id with it's parent, and update the commit id on the branch
     const parentID = await project.getCommitIDFromBranch(branch);
-    await project.updateBranchCommitID(branch, commitID);
     await project.addCommitID(commitID, parentID, commitName, commitMessage);
+    await project.updateBranchCommitID(branch, commitID);
 
     await context.sync();
 
-    // Return the new commit ID!
     return commitID;
 }
 
