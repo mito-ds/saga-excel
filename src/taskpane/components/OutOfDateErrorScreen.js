@@ -14,7 +14,7 @@ export function OutOfDateErrorScreen(props){
 }
 
 export function logOutOfDate() {
-    // Loops over the requirment sets until it finds one it supports
+    // Loops over the requirement sets until it finds one it supports
 
     console.error("This version of office is out of date.");
 

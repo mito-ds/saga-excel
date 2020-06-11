@@ -135,8 +135,8 @@ export default class MergeConflictScreen extends React.Component {
         safetyBranch: result.safetyBranch
     });
 
+    console.log("updating state");
     window.app.setMergeState({ status: mergeState.MERGE_CONFLICT_RESOLUTION_ERROR});
-
   }
 
   hideWarningBox (e) {

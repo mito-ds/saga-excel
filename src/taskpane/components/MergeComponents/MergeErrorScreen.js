@@ -11,8 +11,6 @@ export default function MergeErrorScreen(props) {
   `;
 
   return (
-    <Taskpane header={headerSize.LARGE} title={title}>
-
-    </Taskpane>
+    <Taskpane header={headerSize.LARGE} title={title}></Taskpane>
   );
 }
