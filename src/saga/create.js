@@ -62,7 +62,7 @@ export async function createRemoteURL() {
   try {
     // Try and create a project
     response = await axios.post(
-        "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Prod/create",
+        "https://dqea2tpzrh.execute-api.us-east-1.amazonaws.com/Prod/create",
     );
   } catch (e) {
     // If we are offline or can't connect, return null
@@ -157,7 +157,7 @@ async function createFromURL(context, url, email) {
  const id = urlArray[urlArray.length - 1];
 
   const response = await axios.get(
-    "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Prod/getProject", 
+    "https://dqea2tpzrh.execute-api.us-east-1.amazonaws.com/Prod/getProject", 
     {
       params: {
         id: id,
