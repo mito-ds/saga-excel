@@ -58,8 +58,9 @@
                     <bt:Image size="32" resid="ShareProjectButtonIcon.32x32"/>
                     <bt:Image size="80" resid="ShareProjectButtonIcon.80x80"/>
                   </Icon>
-                  <Action xsi:type="ExecuteFunction">
-                    <FunctionName>openShareTaskpane</FunctionName>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>ButtonId1</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Main.Url"/>
                   </Action>
                   <Enabled>true</Enabled>
                 </Control>
