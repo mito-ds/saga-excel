@@ -60,7 +60,7 @@
                   </Icon>
                   <Action xsi:type="ShowTaskpane">
                     <TaskpaneId>ButtonId1</TaskpaneId>
-                    <SourceLocation resid="Taskpane.Main.Url"/>
+                    <SourceLocation resid="Taskpane.Side.Url"/>
                   </Action>
                   <Enabled>true</Enabled>
                 </Control>
@@ -113,8 +113,8 @@
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812"/>
         <bt:Url id="Commands.Url" DefaultValue="https://localhost:3000/commands.html"/>
         <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/taskpane.html"/>
-        <bt:Url id="Taskpane.Main.Url" DefaultValue="https://localhost:3000/main"/>
-
+        <bt:Url id="Taskpane.Main.Url" DefaultValue="https://localhost:3000/#/main"/>
+        <bt:Url id="Taskpane.Side.Url" DefaultValue="https://localhost:3000/#/side"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Get started with you Saga VCS!"/>

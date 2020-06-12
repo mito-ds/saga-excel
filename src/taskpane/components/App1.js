@@ -8,14 +8,28 @@ import {
 
 class App extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            count: 0
+        }
+
+        window.count = 0;
+    }
+
+    
+
+    inc() {
+        window.count += 1;
+    }
+
     render() {
         return (
         <Router>
             <div>
             <Switch>
-                <Route exact path="/main" component={Main} />
-                <Route exact path="/side" component={Side} />
-
+                <Route exact path="/main" render={(props) => <Comp name="Main" inc={this.inc} />} />
+                <Route exact path="/side" render={(props) => <Comp name="Side" inc={this.inc} />} />
             </Switch>
             </div>
         </Router>
@@ -24,8 +38,11 @@ class App extends React.Component {
 }
 
 
-const Main = () => {return (<p> Main </p>);};
-const Side = () => {return (<p> Side </p>);};
+class Comp extends React.Component {
+    render() {
+    return (<div><button onClick={() => {this.props.inc(); this.forceUpdate();}}>Inc</button><p> {this.props.name} {window.count} </p></div>);
+    }
+}
 
 export default App;
 
