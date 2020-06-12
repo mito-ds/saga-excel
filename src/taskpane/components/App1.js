@@ -3,7 +3,9 @@ import {
     HashRouter as Router,
     Switch,
     Route
-  } from "react-router-dom";
+} from "react-router-dom";
+import { route } from "../../constants"; 
+
   
 
 class App extends React.Component {
@@ -11,36 +13,37 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            count: 0
-        }
+            route: route.MAIN
+        };
 
-        window.count = 0;
+        this.setRoute = this.setRoute.bind(this);
     }
 
-    
-
-    inc() {
-        window.count += 1;
+    setRoute(route) {
+        this.setState({
+            route: route
+        });
     }
 
     render() {
-        return (
-        <Router>
-            <div>
-            <Switch>
-                <Route exact path="/main" render={(props) => <Comp name="Main" inc={this.inc} />} />
-                <Route exact path="/side" render={(props) => <Comp name="Side" inc={this.inc} />} />
-            </Switch>
-            </div>
-        </Router>
-        );
+        let toReturn;
+        switch (this.state.route) {
+            case route.MAIN:
+                toReturn = <Comp name="Main"/>;
+                break;
+            case route.SIDE:
+                toReturn = <Comp name="Side"/>;
+                break;
+        }
+
+        return toReturn;
     }
 }
 
 
 class Comp extends React.Component {
     render() {
-    return (<div><button onClick={() => {this.props.inc(); this.forceUpdate();}}>Inc</button><p> {this.props.name} {window.count} </p></div>);
+    return (<div><p> {this.props.name} {window.count} </p></div>);
     }
 }
 

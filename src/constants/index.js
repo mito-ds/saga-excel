@@ -27,6 +27,11 @@ export const mergeState = {
     MERGE_CONFLICT_RESOLUTION_ERROR: 'merge_conflict_resolution_error'
 };
 
+export const route = {
+    MAIN: 'main',
+    SIDE: 'side'
+};
+
 
 /*
     Given two commit ids, A and B, this enum represents 

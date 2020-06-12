@@ -4,6 +4,7 @@ import { AppContainer } from "react-hot-loader";
 import { initializeIcons } from "office-ui-fabric-react/lib/Icons";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { route } from "../constants";
 
 /* global Office, module, require */
 
@@ -13,10 +14,27 @@ let isOfficeInitialized = false;
 
 const title = "Saga Version Control";
 
+function main(event) {
+  window.app.setRoute(route.MAIN);
+  Office.addin.showAsTaskpane();
+  event.completed();
+}
+
+function side(event) {
+  window.app.setRoute(route.SIDE);
+  Office.addin.showAsTaskpane();
+  event.completed();
+}
+
 const render = Component => {
   ReactDOM.render(
     <AppContainer>
-      <Component title={title} isOfficeInitialized={isOfficeInitialized} ref={(app) => {window.app = app;}} />
+      <Component title={title} isOfficeInitialized={isOfficeInitialized} ref={
+        (app) => {
+          window.app = app;
+          window.main = main;
+          window.side = side;
+        }} />
     </AppContainer>,
     document.getElementById("container")
   );

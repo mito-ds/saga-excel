@@ -11,6 +11,7 @@
   <SupportUrl DefaultValue="https://www.sagacollab.com"/>
   <AppDomains>
     <AppDomain>sagacollab.com</AppDomain>
+    <AppDomain>https://localhost:3000/taskpane.html</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Workbook"/>
@@ -58,9 +59,8 @@
                     <bt:Image size="32" resid="ShareProjectButtonIcon.32x32"/>
                     <bt:Image size="80" resid="ShareProjectButtonIcon.80x80"/>
                   </Icon>
-                  <Action xsi:type="ShowTaskpane">
-                    <TaskpaneId>ButtonId1</TaskpaneId>
-                    <SourceLocation resid="Taskpane.Side.Url"/>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>side</FunctionName>
                   </Action>
                   <Enabled>true</Enabled>
                 </Control>
@@ -76,9 +76,8 @@
                     <bt:Image size="32" resid="Icon.32x32"/>
                     <bt:Image size="80" resid="Icon.80x80"/>
                   </Icon>
-                  <Action xsi:type="ShowTaskpane">
-                    <TaskpaneId>ButtonId1</TaskpaneId>
-                    <SourceLocation resid="Taskpane.Main.Url"/>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>main</FunctionName>
                   </Action>
                   <Enabled>true</Enabled>
                 </Control>
@@ -113,8 +112,6 @@
         <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="https://go.microsoft.com/fwlink/?LinkId=276812"/>
         <bt:Url id="Commands.Url" DefaultValue="https://localhost:3000/commands.html"/>
         <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/taskpane.html"/>
-        <bt:Url id="Taskpane.Main.Url" DefaultValue="https://localhost:3000/#/main"/>
-        <bt:Url id="Taskpane.Side.Url" DefaultValue="https://localhost:3000/#/side"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Get started with you Saga VCS!"/>
