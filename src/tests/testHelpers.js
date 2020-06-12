@@ -52,6 +52,10 @@ export class MultiplayerScenario {
         await runReplaceFromBase64(this.scenario.fileContents);
     }
 
+    isFinished() {
+        return this.currStep >= this.scenario.syncSteps.length;
+    }
+
     async nextSyncStep() {
         console.log(`In scenario ${this.scenarioName}, on step ${this.currStep}`);
 
