@@ -18,7 +18,7 @@ function formattingHandler(event) {
   events.push(event);
 }
 
-// If the operation errored and requires manual resolution, display screen
+// If the operation erred and requires manual resolution, display screen
 function checkResultForError(result) {
   // if the safetyCommit and safetyBranch are undefined, then we are in the correct state if the user deletes extra sheets
   if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
@@ -28,12 +28,16 @@ function checkResultForError(result) {
     return true;
   }
   
-  // if cell editting mode error occurs before safety commit and safety branch
+  // if cell editing mode error occurs before safety commit and safety branch
   if (result.status === operationStatus.ERROR_MANUAL_FIX || result.status === operationStatus.ERROR_AUTOMATICALLY_FIXED) {
-    // TODO take to notification
+    displayDialogBox();
     return true;
   }
   return false;
+}
+
+function displayDialogBox() {
+  Office.context.ui.displayDialogAsync('/src/notifications/errorDialog.html', {height: 20, width: 60});
 }
 
 async function openShareTaskpane(event) {
@@ -65,7 +69,16 @@ async function merge(event) {
   window.app.setMergeState({status: mergeState.MERGE_IN_PROGRESS, conflicts: null});
   var result = await runMerge(events);
 
-  if (!checkResultForError(result)) {
+  console.log(result);
+
+  if (result.status === operationStatus.ERROR_MANUAL_FIX && result.safetyCommit !== undefined && result.safetyBranch !== undefined) {
+    window.app.setTaskpaneStatus(taskpaneStatus.ERROR_MANUAL_FIX);
+    window.app.setSafetyValues(result.safetyCommit, result.safetyBranch);
+    Office.addin.showAsTaskpane();
+  } else if (result.status !== operationStatus.SUCCESS) {
+    displayDialogBox();
+    openShareTaskpane();
+  } else {
     window.app.setMergeState(result.operationResult);
   }
 

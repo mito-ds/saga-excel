@@ -16,7 +16,7 @@ async function handleAhead(project, remoteURL, headCommitID, parentCommitID) {
   const id = urlArray[urlArray.length - 1];
 
   const updateResponse = await axios.post(
-    "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Stage/postProject",
+    "https://dqea2tpzrh.execute-api.us-east-1.amazonaws.com/Prod/postProject",
     {
       id: id,
       headCommitID: headCommitID,
@@ -61,7 +61,7 @@ export async function getUpdateFromServer(project, remoteURL, headCommitID, pare
 
   // Merge in the sheet
   const response = await axios.get(
-    "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Stage/getProject", 
+    "https://dqea2tpzrh.execute-api.us-east-1.amazonaws.com/Prod/getProject", 
     {
       params: {
         id: id,
@@ -124,7 +124,7 @@ export async function updateShared(context) {
 
 
     const response = await axios.get(
-      `https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Stage/checkhead`, 
+      `https://dqea2tpzrh.execute-api.us-east-1.amazonaws.com/Prod/checkhead`, 
       {
         params: {
           id: id,

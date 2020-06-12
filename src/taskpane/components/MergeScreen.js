@@ -12,7 +12,7 @@ import MergeConflictResolutionErrorScreen from "./MergeComponents/MergeConflictR
 
 const INTERMEDIATE_MESSAGES = [ 
   "Saga Tip: Merge early, merge often", 
-  "Saga Tip: Split work with your teamates so that you aren't edditting the same cells",
+  "Saga Tip: Split work with your teammates so that you aren't editing the same cells",
   "The key to collaboration is preparation",
   "Wow! This seems like a cool project",
   "Oh boy! I can't wait to see the results!",
@@ -39,6 +39,7 @@ export default class MergeScreen extends React.Component {
   }
 
   setResolutionRetryObj = (resolutionRetryObj) => {
+    console.log("setting resolution object")
     this.setState({ resolutionRetryObj: resolutionRetryObj });
   }
 
