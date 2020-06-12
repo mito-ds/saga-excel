@@ -1,7 +1,7 @@
 import { createSheet, getRandomID } from "./sagaUtils";
 import { commit } from "./commit";
 import { createBranch } from "./branch";
-import { turnSyncOnAndUnpause, updateShared } from "./sync";
+import { turnSyncOn, updateShared } from "./sync";
 import Project from "./Project";
 import axios from "axios";
 import { runOperation, runOperationNoSync } from "./runOperation";
@@ -62,7 +62,7 @@ export async function createRemoteURL() {
   try {
     // Try and create a project
     response = await axios.post(
-        "https://dqea2tpzrh.execute-api.us-east-1.amazonaws.com/Prod/create",
+        "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Prod/create",
     );
   } catch (e) {
     // If we are offline or can't connect, return null
@@ -92,7 +92,7 @@ async function createSaga(context, remoteURL, email) {
   await updateShared(context);
 
   // Start syncing this with master
-  turnSyncOnAndUnpause();
+  turnSyncOn();
 
   return context.sync();
 }
@@ -157,7 +157,7 @@ async function createFromURL(context, url, email) {
  const id = urlArray[urlArray.length - 1];
 
   const response = await axios.get(
-    "https://dqea2tpzrh.execute-api.us-east-1.amazonaws.com/Prod/getProject", 
+    "https://beyheywy4j.execute-api.us-east-1.amazonaws.com/Prod/getProject", 
     {
       params: {
         id: id,
@@ -191,7 +191,7 @@ async function createFromURL(context, url, email) {
   headRange.values = [[email]];
   await context.sync();
 
-  turnSyncOnAndUnpause();
+  turnSyncOn();
 
   await context.sync();
 }

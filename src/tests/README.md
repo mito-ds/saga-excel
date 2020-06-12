@@ -58,14 +58,3 @@ NOTE: due to limitations of the mulitplayer scenario process, you should not mak
 The `testHelpers` file contains a helpful class for running a multiplayer scenario. First, construct a new scenario with the scenario name of the scenario you created above. Then, run it with `await scenario.start()`. This will set the state of the workbook to the starting state of the scenario.
 
 Then, you can test whatever asserts you wish. When you want to sync the next data "from remote," simply call `await scenario.nextSyncStep()`, and the new changes will be pulled in.  
-
-
-## Running a Multiplayer Scenario in Demo Mode
-
-If you run a multiplayer scenario in demo mode, this means you can interact with the document as a single user while simulating another user also interacting with the document at the same time. 
-
-To do this:
-1. Open the create taskpane (but do not put in your email or anything). Go to the development part of the taskpane. 
-2. Click "Select Mulitplayer Scenario," and then navigate out of the development part of the taskpane. 
-3. Interact with the document normally, and anytime you want to sync the next step "from remote," press the "Advance Scenario" at the bottom of the taskpane.
-4. When you finish the scenario, the "Advance Scenario" button in the taskpane footer will turn into a "Add Share Link" button; clicking this will end the scenario, and turn the current state of your personal branch.

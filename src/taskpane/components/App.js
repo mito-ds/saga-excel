@@ -10,10 +10,9 @@ import { OutOfDateErrorScreen, logOutOfDate } from "./OutOfDateErrorScreen";
 import DevScreen from "./DevScreen";
 import MergeScreen from "./MergeScreen";
 import { StatusContext } from "./StatusContext";
-import { MultiplayerScenarioContext } from "./MultiplayerScenarioContext";
 import { taskpaneStatus, mergeState } from "../../constants";
 import { sagaProjectJSON } from "../../saga/sagaUtils";
-import { turnSyncOnAndUnpause }from "../../saga/sync";
+import { turnSyncOn }from "../../saga/sync";
 
 import './App.css';
 
@@ -33,8 +32,7 @@ export default class App extends React.Component {
       sheetDiffs: null,
       safetyCommit: null,
       safetyBranch: null,
-      branch: "personal",
-      scenario: null
+      branch: "personal"
     };
 
     this.setStep = this.setStep.bind(this);
@@ -62,7 +60,7 @@ export default class App extends React.Component {
         this.setEmail(projectObj["email"]);
         this.setTaskpaneStatus(taskpaneStatus.SHARE);
         // Turn syncing if there is a saga project
-        turnSyncOnAndUnpause();
+        turnSyncOn();
       }
     }
   }
@@ -124,12 +122,6 @@ export default class App extends React.Component {
     });
   }
 
-  setScenario = (scenario) => {
-    this.setState({
-      scenario: scenario
-    });
-  }
-
   render() {
     const { title, isOfficeInitialized } = this.props;
 
@@ -153,6 +145,8 @@ export default class App extends React.Component {
     }
 
     var toReturn;
+    
+
 
     switch(this.state.taskpaneStatus) {
       case taskpaneStatus.DEVELOPMENT:
@@ -208,9 +202,7 @@ export default class App extends React.Component {
     
     return (
       <StatusContext.Provider value={{status: this.state.taskpaneStatus, setStatus: this.setTaskpaneStatus}}>
-        <MultiplayerScenarioContext.Provider value={{scenario: this.state.scenario, setScenario: this.setScenario}}>
-          {toReturn}
-        </MultiplayerScenarioContext.Provider>
+        {toReturn}
       </StatusContext.Provider>
     )
   }  
