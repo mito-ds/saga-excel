@@ -11,7 +11,7 @@
   <SupportUrl DefaultValue="https://www.sagacollab.com"/>
   <AppDomains>
     <AppDomain>sagacollab.com</AppDomain>
-    <AppDomain>https://localhost:3000/taskpane.html</AppDomain>
+    <AppDomain>https://localhost:3000</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Workbook"/>
