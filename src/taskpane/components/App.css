@@ -72,6 +72,7 @@
     padding-right: 0vw;
     overflow-wrap: break-word;
     flex-grow: 1;
+    vertical-align: middle;
 }
 
 .new-project-text-div {
