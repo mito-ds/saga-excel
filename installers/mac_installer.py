@@ -42,34 +42,42 @@ def remove(paths):
 
 
 
-def main():
+def create_mac_installer():
+    """
+    Creates, signs, and staples a notarization to a installer for Mac.
 
-    # If you change any, don't forget to change them in the gitignore too!
-    install_scripts_folder = "saga-installer/"
-    intermediate_install_package = "./InstallScripts.pkg"
-    distribution_plist = "./distribution.plist"
-    install_package = "./Saga.pkg"
-    signed_installer_package = "SagaInstaller.pkg"
+    All of the intermediate build information is created in build/intermediate/mac,
+    and then is deleted at the end of this function.
+    """
 
-    # First, we remove all the old packages that might be hanging around
-    remove([
-        install_scripts_folder, 
-        intermediate_install_package, 
-        distribution_plist, 
-        install_package, 
-        signed_installer_package
-    ])
+    intermediate_build_folder = "./dist/intermediate"
+    intermediate_build_folder_mac = "./dist/intermediate/mac"
 
-    print("Copying over the current manifest for the install scripts...")
+    # Clean up any intermediate paths
+    if os.path.exists(intermediate_build_folder):
+        shutil.rmtree(intermediate_build_folder)
+
+    os.mkdir(intermediate_build_folder)
+    os.mkdir(intermediate_build_folder_mac)
+
+
+    # Save the file names of the intermediate and final files
+    install_scripts_folder = f"{intermediate_build_folder_mac}/saga-installer"
+    intermediate_install_package = f"{intermediate_build_folder_mac}/InstallScripts.pkg"
+    distribution_plist = f"{intermediate_build_folder_mac}/distribution.plist"
+    install_package = f"{intermediate_build_folder_mac}/Saga.pkg"
+    signed_installer_package = "./dist/SagaInstallerMac.pkg"
 
     # read in the current manifest data
-    with open("../manifest.xml", "r") as f:
+    with open("./dist/saga.manifest.xml", "r") as f:
         manifest_data = f.read()
-    
-    manifest_data = manifest_data.replace("localhost:3000", "excel.sagacollab.com");
 
+    if "localhost:3000" in manifest_data:
+        print("Error: localhost in manifest data. Are you building correctly?")
+        exit(1)
+    
     # write it 
-    with open("./templates/preinstall", "r") as f:
+    with open("./mac/templates/preinstall", "r") as f:
         preinstall_data = str(Template(f.read()).safe_substitute(manifest=manifest_data))
         os.mkdir(install_scripts_folder)
         with open(os.path.join(install_scripts_folder, "preinstall"), "w+") as preinstall_f:
@@ -89,10 +97,10 @@ def main():
     print("Building the package...")
 
     # Build the package with 
-    run_process_exit_on_error(
+    out, err = run_process_exit_on_error(
         [
             "pkgbuild", 
-            "--scripts", "saga-installer/",
+            "--scripts", install_scripts_folder,
             "--nopayload",
             "--identifier", "saga-vcs",
             intermediate_install_package
@@ -134,7 +142,7 @@ def main():
     # Read in the saved apple developer credentials
     # NOTE: password must be a app-specific password, rather than 
     # your actual sign in credentials.
-    with open('secrets.txt', 'r') as f:
+    with open('./mac/secrets.txt', 'r') as f:
         username = f.readline().strip()
         password = f.readline().strip()
 
@@ -179,6 +187,3 @@ def main():
             signed_installer_package
         ]
     )
-
-if __name__ == "__main__":
-    main()
