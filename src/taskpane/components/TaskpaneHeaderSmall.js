@@ -2,6 +2,7 @@ import * as React from "react";
 import './TaskpaneHeaderSmall.css';
 
 
+
 /* global */
 
 export default class TaskpaneHeaderLarge extends React.Component {

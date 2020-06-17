@@ -16,6 +16,7 @@ import { sagaProjectJSON } from "../../saga/sagaUtils";
 import { turnSyncOnAndUnpause }from "../../saga/sync";
 
 import './App.css';
+import './CssReset.css';
 
 /* global Office */
 
