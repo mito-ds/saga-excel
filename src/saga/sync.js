@@ -66,7 +66,8 @@ export async function getUpdateFromServer(project, remoteURL, headCommitID, pare
       params: {
         id: id,
         headCommitID: headCommitID,
-        parentCommitID: parentCommitID
+        parentCommitID: parentCommitID,
+        cacheBuster: new Date().getTime()
       }
     }
   );
@@ -129,7 +130,8 @@ export async function updateShared(context) {
         params: {
           id: id,
           headCommitID: headCommitID,
-          parentCommitID: parentCommitID
+          parentCommitID: parentCommitID,
+          cacheBuster: new Date().getTime()
         }
       }
     );
