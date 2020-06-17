@@ -146,6 +146,8 @@ def create_mac_installer():
         username = f.readline().strip()
         password = f.readline().strip()
 
+    print(username, password)
+
     # Send the .pkg to apple to run 
     print("Starting notarization...")
     out, err = run_process_exit_on_error(
@@ -170,8 +172,8 @@ def create_mac_installer():
                 "-p", password
             ]
         )
+        print(out)
         status_line = list(filter(lambda l: "Status" in l, out.split("\n")))[0]
-        print(status_line)
         if "in progress" in status_line:
             print(".", end='', flush=True)
             time.sleep(30)
@@ -181,9 +183,10 @@ def create_mac_installer():
     print(f"\nResponse is: {status_line}")
 
     # Then, we try and stable this notarization onto the signed package
-    run_process_exit_on_error(
+    out = run_process_exit_on_error(
         [
             "xcrun", "stapler", "staple",
             signed_installer_package
         ]
     )
+    print(out)
