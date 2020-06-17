@@ -21,7 +21,7 @@
 .scrollable-div {
     position: relative;
     overflow: auto;
-    height: 60vh;
+    height: 50vh;
 } 
 
 .batch-toggle-div {
