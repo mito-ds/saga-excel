@@ -162,7 +162,8 @@ async function createFromURL(context, url, email) {
       params: {
         id: id,
         headCommitID: ``,
-        parentCommitID: ``
+        parentCommitID: ``,
+        cacheBuster: new Date().getTime()
       }
     }
   );
