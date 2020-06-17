@@ -5,6 +5,7 @@
 .title-subtext-div {
     position: relative;
     text-align: center;
+    margin-top: 10vh;
 }
 
 .title-subtext {
@@ -20,7 +21,7 @@
 .scrollable-div {
     position: relative;
     overflow: auto;
-    height: 60vh;
+    height: 50vh;
 } 
 
 .batch-toggle-div {

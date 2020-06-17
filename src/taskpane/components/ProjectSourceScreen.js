@@ -82,7 +82,7 @@ export default class LoginScreen extends React.Component {
                     </div>
                 </div>
                 <div className="card-div">   
-                    <p className="creation-option">Or, download an existing Saga project </p>     
+                    <p className="creation-option">Download existing Saga project </p>     
                     <div className="floating-card">
                         <div className="new-project-text-div"> 
                             <p className="new-project-text subtext center">Enter the url of an existing Saga project </p>

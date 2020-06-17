@@ -1,0 +1,17 @@
+.project-link-input {
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+    background-color: var(--form-input-color);
+    width: 70vw;
+    height: 3vh;
+    border-radius: 4px;
+    color: var(--dark-grey-color);
+    font-size: 14px;
+    font-weight: normal;
+    border-radius: 4px;
+
+}
+
+.clipboard {
+    margin-right: 5vw;
+}

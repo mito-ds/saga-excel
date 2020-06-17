@@ -1,6 +1,6 @@
 :root {
     --light-grey-color: #F3F3F3;
-    --dark-grey-color: #8E8D8A;
+    --dark-grey-color: #202020;
     --form-input-color: #E3E3E3;
     --saga-red-color: #E98074;
     --faded-saga-red-color: rgba(233, 128, 116, 0.44);
@@ -15,20 +15,6 @@
 .content {
     flex: 1 0 auto;
     padding: 10px;
-}
-
-.header {
-    margin-top: 5vh;
-    text-align: center;
-}
-
-.saga-logo {
-    margin: auto;
-    display: block;
-}
-
-.title-text {
-    font-size: 25px;
 }
 
 .forked-resolution-text-div {
@@ -48,6 +34,7 @@
 .card-div {
     margin-left: 5vw;
     margin-right: 5vw;
+    margin-bottom: 2vh;
     overflow-wrap: break-word;
 }
 
@@ -60,7 +47,8 @@
 .creation-option {
     font-size: 18px;
     font-weight: bold;
-    color: black
+    color: var(--dark-grey-color);
+    margin-bottom: 1vh;
 }
 
 .create-project-card {
@@ -84,6 +72,7 @@
     padding-right: 0vw;
     overflow-wrap: break-word;
     flex-grow: 1;
+    vertical-align: middle;
 }
 
 .new-project-text-div {
@@ -98,8 +87,9 @@
 
 .subtext {
     color: var(--dark-grey-color);
-    font-weight: bold;
+    font-weight: normal;
     font-size: 14px;
+    line-height: 16px;
 }
 
 .form {
@@ -114,9 +104,9 @@
 }
 
 .input {
-    color: var(--saga-red-color);
+    color: var(--dark-grey-color);
     font-size: 14px;
-    font-weight: bold;
+    font-weight: normal;
     border-radius: 4px;
     width: 50vw;
     height: 3vh;
@@ -163,19 +153,6 @@
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
   }
-
-.project-link-div {
-    margin-top: 2vh;
-    margin-bottom: 2vh;
-    background-color: var(--form-input-color);
-    width: 60vw;
-    height: 3vh;
-    border-radius: 4px;
-}
-
-.clipboard {
-    margin-right: 10vw;
-}
 
 .merge-result-text {
     padding-left:3vw;
