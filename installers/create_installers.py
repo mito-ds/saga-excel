@@ -26,7 +26,8 @@ def main():
 
     # Next, we build the PC installer
     print("Creating an installer for Windows:")
-    #create_windows_installer()
+    create_windows_installer()
+    print("Finished!")
 
 
 

@@ -43,38 +43,28 @@ def remove(paths):
 
 
 def create_mac_installer():
-    """
-    Creates, signs, and staples a notarization to a installer for Mac.
 
-    All of the intermediate build information is created in build/intermediate/mac,
-    and then is deleted at the end of this function.
-    """
-
-    intermediate_build_folder = "./dist/intermediate"
-    intermediate_build_folder_mac = "./dist/intermediate/mac"
-
-    # Clean up any intermediate paths
-    if os.path.exists(intermediate_build_folder):
-        shutil.rmtree(intermediate_build_folder)
-
-    os.mkdir(intermediate_build_folder)
-    os.mkdir(intermediate_build_folder_mac)
-
-
-    # Save the file names of the intermediate and final files
-    install_scripts_folder = f"{intermediate_build_folder_mac}/saga-installer"
-    intermediate_install_package = f"{intermediate_build_folder_mac}/InstallScripts.pkg"
-    distribution_plist = f"{intermediate_build_folder_mac}/distribution.plist"
-    install_package = f"{intermediate_build_folder_mac}/Saga.pkg"
+    # If you change any, don't forget to change them in the gitignore too!
+    install_scripts_folder = "./dist/saga-installer/"
+    intermediate_install_package = "./dist/InstallScripts.pkg"
+    distribution_plist = "./dist/distribution.plist"
+    install_package = "./dist/Saga.pkg"
     signed_installer_package = "./dist/SagaInstallerMac.pkg"
+
+    # First, we remove all the old packages that might be hanging around
+    remove([
+        install_scripts_folder, 
+        intermediate_install_package, 
+        distribution_plist, 
+        install_package, 
+        signed_installer_package
+    ])
+
+    print("Copying over the current manifest for the install scripts...")
 
     # read in the current manifest data
     with open("./dist/saga.manifest.xml", "r") as f:
         manifest_data = f.read()
-
-    if "localhost:3000" in manifest_data:
-        print("Error: localhost in manifest data. Are you building correctly?")
-        exit(1)
     
     # write it 
     with open("./mac/templates/preinstall", "r") as f:
@@ -97,7 +87,7 @@ def create_mac_installer():
     print("Building the package...")
 
     # Build the package with 
-    out, err = run_process_exit_on_error(
+    run_process_exit_on_error(
         [
             "pkgbuild", 
             "--scripts", install_scripts_folder,
@@ -146,8 +136,6 @@ def create_mac_installer():
         username = f.readline().strip()
         password = f.readline().strip()
 
-    print(username, password)
-
     # Send the .pkg to apple to run 
     print("Starting notarization...")
     out, err = run_process_exit_on_error(
@@ -172,8 +160,8 @@ def create_mac_installer():
                 "-p", password
             ]
         )
-        print(out)
         status_line = list(filter(lambda l: "Status" in l, out.split("\n")))[0]
+        print(status_line)
         if "in progress" in status_line:
             print(".", end='', flush=True)
             time.sleep(30)
@@ -183,10 +171,12 @@ def create_mac_installer():
     print(f"\nResponse is: {status_line}")
 
     # Then, we try and stable this notarization onto the signed package
-    out = run_process_exit_on_error(
+    run_process_exit_on_error(
         [
             "xcrun", "stapler", "staple",
             signed_installer_package
         ]
     )
-    print(out)
+
+if __name__ == "__main__":
+    main()
