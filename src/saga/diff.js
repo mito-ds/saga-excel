@@ -4,7 +4,6 @@ import Project from "./Project";
 import { getSheetNamePairs, removePrefix, findInsertedSheets, findDeletedSheets, findModifiedSheets } from "./diffUtils";
 import { changeType } from '../constants';
 import {ValueWrapper} from "./mergeUtils";
-import { commit } from './commit';
 
 // find all of the changes between two 2D array representations of a sheets
 export function simpleDiff2D(initialValue, finalValues) {
