@@ -23,7 +23,7 @@ app.use(function(req, res, next) {
 // Serve all the assets for the add-in
 app.use(express.static(path.join(__dirname, 'dist')));
 
-app.use("/difference", express.static(path.join(__dirname, 'dist_difference')));
+app.use("/diff", express.static(path.join(__dirname, 'dist:diff')));
 
 app.get("/project/:id", (req, res) => {
     res.redirect("https://sagacollab.com/instructions");
