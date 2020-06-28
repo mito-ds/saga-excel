@@ -46,7 +46,6 @@
                   <bt:Image size="32" resid="Icon.32x32"/>
                   <bt:Image size="80" resid="Icon.80x80"/>
                 </Icon>
-                <!--Merge Buttion-->
                 <Control xsi:type="Button" id="MergeButton">
                   <Label resid="MergeButton.Label"/>
                   <Supertip>
@@ -62,7 +61,6 @@
                     <FunctionName>merge</FunctionName>
                   </Action>
                 </Control>
-                <!--Catch Up Buttion-->
                 <Control xsi:type="Button" id="CatchUpButton">
                   <Label resid="CatchUpButton.Label"/>
                   <Supertip>
@@ -78,7 +76,6 @@
                     <FunctionName>catchUp</FunctionName>
                   </Action>
                 </Control>
-                <!--Switch Version Button-->
                 <Control xsi:type="Button" id="VersionButton">
                   <Label resid="VersionButton.Label"/>
                   <Supertip>
@@ -94,7 +91,6 @@
                     <FunctionName>switchVersion</FunctionName>
                   </Action>
                 </Control>
-                <!--Reset Personal Version Icon-->
                 <Control xsi:type="Button" id="ResetPersonalButton">
                   <Label resid="ResetPersonalButton.Label"/>
                   <Supertip>
@@ -110,7 +106,6 @@
                     <FunctionName>resetPersonalVersion</FunctionName>
                   </Action>
                 </Control>
-                <!--Share Project-->
                 <Control xsi:type="Button" id="ShareProjectButton">
                   <Label resid="ShareProjectButton.Label"/>
                   <Supertip>
@@ -126,7 +121,6 @@
                     <FunctionName>openShareTaskpane</FunctionName>
                   </Action>
                 </Control>
-                <!--Create Saga Button-->
                 <Control xsi:type="Button" id="TaskpaneButton">
                   <Label resid="TaskpaneButton.Label"/>
                   <Supertip>

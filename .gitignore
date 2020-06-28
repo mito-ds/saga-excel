@@ -11,11 +11,15 @@
 *secrets.txt
 
 # Store none of the build assets for the installer
-installer_scripts/saga-installer/
-installer_scripts/InstallScripts.pkg
-installer_scripts/distribution.plist
-installer_scripts/Saga.pkg
-installer_scripts/SagaInstaller.pkg
+installers/saga-installer/
+installers/InstallScripts.pkg
+installers/distribution.plist
+installers/Saga.pkg
+installers/SagaInstaller.pkg
 
-# Or the build assets for the frontend
+# Also none of the built assets
 dist
+installers/dist
+
+# And none of those pesky python caches
+*__pycache__

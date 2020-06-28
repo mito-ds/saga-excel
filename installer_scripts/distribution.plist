@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <pkg-ref id="saga-vcs"/>
+    <options customize="never" require-scripts="false"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="saga-vcs"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="saga-vcs" visible="false">
+        <pkg-ref id="saga-vcs"/>
+    </choice>
+    <pkg-ref id="saga-vcs" version="0" onConclusion="none">InstallScripts.pkg</pkg-ref>
+</installer-gui-script>

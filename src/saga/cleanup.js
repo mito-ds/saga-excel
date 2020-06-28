@@ -29,7 +29,7 @@ async function safeSyncLoop(context, arr, operation) {
 async function cleanup(context) {
     const sheets = await getSheetsWithNames(context);
 
-    await safeSyncLoop(context, sheets.slice(1), (sheet) => {sheet.delete()});
+    await safeSyncLoop(context, sheets.slice(1), (sheet) => {sheet.delete();});
     sheets[0].name = "saga-tmp"; 
     await createSheet(context, "Sheet1", Excel.SheetVisibility.visible); 
     sheets[0].delete(); 
