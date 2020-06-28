@@ -1,5 +1,7 @@
 # Saga Excel Addin
 
+# DEPRICATED: Moved into monorepo at commit hash 6764dd577561b59d439ac4079dc6e587c78e7cc1
+
 This repository contains the WIP source code for the Saga Excel Addin. This addin will provide git-style version control to Excel users. Currently, it's pre-pre alpha; don't use it to manage things you care about!
 
 ## Running the addin
